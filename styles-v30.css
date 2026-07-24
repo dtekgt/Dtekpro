@@ -1888,3 +1888,19 @@
   .cinema-how-inner{padding:0 20px}
   .cinema-how-grid{grid-template-columns:1fr}
 }
+
+/* ==========================================================================
+   D-TEK v31 · Catálogo de servicios — descripción corta + "Ver qué incluye"
+   ========================================================================== */
+.selector-service-extra{
+  padding:0 20px 16px 42px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:14px;
+  flex-wrap:wrap;
+}
+.selector-service-extra p{margin:0;color:rgba(255,255,255,.55);font-size:12.5px;line-height:1.4;max-width:520px}
+.selector-service-extra .selector-service-detail-link{flex:none;color:var(--f1-red-hot);font-size:12px;font-weight:700;white-space:nowrap;text-decoration:none}
+.selector-service-extra .selector-service-detail-link:hover{text-decoration:underline}
+@media(max-width:640px){.selector-service-extra{padding-left:25px}}

@@ -20,11 +20,16 @@
     const action = booking
       ? `<button type="button" class="selector-service-pick ${selected ? "selected" : ""}" data-agenda-service="${esc(service.id)}" aria-pressed="${selected}">${selected ? "Quitar" : "Agregar"}</button>`
       : `<a class="selector-service-pick" href="agenda.html?servicio=${encodeURIComponent(service.id)}">Agendar</a>`;
+    const showDetail = !booking && !compact && service.short;
+    const detail = showDetail
+      ? `<div class="selector-service-extra"><p>${esc(service.short)}</p><a class="selector-service-detail-link" href="${serviceUrl(service.id)}">Ver qué incluye →</a></div>`
+      : "";
     return `<article class="selector-service-row ${compact ? "compact" : ""} ${selected ? "selected" : ""} ${service.requiresDescription ? "open-request" : ""}" data-service-name="${esc(`${service.name} ${service.category}`.toLowerCase())}">
       <div class="selector-service-toggle selector-service-direct">
         <span class="selector-service-main"><strong>${esc(service.name)}</strong></span>
         <span class="selector-service-facts"><b>${esc(service.price)}</b><small>${esc(service.durationMinutes || 60)} min</small><em>+${estimatedPoints(service)} pts</em>${action}</span>
       </div>
+      ${detail}
     </article>`;
   }
 
