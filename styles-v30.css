@@ -1957,3 +1957,64 @@
   letter-spacing:.12em;
   text-transform:uppercase;
 }
+
+/* ==========================================================================
+   D-TEK v31 · Panel del mecánico — citas por urgencia + modal de reporte
+   ========================================================================== */
+.page-admin-v31 .admin-urgency-group{margin-top:22px}
+.page-admin-v31 .admin-urgency-group:first-child{margin-top:0}
+.page-admin-v31 .admin-urgency-heading{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  margin:0 0 10px;
+  color:rgba(255,255,255,.5);
+  font-size:11px;
+  font-weight:700;
+  letter-spacing:.1em;
+  text-transform:uppercase;
+}
+.page-admin-v31 .admin-urgency-heading b{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  min-width:18px;
+  padding:1px 6px;
+  border-radius:999px;
+  color:#fff;
+  font-size:10px;
+  background:rgba(227,32,37,.28);
+}
+
+.page-admin-v31 .admin-modal-backdrop{
+  position:fixed;
+  inset:0;
+  z-index:400;
+  display:grid;
+  place-items:center;
+  padding:20px;
+  background:rgba(3,4,5,.72);
+  backdrop-filter:blur(6px);
+}
+.page-admin-v31 .admin-modal-backdrop.hidden-field{display:none}
+.page-admin-v31 .admin-modal-panel{
+  width:min(560px,100%);
+  max-height:88vh;
+  overflow:auto;
+  display:grid;
+  gap:14px;
+  padding:26px;
+}
+.page-admin-v31 .admin-modal-head{display:flex;align-items:flex-start;justify-content:space-between;gap:16px}
+.page-admin-v31 .admin-modal-head h2{margin:6px 0 4px;font-size:22px}
+.page-admin-v31 .admin-modal-close{
+  min-width:32px;
+  min-height:32px;
+  border-radius:999px;
+  border:1px solid rgba(255,255,255,.14);
+  background:rgba(255,255,255,.05);
+  color:#fff;
+  font-size:16px;
+  line-height:1;
+}
+.page-admin-v31 .admin-modal-actions{display:grid;grid-template-columns:.5fr 1fr;gap:10px;margin-top:4px}

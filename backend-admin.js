@@ -207,10 +207,34 @@ function renderRedemptionsList(items) {
   holder.innerHTML = items.length ? items.map(redemptionCard).join("") : `<p class="memory-empty">No hay canjes.</p>`;
 }
 
+function availableStatusActions(status) {
+  const transitions = {
+    requested: [["confirmed", "Confirmar"], ["cancelled", "Cancelar"]],
+    confirmed: [["completed", "Realizada"], ["cancelled", "Cancelar"]],
+    completed: [],
+    cancelled: []
+  };
+  return transitions[status] || transitions.requested;
+}
+
+function appointmentUrgencyGroup(item, now = new Date()) {
+  const start = item.scheduled_start ? new Date(item.scheduled_start) : null;
+  if (!start || Number.isNaN(start.getTime())) return "later";
+  const startDay = new Date(start.getFullYear(), start.getMonth(), start.getDate());
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const diffDays = Math.round((startDay - today) / 86400000);
+  if (diffDays <= 0) return "today";
+  if (diffDays <= 7) return "soon";
+  return "later";
+}
+
 function appointmentCard(item) {
   const serviceName = item.service_name || item.service_id || "Servicio";
   const vehicleSummary = item.vehicle_summary || [item.vehicle_brand, item.vehicle_line, item.vehicle_year].filter(Boolean).join(" ") || "Vehículo sin datos";
   const status = item.status || "requested";
+  const statusButtons = availableStatusActions(status)
+    .map(([value, label]) => `<button type="button" data-backend-status="${adminSafe(value)}" data-id="${adminSafe(item.id)}">${adminSafe(label)}</button>`)
+    .join("");
   return `
     <article class="memory-item ${adminSafe(status)}">
       <div class="memory-item-main">
@@ -228,9 +252,7 @@ function appointmentCard(item) {
         <div><span>Fuente</span><strong>${adminSafe(item.source || "web")}</strong></div>
       </div>
       <div class="memory-actions">
-        <button type="button" data-backend-status="confirmed" data-id="${adminSafe(item.id)}">Confirmar</button>
-        <button type="button" data-backend-status="completed" data-id="${adminSafe(item.id)}">Realizada</button>
-        <button type="button" data-backend-status="cancelled" data-id="${adminSafe(item.id)}">Cancelar</button>
+        ${statusButtons}
         <button type="button" data-workorder-report="${adminSafe(item.id)}">Reporte técnico</button>
         <a class="wa-action" href="${adminSafe(dtekWhatsAppClientLink(item))}" target="_blank" rel="noopener noreferrer">WhatsApp</a>
       </div>
@@ -256,7 +278,19 @@ function renderAppointmentsList(items) {
   const holder = adminQs("#backendAppointments");
   if (!holder) return;
   const filtered = dtekAdminFilter === "all" ? items : items.filter((item) => (item.status || "requested") === dtekAdminFilter);
-  holder.innerHTML = filtered.length ? filtered.map(appointmentCard).join("") : `<p class="memory-empty">No hay citas para este filtro.</p>`;
+  const sorted = [...filtered].sort((a, b) => new Date(a.scheduled_start || 0) - new Date(b.scheduled_start || 0));
+  const groups = { today: [], soon: [], later: [] };
+  sorted.forEach((item) => groups[appointmentUrgencyGroup(item)].push(item));
+  const sections = [
+    ["today", "Hoy y atrasadas"],
+    ["soon", "Próximas (7 días)"],
+    ["later", "Más adelante"]
+  ].filter(([key]) => groups[key].length).map(([key, label]) => `
+    <div class="admin-urgency-group">
+      <h3 class="admin-urgency-heading">${label}<b>${groups[key].length}</b></h3>
+      ${groups[key].map(appointmentCard).join("")}
+    </div>`).join("");
+  holder.innerHTML = sorted.length ? sections : `<p class="memory-empty">No hay citas para este filtro.</p>`;
 }
 
 async function getAdminProfileOrExplain() {
@@ -357,37 +391,72 @@ async function refreshAllAdminData() {
   await loadBlockedTimes();
 }
 
-async function promptAndSaveWorkOrderReport(appointmentId) {
+let dtekWorkOrderAppointmentId = null;
+
+function openWorkOrderModal(appointmentId) {
+  const modal = adminQs("#workOrderModal");
+  const form = adminQs("#workOrderForm");
+  if (!modal || !form) return;
   const appointment = dtekAdminAppointmentsCache.find(item => String(item.id) === String(appointmentId));
-  const diagnosis = prompt("Diagnóstico / hallazgo principal:", "") || "";
-  const recommendations = prompt("Recomendaciones para el cliente:", "") || "";
-  const partsNotes = prompt("Repuestos / materiales / notas:", "") || "";
-  const laborTotal = prompt("Total mano de obra en Q (opcional):", "") || "";
-  const partsTotal = prompt("Total repuestos/materiales en Q (opcional):", "") || "";
-  const status = prompt("Estado de la orden: open, quoted, approved, completed, cancelled", "completed") || "completed";
+  dtekWorkOrderAppointmentId = appointmentId;
+  const subtitle = adminQs("#workOrderModalSubtitle");
+  if (subtitle) {
+    subtitle.textContent = appointment
+      ? `${appointment.service_name || appointment.service_id || "Servicio"} · ${appointment.client_name || "Cliente"}`
+      : "";
+  }
+  form.reset();
+  adminQs("#workOrderStatus").value = "completed";
+  adminQs("#workOrderStatusBox").innerHTML = "";
+  modal.classList.remove("hidden-field");
+  adminQs("#workOrderDiagnosis")?.focus();
+}
 
-  const saved = await withTimeout(DtekBackend.saveWorkOrderReport({
-    appointment_id: appointmentId,
-    diagnosis,
-    recommendations,
-    parts_notes: partsNotes,
-    labor_total: laborTotal,
-    parts_total: partsTotal,
-    status
-  }), 10000, "guardar reporte técnico");
+function closeWorkOrderModal() {
+  adminQs("#workOrderModal")?.classList.add("hidden-field");
+  dtekWorkOrderAppointmentId = null;
+}
 
-  await dtekSendZapierEvent("work_order_updated", {
-    appointmentId,
-    appointment,
-    workOrder: saved
-  });
-
-  alert("Reporte técnico guardado. El cliente podrá verlo en el historial del vehículo si la cita está asociada al carro.");
+async function submitWorkOrderReport(event) {
+  event.preventDefault();
+  const appointmentId = dtekWorkOrderAppointmentId;
+  const statusBox = adminQs("#workOrderStatusBox");
+  if (!appointmentId) {
+    if (statusBox) statusBox.innerHTML = `<p class="status-error">No hay una cita seleccionada.</p>`;
+    return;
+  }
+  try {
+    if (statusBox) statusBox.innerHTML = `<p class="status-info">Guardando reporte...</p>`;
+    const appointment = dtekAdminAppointmentsCache.find(item => String(item.id) === String(appointmentId));
+    const payload = {
+      appointment_id: appointmentId,
+      diagnosis: adminQs("#workOrderDiagnosis").value.trim(),
+      recommendations: adminQs("#workOrderRecommendations").value.trim(),
+      parts_notes: adminQs("#workOrderPartsNotes").value.trim(),
+      labor_total: adminQs("#workOrderLaborTotal").value,
+      parts_total: adminQs("#workOrderPartsTotal").value,
+      status: adminQs("#workOrderStatus").value
+    };
+    const saved = await withTimeout(DtekBackend.saveWorkOrderReport(payload), 10000, "guardar reporte técnico");
+    await dtekSendZapierEvent("work_order_updated", { appointmentId, appointment, workOrder: saved });
+    if (statusBox) statusBox.innerHTML = `<p class="status-ok">Reporte guardado. El cliente lo verá en el historial de su vehículo.</p>`;
+    await refreshAllAdminData();
+    setTimeout(closeWorkOrderModal, 900);
+  } catch (error) {
+    if (statusBox) statusBox.innerHTML = `<p class="status-error">${adminSafe(error.message)}</p>`;
+  }
 }
 
 async function initBackendAdmin() {
   renderBackendSystemStatus();
   await refreshAllAdminData();
+
+  adminQs("#workOrderForm")?.addEventListener("submit", submitWorkOrderReport);
+  adminQs("#workOrderModalClose")?.addEventListener("click", closeWorkOrderModal);
+  adminQs("#workOrderModalCancel")?.addEventListener("click", closeWorkOrderModal);
+  adminQs("#workOrderModal")?.addEventListener("click", (event) => {
+    if (event.target.id === "workOrderModal") closeWorkOrderModal();
+  });
 
   adminQs("#backendLoginForm")?.addEventListener("submit", async (event) => {
     event.preventDefault();
@@ -519,12 +588,7 @@ async function initBackendAdmin() {
 
     const reportBtn = event.target.closest("[data-workorder-report]");
     if (reportBtn) {
-      try {
-        await promptAndSaveWorkOrderReport(reportBtn.dataset.workorderReport);
-        await refreshAllAdminData();
-      } catch (error) {
-        alert(error.message);
-      }
+      openWorkOrderModal(reportBtn.dataset.workorderReport);
       return;
     }
 
