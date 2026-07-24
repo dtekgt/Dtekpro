@@ -1904,3 +1904,27 @@
 .selector-service-extra .selector-service-detail-link{flex:none;color:var(--f1-red-hot);font-size:12px;font-weight:700;white-space:nowrap;text-decoration:none}
 .selector-service-extra .selector-service-detail-link:hover{text-decoration:underline}
 @media(max-width:640px){.selector-service-extra{padding-left:25px}}
+
+/* ==========================================================================
+   D-TEK v31 · Agenda — total persistente en el resumen + campos obligatorios
+   ========================================================================== */
+.booking-summary-v25 .summary-total{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  margin-bottom:16px;
+  padding:14px 16px;
+  border:1px solid rgba(227,32,37,.28);
+  border-radius:14px;
+  background:rgba(227,32,37,.08);
+}
+.booking-summary-v25 .summary-total span{color:rgba(255,255,255,.6);font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em}
+.booking-summary-v25 .summary-total strong{color:#fff;font-size:16px;font-weight:650}
+.booking-summary-v25 .summary-total.is-empty{border-color:rgba(255,255,255,.14);background:rgba(255,255,255,.03)}
+.booking-summary-v25 .summary-total.is-empty strong{color:rgba(255,255,255,.5);font-weight:500;font-size:13px}
+
+.req-mark{color:var(--f1-red-hot);font-style:normal;margin-left:1px}
+.optional-mark{color:rgba(255,255,255,.4);font-size:11px;font-style:normal;font-weight:500;text-transform:none;letter-spacing:0;margin-left:4px}
+.confirm-required-note{margin:10px 2px 0;color:rgba(255,255,255,.45);font-size:11.5px}
+.confirm-required-note .req-mark{margin-left:0;margin-right:2px}

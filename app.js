@@ -1270,6 +1270,7 @@ function updateAgendaSummary() {
 
   holder.innerHTML = `
     <div class="summary-logo"><img src="assets/logo-dtek.png" alt="D-TEK GT"><strong>D-TEK GT</strong></div>
+    <div class="summary-total ${serviceComplete ? "" : "is-empty"}"><span>Total estimado</span><strong>${safeText(data.price)}</strong></div>
     <div class="summary-block summary-choice-list">
       <h3>Tu solicitud</h3>
       ${choice(1, "Carro", vehicleText, vehicleComplete, data.vehicleId ? "Guardado en Garage" : "", vehicleText ? "Falta completar" : "Falta elegir")}

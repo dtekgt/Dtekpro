@@ -73,13 +73,14 @@
         <div class="booking-step-head-v25"><span>Paso 4</span><h2>Revisá y confirmá</h2></div>
         <div id="smartProfileBanner" class="smart-profile-banner hidden-field"></div>
         <div class="confirm-grid-v25">
-          <label><span>Nombre</span><input id="clientName" type="text" required autocomplete="name"></label>
-          <label><span>Teléfono</span><input id="clientPhone" type="tel" required autocomplete="tel" placeholder="+502..."></label>
-          <label><span>Correo</span><input id="clientEmail" type="email" required autocomplete="email"></label>
-          <label><span>Zona / municipio</span><input id="clientCity" type="text" required placeholder="Zona 10, Mixco..."></label>
-          <label class="full"><span>Dirección / referencia</span><input id="clientAddress" type="text" required></label>
-          <label class="full"><span>Síntoma o comentario</span><textarea id="clientComments" rows="3" placeholder="Contanos lo más importante..."></textarea></label>
+          <label><span>Nombre <b class="req-mark" aria-hidden="true">*</b></span><input id="clientName" type="text" required autocomplete="name"></label>
+          <label><span>Teléfono <b class="req-mark" aria-hidden="true">*</b></span><input id="clientPhone" type="tel" required autocomplete="tel" placeholder="+502..."></label>
+          <label><span>Correo <b class="req-mark" aria-hidden="true">*</b></span><input id="clientEmail" type="email" required autocomplete="email"></label>
+          <label><span>Zona / municipio <b class="req-mark" aria-hidden="true">*</b></span><input id="clientCity" type="text" required placeholder="Zona 10, Mixco..."></label>
+          <label class="full"><span>Dirección / referencia <b class="req-mark" aria-hidden="true">*</b></span><input id="clientAddress" type="text" required></label>
+          <label class="full"><span>Síntoma o comentario <em class="optional-mark">opcional</em></span><textarea id="clientComments" rows="3" placeholder="Contanos lo más importante..."></textarea></label>
         </div>
+        <p class="confirm-required-note"><b class="req-mark" aria-hidden="true">*</b> Campos obligatorios para confirmar tu cita.</p>
         <div class="booking-step-footer-v25"><button class="public-btn-v25 secondary" type="button" data-booking-back>Atrás</button><button class="public-btn-v25 primary submit-booking" type="submit">Confirmar cita y continuar a WhatsApp</button></div>
         <div id="bookingStatus" class="booking-status" aria-live="polite"></div>
       </section>
