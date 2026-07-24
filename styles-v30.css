@@ -2018,3 +2018,20 @@
   line-height:1;
 }
 .page-admin-v31 .admin-modal-actions{display:grid;grid-template-columns:.5fr 1fr;gap:10px;margin-top:4px}
+
+/* ==========================================================================
+   D-TEK v31 · Referidos — diferenciar formulario público vs Garage
+   ========================================================================== */
+.page-referral-v24 .referral-garage-hint{
+  margin:2px 0 18px;
+  color:rgba(255,255,255,.55);
+  font-size:12.5px;
+  line-height:1.5;
+}
+.page-client-v23 .referral-public-hint{
+  margin:0 0 14px;
+  color:var(--client-muted);
+  font-size:12px;
+  line-height:1.5;
+}
+.page-client-v23 .referral-public-hint a{color:var(--client-red,var(--f1-red-hot));text-decoration:underline}
