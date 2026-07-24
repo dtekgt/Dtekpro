@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>D-TEK GT · Zapier</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <main class="page-shell">
+    <nav class="top-nav dtek-glass-strong">
+      <a class="brand-lockup" href="index.html"><img src="assets/logo-dtek.png" alt="D-TEK GT"><strong>D-TEK <span>GT</span></strong></a>
+      <div class="nav-links"><a href="index.html">Inicio</a><a href="agenda.html">Agenda</a><a href="admin-backend.html">Admin</a></div>
+    </nav>
+    <section class="section-page hero-section">
+      <div class="section-heading left-align">
+        <span class="eyebrow">Automatizaciones</span>
+        <h1>Zapier listo para conectar correos, Sheets y Calendar.</h1>
+        <p>Cuando actives el webhook, D-TEK Web OS enviará eventos al crear citas, cambiar estados y bloquear horarios.</p>
+      </div>
+      <div class="dtek-glass-strong page-card">
+        <h2>Eventos disponibles</h2>
+        <div class="summary-line"><span>Nueva cita</span><strong>appointment_created</strong></div>
+        <div class="summary-line"><span>Estado cambiado</span><strong>appointment_status_updated</strong></div>
+        <div class="summary-line"><span>Bloqueo creado</span><strong>blocked_time_created</strong></div>
+      </div>
+      <div class="dtek-glass-strong page-card">
+        <h2>Configurar</h2>
+        <p class="muted">Pegá la URL de Catch Hook en <code>services-data.js</code> y activá <code>DTEK_ZAPIER_ENABLED = true</code>.</p>
+        <pre><code>window.DTEK_ZAPIER_WEBHOOK_URL = "https://hooks.zapier.com/hooks/catch/XXXX/YYYY";
+window.DTEK_ZAPIER_ENABLED = true;</code></pre>
+      </div>
+    </section>
+  </main>
+</body>
+</html>

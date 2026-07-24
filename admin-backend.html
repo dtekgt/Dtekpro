@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="author" content="D-TEK GT / Dominic Morales" />
+  <meta name="copyright" content="D-TEK GT" />
+  <meta name="application-name" content="D-TEK GT Web OS" />
+  <meta name="theme-color" content="#05080d" />
+  <title>Admin Backend · D-TEK GT</title>
+  <link rel="stylesheet" href="styles.css?v=30.3.3" />
+</head>
+<body>
+  <div class="dtek-bg"><span class="orb orb-red"></span><span class="orb orb-cyan"></span></div>
+  <header class="nav-shell dtek-glass">
+    <a class="brand" href="index.html"><img src="assets/logo-dtek.png" alt="D-TEK GT"><span>D-TEK GT</span></a>
+    <nav class="nav-links">
+      <a href="index.html">Inicio</a>
+      <a href="agenda.html">Agenda pública</a>
+      <a href="admin.html">Admin local</a>
+      <a href="cliente.html">Portal cliente</a>
+    </nav>
+  </header>
+
+  <main class="page-shell">
+    <section class="section hero-compact reveal visible">
+      <span class="eyebrow">D-TEK backend · v30.3.3</span>
+      <h1>Centro de control operativo</h1>
+      <p class="section-lead">Citas, referidos, puntos y canjes.</p>
+    </section>
+
+    <section class="section two-column-grid">
+      <div class="dtek-glass form-card reveal visible">
+        <h2>Acceso admin</h2>
+        <p class="muted">Entrá con el usuario admin creado en Supabase Auth.</p>
+        <form id="backendLoginForm" class="stacked-form">
+          <label>Usuario o correo admin
+            <input id="backendIdentifier" type="text" required placeholder="dominic o tu-correo@dtekgt.com" autocomplete="username" autocapitalize="none" spellcheck="false" />
+          </label>
+          <label>Contraseña
+            <input id="backendPassword" type="password" required placeholder="Contraseña" autocomplete="current-password" />
+          </label>
+          <button class="btn btn-primary" type="submit">Entrar al panel</button>
+          <button class="btn btn-cyan" type="button" id="backendForgotPassword">Olvidé mi contraseña</button>
+          <button class="btn btn-cyan" type="button" id="backendLogout">Cerrar sesión</button>
+        </form>
+        <div id="backendAuthStatus" class="status-box"></div>
+      </div>
+
+      <div class="dtek-glass form-card reveal visible">
+        <h2>Estado del sistema</h2>
+        <div id="backendSystemStatus" class="status-box"></div>
+        <div id="backendMetrics" class="dtek-metrics-grid"></div>
+      </div>
+    </section>
+
+
+    <section class="section dtek-glass reveal visible">
+      <div class="section-head inline-head">
+        <div>
+          <span class="eyebrow">Entrega de perfiles</span>
+          <h2>Crear acceso de cliente</h2>
+          <p class="muted">Dejá listo el usuario, carro y último servicio antes de mandarle sus credenciales.</p>
+        </div>
+      </div>
+      <form id="clientProvisionForm" class="stacked-form dtek-provision-form">
+        <div class="two-column-grid compact-grid">
+          <label>Nombre del cliente *<input id="provisionFullName" type="text" required placeholder="Nombre completo" /></label>
+          <label>WhatsApp *<input id="provisionPhone" type="tel" required placeholder="502XXXXXXXX" /></label>
+          <label>Usuario *<input id="provisionUsername" type="text" required minlength="3" maxlength="30" placeholder="nombre.apellido" autocapitalize="none" /></label>
+          <label>Contraseña temporal *<input id="provisionPassword" type="text" required minlength="6" placeholder="Mínimo 6 caracteres" /></label>
+          <label>Correo <span class="muted">opcional</span><input id="provisionEmail" type="email" placeholder="cliente@email.com" /></label>
+        </div>
+        <div class="section-head"><div><span class="eyebrow">Garage inicial</span><h3>Carro y servicio realizado <span class="muted">opcionales</span></h3></div></div>
+        <div class="two-column-grid compact-grid">
+          <label>Marca<input id="provisionVehicleBrand" type="text" placeholder="Ford" /></label>
+          <label>Línea / modelo<input id="provisionVehicleLine" type="text" placeholder="Focus" /></label>
+          <label>Año<input id="provisionVehicleYear" type="number" min="1950" max="2100" placeholder="2014" /></label>
+          <label>Placa<input id="provisionVehiclePlate" type="text" placeholder="P000ABC" /></label>
+          <label>Kilometraje<input id="provisionVehicleMileage" type="number" min="0" placeholder="142000" /></label>
+          <label>Alias<input id="provisionVehicleNickname" type="text" placeholder="El Focus" /></label>
+          <label>Fecha del servicio<input id="provisionServiceDate" type="date" /></label>
+          <label>Servicio realizado<input id="provisionServiceDescription" type="text" placeholder="Cambio de aceite y revisión general" /></label>
+          <label>Mano de obra<input id="provisionLaborTotal" type="number" min="0" step="0.01" placeholder="0.00" /></label>
+          <label>Repuestos<input id="provisionPartsTotal" type="number" min="0" step="0.01" placeholder="0.00" /></label>
+          <label class="full-span">Recomendaciones<textarea id="provisionServiceRecommendations" rows="3" placeholder="Próximo servicio, pendientes o recomendaciones..."></textarea></label>
+        </div>
+        <button class="btn btn-primary" type="submit">Crear perfil listo para entregar</button>
+      </form>
+      <div id="clientProvisionStatus" class="status-box"></div>
+      <div id="clientProvisionResult" class="dtek-provision-result hidden-field"></div>
+    </section>
+
+    <section class="section dtek-glass reveal visible">
+      <div class="section-head inline-head">
+        <div>
+          <span class="eyebrow">Operación</span>
+          <h2>Citas reales</h2>
+        </div>
+        <div class="admin-toolbar compact-toolbar">
+          <button class="btn btn-cyan" id="backendRefresh" type="button">Actualizar</button>
+          <button class="btn btn-ghost" data-filter-status="all" type="button">Todas</button>
+          <button class="btn btn-ghost" data-filter-status="requested" type="button">Solicitadas</button>
+          <button class="btn btn-ghost" data-filter-status="confirmed" type="button">Confirmadas</button>
+          <button class="btn btn-ghost" data-filter-status="completed" type="button">Realizadas</button>
+          <button class="btn btn-ghost" data-filter-status="cancelled" type="button">Canceladas</button>
+        </div>
+      </div>
+      <div id="backendAppointments" class="admin-list"></div>
+    </section>
+
+
+    <section class="section dtek-glass reveal visible">
+      <div class="section-head inline-head">
+        <div>
+          <span class="eyebrow">Pecera D-TEK</span>
+          <h2>Referidos y puntos</h2>
+          <p class="muted"></p>
+        </div>
+        <div class="admin-toolbar compact-toolbar">
+          <button class="btn btn-cyan" id="backendRefreshReferrals" type="button">Actualizar referidos</button>
+          <button class="btn btn-ghost" data-referral-filter="all" type="button">Todos</button>
+          <button class="btn btn-ghost" data-referral-filter="submitted" type="button">Nuevos</button>
+          <button class="btn btn-ghost" data-referral-filter="scheduled" type="button">Con cita</button>
+          <button class="btn btn-ghost" data-referral-filter="converted" type="button">Convertidos</button>
+        </div>
+      </div>
+      <div id="backendReferralMetrics" class="dtek-metrics-grid referral-admin-metrics"></div>
+      <div id="backendReferrals" class="admin-list"><p class="memory-empty">Iniciá sesión para cargar referidos.</p></div>
+    </section>
+
+    <section class="section dtek-glass reveal visible">
+      <div class="section-head inline-head">
+        <div><span class="eyebrow">D-TEK Puntos</span><h2>Canjes</h2></div>
+        <button class="btn btn-cyan" id="backendRefreshRedemptions" type="button">Actualizar</button>
+      </div>
+      <div id="backendRedemptions" class="admin-list"><p class="memory-empty">Iniciá sesión para cargar canjes.</p></div>
+    </section>
+
+    <section class="section two-column-grid">
+      <div class="dtek-glass form-card reveal visible">
+        <span class="eyebrow">Control de agenda</span>
+        <h2>Bloquear horario</h2>
+        <p class="muted">Usalo para traslados, compras, trabajos externos, almuerzo, emergencias o cualquier espacio que no querés que el cliente pueda tomar.</p>
+        <form id="blockedTimeForm" class="stacked-form">
+          <label>Inicio del bloqueo
+            <input id="blockedStart" type="datetime-local" required />
+          </label>
+          <label>Fin del bloqueo
+            <input id="blockedEnd" type="datetime-local" required />
+          </label>
+          <label>Motivo
+            <input id="blockedReason" type="text" placeholder="Ej: traslado, compra de repuestos, trabajo externo" />
+          </label>
+          <button class="btn btn-primary" type="submit">Crear bloqueo</button>
+        </form>
+        <div id="blockedStatus" class="status-box"></div>
+      </div>
+
+      <div class="dtek-glass form-card reveal visible">
+        <span class="eyebrow">Memoria central</span>
+        <h2>Bloqueos activos</h2>
+        <div id="blockedTimesList" class="admin-list"></div>
+      </div>
+    </section>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="supabase-config.js?v=30.3.3"></script>
+  <script src="supabase-client.js?v=30.3.3"></script>
+  <script src="backend-admin.js?v=30.3.3"></script>
+</body>
+</html>

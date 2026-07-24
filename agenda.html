@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="theme-color" content="#030405">
+<meta name="description" content="Elegí carro, agregá uno o varios servicios y armá tu cotización inicial D-TEK."><link rel="stylesheet" href="styles.css?v=30.3.3"><link rel="stylesheet" href="styles-v30.css?v=30.3.3"><title>Agenda y cotización | D-TEK GT</title>
+</head>
+<body class="page-public-v25 page-agenda page-agenda-v25-pro" data-booking-step="1">
+<header class="public-header-v25"><div class="public-nav-v25">
+  <a class="public-brand-v25" href="index.html"><img src="assets/logo-dtek.png" alt="D-TEK GT"><span><strong>D-TEK GT</strong><small>Mecánica a domicilio</small></span></a>
+  <button class="menu-toggle public-menu-toggle-v25" id="menuToggle" type="button" aria-label="Abrir menú" aria-expanded="false"><span></span><span></span><span></span></button>
+  <nav class="public-links-v25 nav-links" id="navLinks"><a href="index.html">Inicio</a><a href="servicios.html">Servicios</a><a href="compra-segura.html">Compra segura</a><a href="cliente.html">Garage</a><a class="public-nav-cta-v25 active" href="agenda.html">Agendar</a></nav>
+</div></header>
+<main class="public-shell-v25 agenda-shell-v25">
+  <header class="agenda-heading-v25"><span class="public-kicker-v25">Agenda inteligente D-TEK</span><h1>Tu servicio, <em>sin vueltas.</em></h1><p>Elegí el carro, agregá lo que necesita y confirmá una hora disponible.</p></header>
+
+  <div class="booking-progress-v25" id="wizardProgress" aria-label="Progreso">
+    <span class="active" data-progress-step="1"><b>1</b> Carro</span><span data-progress-step="2"><b>2</b> Servicio</span><span data-progress-step="3"><b>3</b> Horario</span><span data-progress-step="4"><b>4</b> Confirmar</span>
+  </div>
+  <p class="booking-progress-caption-v25" id="bookingProgressCaption" aria-live="polite">Paso 1 de 4 · Carro</p>
+
+  <div class="booking-workspace-v25" id="bookingFlow">
+    <form id="agendaForm" class="booking-panel-v25">
+      <section class="booking-step-v25 active" data-booking-step="1">
+        <div class="booking-step-head-v25"><span>Paso 1</span><h2>Tu carro</h2></div>
+        <div id="linkedVehicleBanner" class="linked-vehicle-banner hidden-field"></div>
+        <div class="vehicle-cascade-v25">
+          <label data-cascade-level="brand"><span>Marca</span><select id="vehicleBrand" required><option value="">Elegir marca</option></select></label>
+          <label class="custom-brand-field hidden-field"><span>Otra marca</span><input id="vehicleBrandOther" type="text"></label>
+          <label data-cascade-level="line" class="cascade-hidden"><span>Línea / modelo</span><select id="vehicleLine" required disabled><option value="">Primero elegí marca</option></select></label>
+          <label class="custom-line-field hidden-field"><span>Otra línea</span><input id="vehicleLineOther" type="text"></label>
+          <label data-cascade-level="year" class="cascade-hidden"><span>Año</span><select id="vehicleYear" required><option value="">Elegir año</option></select></label>
+          <label data-cascade-level="engine" class="cascade-hidden"><span>Motor</span><select id="vehicleEngine" required><option value="">Elegir motor</option></select></label>
+          <label class="full cascade-hidden" data-cascade-level="moves"><span>¿Arranca y se mueve?</span><select id="vehicleMoves" required><option value="">Elegir</option><option>Sí, arranca y se mueve</option><option>Arranca pero no se mueve</option><option>No arranca</option><option>No estoy seguro</option></select></label>
+        </div>
+        <div class="booking-step-footer-v25"><a href="cliente.html">Entrar a Garage</a><button class="public-btn-v25 primary" type="button" data-booking-next>Continuar</button></div>
+      </section>
+
+      <section class="booking-step-v25" data-booking-step="2">
+        <div class="booking-step-head-v25"><span>Paso 2</span><h2>¿Qué necesita?</h2></div>
+        <div id="agendaStart" class="agenda-start-v25 agenda-start-compact-v2741">
+          <div class="agenda-service-tabs-v25"><button class="active" type="button" data-agenda-list-mode="services">Por servicio</button><button type="button" data-agenda-list-mode="symptoms">Por síntoma</button><button class="reset-link-v25" type="button" id="resetAgendaChoice">Limpiar</button></div>
+          <p class="agenda-start-summary hidden-field" id="agendaStartSummary"></p>
+          <div class="agenda-list-panel-v25 active" id="agendaServicesListPanel"><div id="agendaCategoryLaunchers" class="agenda-category-launchers-v2741"></div></div>
+          <div class="agenda-list-panel-v25" id="agendaSymptomsListPanel"><div id="agendaSymptomLaunchers" class="agenda-symptom-launchers-v2741"></div></div>
+          <div class="hidden-field"><div class="selector-accordion booking" id="agendaServiceAccordion"></div><div class="selector-accordion booking" id="agendaSymptomAccordion"></div><div class="quick-choice-grid"></div><div id="agendaCategoryPanel"></div><div id="agendaSymptomsPanel"></div><div id="agendaServicePanel"></div></div>
+        </div>
+        <div class="service-picked-banner-v25 compact-v2741" id="selectedServiceBanner"><span>Tu solicitud</span><div class="selected-service-head-v2741"><div><h2>Elegí lo que necesita el carro</h2><p>Podés agregar varios trabajos sin llenar una lista eterna.</p></div><button type="button" id="openServiceBrowser">＋ Agregar otro</button></div><label class="hidden-field">Servicio principal<select id="agendaService" required></select></label></div>
+        <section class="service-builder-v274 service-builder-compact-v2741">
+          <div id="serviceQuoteBuilder" class="service-quote-builder-v274" aria-live="polite"></div>
+          <button class="additional-launcher-v2741" type="button" id="openAddOnPicker"><span><small>Opcional</small><strong>Agregar servicios adicionales</strong><em id="selectedAddOnCount">Filtros, batería, llantas y más</em></span><b>＋</b></button>
+          <label id="otherServiceRequest" class="other-service-request-v274 hidden-field"><span>¿Qué otro servicio o clavo necesitás?</span><textarea id="otherServiceDetails" rows="3" placeholder="Ejemplo: cambiar radiador, revisar fuga, ruido al girar, instalar una pieza..."></textarea><small>No necesitás saber el nombre técnico. Contanos qué querés hacer o qué está pasando.</small></label>
+        </section>
+
+        <div id="servicePickerDialog" class="service-picker-dialog-v2741 hidden-field" role="dialog" aria-modal="true" aria-labelledby="servicePickerTitle">
+          <button class="service-picker-backdrop-v2741" type="button" data-close-service-picker aria-label="Cerrar selector"></button>
+          <section class="service-picker-sheet-v2741">
+            <header class="service-picker-head-v2741"><button id="servicePickerBack" class="service-picker-back-v2741 hidden-field" type="button" aria-label="Regresar">←</button><div><small id="servicePickerEyebrow">Servicios</small><h3 id="servicePickerTitle">Elegí un servicio</h3></div><button class="service-picker-close-v2741" type="button" data-close-service-picker aria-label="Cerrar">×</button></header>
+            <div id="servicePickerBody" class="service-picker-body-v2741"></div>
+            <div id="appointmentAddOns" class="add-ons-grid service-picker-addons-v2741 hidden-field"></div>
+            <footer class="service-picker-footer-v2741"><span id="servicePickerCount">0 seleccionados</span><button type="button" data-close-service-picker>Listo</button></footer>
+          </section>
+        </div>
+        <div class="booking-step-footer-v25"><button class="public-btn-v25 secondary" type="button" data-booking-back>Atrás</button><button class="public-btn-v25 primary" type="button" data-booking-next>Ver fechas y horarios</button></div>
+      </section>
+
+      <section class="booking-step-v25" data-booking-step="3">
+        <div class="booking-step-head-v25"><span>Paso 3</span><h2>Elegí cuándo</h2></div>
+        <div class="schedule-selector-v25"><div><h3>Día</h3><div class="date-grid" id="dateButtons"></div></div><div><h3>Hora</h3><div class="time-grid" id="timeButtons"></div></div></div>
+        <div class="booking-step-footer-v25"><button class="public-btn-v25 secondary" type="button" data-booking-back>Atrás</button><button class="public-btn-v25 primary" type="button" data-booking-next>Continuar</button></div>
+      </section>
+
+      <section class="booking-step-v25" data-booking-step="4">
+        <div class="booking-step-head-v25"><span>Paso 4</span><h2>Revisá y confirmá</h2></div>
+        <div id="smartProfileBanner" class="smart-profile-banner hidden-field"></div>
+        <div class="confirm-grid-v25">
+          <label><span>Nombre</span><input id="clientName" type="text" required autocomplete="name"></label>
+          <label><span>Teléfono</span><input id="clientPhone" type="tel" required autocomplete="tel" placeholder="+502..."></label>
+          <label><span>Correo</span><input id="clientEmail" type="email" required autocomplete="email"></label>
+          <label><span>Zona / municipio</span><input id="clientCity" type="text" required placeholder="Zona 10, Mixco..."></label>
+          <label class="full"><span>Dirección / referencia</span><input id="clientAddress" type="text" required></label>
+          <label class="full"><span>Síntoma o comentario</span><textarea id="clientComments" rows="3" placeholder="Contanos lo más importante..."></textarea></label>
+        </div>
+        <div class="booking-step-footer-v25"><button class="public-btn-v25 secondary" type="button" data-booking-back>Atrás</button><button class="public-btn-v25 primary submit-booking" type="submit">Confirmar cita y continuar a WhatsApp</button></div>
+        <div id="bookingStatus" class="booking-status" aria-live="polite"></div>
+      </section>
+    </form>
+    <aside class="booking-summary-v25" id="agendaSummary" aria-live="polite"></aside>
+  </div>
+  <p class="agenda-step-message-v25" id="agendaStepMessage" aria-live="polite"></p>
+  <section class="booking-success-v25 hidden-field" id="bookingSuccess" aria-live="polite" tabindex="-1"></section>
+</main>
+<footer class="public-footer-v25"><strong>D-TEK GT</strong><nav><a href="servicios.html">Servicios</a><a href="cliente.html">Garage</a></nav><small>© 2026</small></footer>
+<nav class="public-mobile-nav-v25"><a href="index.html"><span class="nav-icon-v25"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 11.5 12 4l8 7.5"/><path d="M6 10v9a1 1 0 0 0 1 1h3v-6h4v6h3a1 1 0 0 0 1-1v-9"/></svg></span><small>Inicio</small></a><a href="servicios.html"><span class="nav-icon-v25"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="7" height="7" rx="1.4"/><rect x="13" y="4" width="7" height="7" rx="1.4"/><rect x="4" y="13" width="7" height="7" rx="1.4"/><rect x="13" y="13" width="7" height="7" rx="1.4"/></svg></span><small>Servicios</small></a><a class="active" href="agenda.html"><span class="nav-icon-v25"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="5" width="17" height="16" rx="3"/><path d="M3.5 10h17"/><path d="M12 13.5v4M9.8 15.5h4.4"/></svg></span><small>Agendar</small></a><a href="cliente.html"><span class="nav-icon-v25"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 16v-3.2L6.3 8.4A2 2 0 0 1 8.2 7h7.6a2 2 0 0 1 1.9 1.4l1.8 4.4V16"/><path d="M4.5 16h15v2.2a.8.8 0 0 1-.8.8h-1.4a.8.8 0 0 1-.8-.8V17H7.5v1.2a.8.8 0 0 1-.8.8H5.3a.8.8 0 0 1-.8-.8Z"/><circle cx="8" cy="16" r="1.3"/><circle cx="16" cy="16" r="1.3"/></svg></span><small>Garage</small></a></nav>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="supabase-config.js?v=30.3.3"></script><script src="supabase-client.js?v=30.3.3"></script><script src="services-data.js?v=30.3.3"></script><script src="app.js?v=30.3.3"></script><script src="selector-pro.js?v=30.3.3"></script>
+<script src="dtek-v30.js?v=30.3.3"></script></body></html>

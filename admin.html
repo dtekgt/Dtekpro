@@ -1,0 +1,88 @@
+<!-- D-TEK GT Web OS v8 — Propiedad de D-TEK GT / Dominic Morales. -->
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="author" content="D-TEK GT / Dominic Morales">
+<meta name="copyright" content="D-TEK GT">
+<meta name="application-name" content="D-TEK GT Web OS">
+<meta name="theme-color" content="#05080d">
+<meta property="og:site_name" content="D-TEK GT">
+<meta property="og:title" content="Panel interno D-TEK GT">
+<meta property="og:description" content="Panel local para administrar solicitudes, estados y eventos de automatización.">
+<link rel="stylesheet" href="styles.css">
+<title>Panel interno | D-TEK GT</title>
+</head>
+<body>
+<div class="dtek-bg" aria-hidden="true"><span class="orb orb-red"></span><span class="orb orb-cyan"></span></div>
+<header class="nav-wrap dtek-glass">
+  <div class="dtek-nav">
+    <a class="brand" href="index.html" aria-label="Inicio D-TEK GT"><img src="assets/logo-dtek.png" alt="D-TEK GT"><strong>D-TEK <span>GT</span></strong></a>
+    <button class="menu-toggle" id="menuToggle" type="button" aria-label="Abrir menú" aria-expanded="false"><span></span><span></span><span></span></button>
+    <nav class="nav-links" id="navLinks">
+      <a href="index.html">Inicio</a>
+      <a href="servicios.html">Servicios</a>
+      <a href="agenda.html">Agenda</a>
+      <a href="faq.html">FAQ</a>
+      <a class="nav-cta" href="admin.html">Panel interno</a>
+    </nav>
+  </div>
+</header>
+<main>
+  <section class="section page-hero">
+    <div class="section-heading reveal">
+      <span class="eyebrow">Panel interno local</span>
+      <h1>Control de solicitudes D-TEK</h1>
+      <p>Este panel es para administrar estados: solicitada, confirmada, realizada y cancelada. En esta etapa protege la interfaz con PIN local; la seguridad real vendrá con backend/login.</p>
+    </div>
+
+    <div class="admin-layout reveal">
+      <section class="dtek-glass-strong admin-login" id="adminLoginPanel">
+        <span class="eyebrow">Acceso</span>
+        <h2>Ingresar al panel</h2>
+        <p>Usá el PIN local configurado en <code>services-data.js</code>.</p>
+        <form id="adminLoginForm" class="form-grid">
+          <label class="full-span">PIN interno *<input id="adminPinInput" type="password" inputmode="numeric" required placeholder="PIN"></label>
+          <button class="btn btn-primary full-span" type="submit">Entrar</button>
+        </form>
+        <p class="muted-copy">Nota: esto restringe la UI en local. Para producción usamos Supabase/Auth/Netlify Functions.</p>
+      </section>
+
+      <section class="dtek-glass-strong admin-panel hidden-field" id="adminPanel">
+        <div class="memory-header">
+          <div><strong>Solicitudes guardadas</strong><small>Memoria local de este navegador</small></div>
+          <button class="btn btn-cyan" id="adminLogout" type="button">Salir</button>
+        </div>
+        <div class="admin-toolbar">
+          <button class="btn btn-ghost" type="button" data-admin-filter="all">Todas</button>
+          <button class="btn btn-ghost" type="button" data-admin-filter="pending">Solicitadas</button>
+          <button class="btn btn-ghost" type="button" data-admin-filter="confirmed">Confirmadas</button>
+          <button class="btn btn-ghost" type="button" data-admin-filter="completed">Realizadas</button>
+          <button class="btn btn-ghost" type="button" data-admin-filter="cancelled">Canceladas</button>
+        </div>
+        <div id="adminAppointments"></div>
+      </section>
+
+      <aside class="dtek-glass-strong admin-automation-card">
+        <span class="eyebrow">Automatización</span>
+        <h2>Zapier listo para conectar</h2>
+        <p>Cuando tengamos un Catch Hook, el sistema puede enviar eventos para crear filas en Sheets, mandar correos, crear tarea, o avisarte.</p>
+        <div class="automation-flow">
+          <span>Agenda</span><i>→</i><span>Webhook</span><i>→</i><span>Zapier</span><i>→</i><span>Sheets / Gmail / Calendar</span>
+        </div>
+        <ul class="check-list">
+          <li>Nueva solicitud</li>
+          <li>Cambio de estado</li>
+          <li>Cancelación</li>
+          <li>Trabajo realizado</li>
+        </ul>
+      </aside>
+    </div>
+  </section>
+</main>
+<footer class="footer"><p>© 2026 D-TEK GT. Diagnóstico automotriz a domicilio en Guatemala.</p></footer>
+<script src="services-data.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

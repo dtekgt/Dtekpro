@@ -1,0 +1,616 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="author" content="D-TEK GT / Dominic Morales" />
+  <meta name="application-name" content="Garage D-TEK" />
+  <meta name="theme-color" content="#f3f4f6" />
+  <title>Garage D-TEK</title>
+  <link rel="stylesheet" href="styles.css?v=30.3.3" /><link rel="stylesheet" href="styles-v30.css?v=30.3.3">
+</head>
+<body class="page-client-v23" data-dtek-version="30.3">
+  <a class="skip-link" href="#clientMainContent">Ir al contenido</a>
+
+  <header class="client-public-header" id="clientPublicHeader">
+    <a class="client-brand" href="index.html" aria-label="Volver al inicio de D-TEK">
+      <img src="assets/logo-dtek.png" alt="D-TEK GT" />
+      <span><strong>D-TEK</strong><small>Mecánica a domicilio</small></span>
+    </a>
+    <a class="client-public-back" href="index.html">Volver al sitio</a>
+  </header>
+
+  <main class="client-app-shell" id="clientMainContent">
+    <section id="clientAuthGate" class="client-auth-gate">
+      <div class="auth-copy">
+        <span class="client-kicker">Garage D-TEK</span>
+        <h1>Tu garage.</h1>
+        <div class="auth-benefits" aria-label="Funciones del portal">
+          <span>Datos guardados</span>
+          <span>Citas claras</span>
+          <span>Historial por carro</span>
+        </div>
+      </div>
+
+      <div class="auth-card">
+        <div class="auth-card-head">
+          <span class="client-kicker">Garage D-TEK</span>
+          <h2>Entrar a mi perfil</h2>
+          <p>Usá el correo o el usuario que te dio D-TEK.</p>
+        </div>
+
+        <form id="clientLoginForm" class="client-form auth-login-form">
+          <label>Correo o usuario
+            <input id="clientIdentifier" type="text" autocomplete="username" required placeholder="dominic o cliente@email.com" autocapitalize="none" spellcheck="false" />
+          </label>
+          <label>Contraseña
+            <input id="clientPassword" type="password" autocomplete="current-password" required placeholder="Tu contraseña" />
+          </label>
+          <button class="client-btn client-btn-primary" type="submit">Entrar</button>
+          <button class="client-btn client-btn-secondary" type="button" id="clientForgotPassword">Olvidé mi contraseña</button>
+          <button class="client-btn client-btn-secondary" type="button" id="openClientSignup">Crear mi cuenta</button>
+        </form>
+
+        <div id="clientSignupOffer" class="auth-account-offer hidden-field" aria-live="polite">
+          <strong id="clientSignupOfferTitle">¿Todavía no tenés cuenta?</strong>
+          <p id="clientSignupOfferText">Podés crearla sin correo.</p>
+          <button class="client-btn client-btn-secondary" type="button" id="acceptClientSignupOffer">Crear acceso</button>
+        </div>
+
+        <section id="clientSignupPanel" class="auth-signup-panel hidden-field" aria-labelledby="clientSignupTitle">
+          <div class="auth-signup-head">
+            <div><span class="client-kicker">Cuenta nueva</span><h3 id="clientSignupTitle">Creá tu acceso</h3></div>
+            <button type="button" id="closeClientSignup" aria-label="Cerrar creación de cuenta">×</button>
+          </div>
+          <p class="auth-signup-note">El correo es opcional. Tu usuario y contraseña serán suficientes para entrar.</p>
+          <form id="clientSignupForm" class="client-form">
+            <label>Elegí un usuario
+              <input id="clientSignupUsername" type="text" autocomplete="username" required minlength="3" maxlength="30" placeholder="dominic.gt" autocapitalize="none" spellcheck="false" />
+              <small>3 a 30 caracteres: letras, números, punto o guion bajo.</small>
+            </label>
+            <label>Correo <span class="optional-label">opcional</span>
+              <input id="clientSignupEmail" type="email" autocomplete="email" placeholder="cliente@email.com" />
+            </label>
+            <div class="client-form-grid">
+              <label>Contraseña
+                <input id="clientSignupPassword" type="password" autocomplete="new-password" required minlength="6" placeholder="Mínimo 6 caracteres" />
+              </label>
+              <label>Confirmar contraseña
+                <input id="clientSignupPasswordConfirm" type="password" autocomplete="new-password" required minlength="6" placeholder="Repetila" />
+              </label>
+            </div>
+            <button class="client-btn client-btn-primary" type="submit">Crear cuenta y entrar</button>
+          </form>
+          <div id="clientSignupStatus" class="status-box" aria-live="polite"></div>
+        </section>
+
+        <div class="divider-line"><span>otra opción</span></div>
+        <button class="client-btn client-btn-google" type="button" id="googleLoginBtn">
+          <span aria-hidden="true">G</span> Continuar con Google
+        </button>
+        <small class="auth-google-note">Google es opcional.</small>
+        <div id="clientAuthStatus" class="status-box" aria-live="polite"></div>
+      </div>
+    </section>
+
+    <section id="clientDashboard" class="client-dashboard hidden-field">
+      <header class="client-portal-header">
+        <div class="client-portal-bar">
+          <a class="client-brand" href="index.html" aria-label="D-TEK Inicio">
+            <img src="assets/logo-dtek.png" alt="D-TEK GT" />
+            <span><strong>Garage D-TEK</strong></span>
+          </a>
+
+          <nav class="client-menu" aria-label="Menú principal del portal">
+            <button type="button" class="active" data-client-section="overview" aria-label="Ver resumen">
+              <span class="client-nav-icon" aria-hidden="true">⌂</span><span>Resumen</span>
+            </button>
+            <button type="button" data-client-section="vehicles" aria-label="Ver mis vehículos">
+              <span class="client-nav-icon" aria-hidden="true">◆</span><span>Mis vehículos</span>
+            </button>
+            <button type="button" data-client-section="appointments" aria-label="Ver citas">
+              <span class="client-nav-icon" aria-hidden="true">□</span><span>Citas</span>
+            </button>
+            <button type="button" data-client-section="benefits" aria-label="Ver puntos">
+              <span class="client-nav-icon" aria-hidden="true">◇</span><span>Puntos</span>
+            </button>
+            <button type="button" data-client-section="profile" aria-label="Ver perfil">
+              <span class="client-nav-icon" aria-hidden="true">◉</span><span>Perfil</span>
+            </button>
+          </nav>
+
+          <div class="client-header-actions">
+            <button class="client-btn client-btn-primary client-service-cta" id="globalServiceCta" type="button" data-open-client-booking>Solicitar servicio</button>
+            <button class="client-account-trigger social-account-trigger" type="button" id="clientAccountToggle" aria-expanded="false" aria-controls="clientAccountMenu" aria-label="Abrir menú de cuenta">
+              <span class="account-trigger-avatar" id="clientAvatarInitial">D</span>
+              <span class="account-trigger-copy"><strong id="clientAccountName">Cuenta</strong><small>Garage</small></span>
+              <span class="account-trigger-chevron">⌄</span>
+            </button>
+            <div class="client-account-menu social-account-menu" id="clientAccountMenu" hidden>
+              <div class="account-menu-identity"><span class="account-menu-avatar" id="accountMenuInitial">D</span><div><strong id="accountMenuName">Cuenta D-TEK</strong><small id="accountMenuSubtitle">Garage personal</small></div></div>
+              <button type="button" data-client-section="profile"><span>◉</span> Perfil</button>
+              <a href="index.html"><span>⌂</span> Inicio</a>
+              <button type="button" id="clientLogout"><span>↪</span> Salir</button>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <section class="garage-timeline-dock hidden-field" id="garageTimelineDock" aria-label="Seguimiento del carro activo">
+        <div class="garage-timeline-dock-inner">
+          <button class="garage-timeline-toggle" type="button" id="garageTimelineToggle" aria-expanded="false" aria-controls="garageTimelinePanel">
+            <span class="garage-timeline-identity">
+              <small>Carro activo</small>
+              <strong id="garageTimelineVehicle">Vehículo</strong>
+            </span>
+            <span class="garage-timeline-compact">
+              <i class="garage-mini-dot done"></i><i class="garage-mini-line"></i><i class="garage-mini-dot today"></i><i class="garage-mini-line"></i><i class="garage-mini-dot target"></i>
+              <span id="garageTimelineSummary">Historial de servicio</span>
+            </span>
+            <span class="garage-timeline-chevron" id="garageTimelineChevron" aria-hidden="true">⌄</span>
+          </button>
+          <button class="garage-timeline-change" type="button" data-client-section="vehicles">Cambiar carro</button>
+          <div class="garage-timeline-panel" id="garageTimelinePanel" hidden>
+            <div class="garage-timeline-legacy-placeholder" aria-hidden="true"></div>
+          </div>
+        </div>
+      </section>
+
+      <div class="client-portal-content">
+        <div class="client-section-heading">
+          <div><span class="garage-section-kicker">Garage / Control total</span><h1 id="dashboardTitle">Resumen</h1></div>
+          <button class="client-icon-button" type="button" id="clientRefreshAll" title="Actualizar información" aria-label="Actualizar información">↻</button>
+        </div>
+
+        <section class="client-section active" id="section-overview" data-section-panel="overview">
+          <div id="overviewLoading" class="client-skeleton-stack" aria-live="polite">
+            <div class="client-skeleton client-skeleton-title"></div>
+            <div class="client-skeleton client-skeleton-card"></div>
+            <div class="client-skeleton client-skeleton-card short"></div>
+          </div>
+
+          <div id="overviewEmptyVehicles" class="client-empty-state hidden-field">
+            <div class="client-empty-illustration" aria-hidden="true">
+              <span class="client-car-line">▰</span>
+            </div>
+            <span class="client-kicker">Tu primer paso</span>
+            <h2 id="emptyVehicleGreeting">Empecemos guardando tu carro.</h2>
+            
+            <button class="client-btn client-btn-primary" type="button" data-open-vehicle-modal>Agregar mi primer carro</button>
+            <a class="client-text-link" href="agenda.html?flow=symptoms">No sé qué tiene mi carro</a>
+          </div>
+
+          <div id="overviewContent" class="hidden-field">
+            <div class="overview-intro">
+              <div>
+                <p class="overview-hello" id="clientGreeting">Hola.</p>
+                <h2 id="clientNextStep">Así está tu carro hoy.</h2>
+              </div>
+              <div class="overview-vehicle-switcher hidden-field" id="overviewVehicleSwitcher" aria-label="Cambiar vehículo activo"></div>
+            </div>
+
+            <section class="garage-command-center" aria-labelledby="garageCommandTitle">
+              <div class="garage-command-head">
+                <div class="garage-command-copy">
+                  <span>Historial inteligente del vehículo</span>
+                  <h3 id="garageCommandTitle">Todo lo que pasó. Y lo que sigue.</h3>
+                  <p>Servicios, kilometraje y próxima acción conectados en una sola línea.</p>
+                </div>
+                <button class="garage-command-action" type="button" data-open-timeline>Ver historial completo</button>
+              </div>
+              <div class="overview-service-timeline" id="overviewServiceTimeline" aria-live="polite"></div>
+              <p class="timeline-mobile-hint" aria-hidden="true">Deslizá para recorrer el historial <span>→</span></p>
+            </section>
+
+            <div class="overview-layout">
+              <div class="overview-primary-column">
+                <article class="client-card next-action-card" id="nextActionCard">
+                  <div class="card-label-row">
+                    <span class="card-label">Próxima acción</span>
+                    <span class="client-status-badge neutral" id="nextActionStatus">Al día</span>
+                  </div>
+                  <h3 id="nextActionTitle">No tenés ninguna cita agendada.</h3>
+                  <p id="nextActionDescription">Cuando querás, pedí servicio para tu vehículo.</p>
+                  <div class="client-card-actions" id="nextActionActions"></div>
+                </article>
+
+                <article class="client-card active-vehicle-card" id="overviewVehicleCard">
+                  <div class="card-label-row">
+                    <span class="card-label">Tu vehículo</span>
+                    <span class="vehicle-health-dot" id="overviewVehicleHealth" title="Estado del vehículo"></span>
+                  </div>
+                  <div class="vehicle-card-title-row">
+                    <div>
+                      <h3 id="overviewVehicleTitle">Vehículo</h3>
+                      <p id="overviewVehicleMeta">Datos pendientes</p>
+                    </div>
+                    <span class="vehicle-year-badge" id="overviewVehicleYear">—</span>
+                  </div>
+                  <div class="vehicle-alert-line hidden-field" id="overviewRecommendation"></div>
+                  <div class="client-card-actions">
+                    <button class="client-btn client-btn-secondary" type="button" id="overviewOpenVehicle">Abrir expediente</button>
+                    <button class="client-text-link" id="overviewAgendaVehicle" type="button" data-open-client-booking>Agendar este carro</button>
+                  </div>
+                </article>
+              </div>
+
+              <aside class="overview-secondary-column">
+                <article class="client-card overview-benefit-card" id="overviewBenefitCard">
+                  <span class="card-label">D-TEK Puntos</span>
+                  <div id="overviewBenefitContent">
+                    <h3>0 pts</h3>
+                    <p>Canjear premios</p>
+                  </div>
+                  <button class="client-text-link" type="button" data-client-section="benefits">Ver puntos</button>
+                </article>
+
+                <article class="client-card other-vehicles-card hidden-field" id="otherVehiclesCard">
+                  <div class="card-label-row">
+                    <span class="card-label">Otros carros</span>
+                    <button class="client-icon-button small" type="button" data-open-vehicle-modal aria-label="Agregar otro vehículo">＋</button>
+                  </div>
+                  <div id="otherVehiclesList" class="other-vehicles-list"></div>
+                  <button class="client-text-link" type="button" data-client-section="vehicles">Ver todos</button>
+                </article>
+              </aside>
+            </div>
+          </div>
+        </section>
+
+        <section class="client-section" id="section-vehicles" data-section-panel="vehicles">
+          <div class="section-action-row">
+            <div>
+              <h2>Mis vehículos</h2><p>Cambiá de carro, abrí su expediente o actualizá su kilometraje.</p></div>
+            <button class="client-btn client-btn-primary" type="button" data-open-vehicle-modal>＋ Agregar carro</button>
+          </div>
+
+          <div class="vehicles-workspace" id="vehiclesWorkspace">
+            <aside class="vehicle-picker-panel" id="vehiclePickerPanel">
+              <div class="vehicle-picker-head">
+                <span class="card-label">Tus carros</span>
+                <button class="client-icon-button small" type="button" id="clientRefreshVehicles" aria-label="Actualizar vehículos">↻</button>
+              </div>
+              <div id="clientVehicles" class="vehicle-picker-list"></div>
+            </aside>
+
+            <div class="vehicle-detail-panel">
+              <div id="vehicleProfileEmpty" class="client-empty-state compact-empty">
+                <span class="client-kicker">Expediente del carro</span>
+                <h2>Elegí un vehículo.</h2>
+                
+              </div>
+
+              <div id="vehicleProfileView" class="vehicle-profile-view hidden-field">
+                <section class="vehicle-profile-hero client-card">
+                  <div>
+                    <span class="card-label" id="vehicleProfileEyebrow">Expediente del carro</span>
+                    <h2 id="vehicleProfileTitle">Vehículo</h2>
+                    <p id="vehicleProfileSubtitle">Datos del vehículo</p>
+                  </div>
+                  <div class="vehicle-profile-actions">
+                    <button class="client-btn client-btn-primary" id="vehicleProfileAgenda" type="button" data-open-client-booking>Solicitar servicio</button>
+                    <button class="client-icon-button" type="button" id="vehicleProfileRefresh" aria-label="Actualizar expediente">↻</button>
+                  </div>
+                </section>
+
+                <div class="vehicle-health-grid">
+                  <article class="client-card vehicle-health-card">
+                    <span>Estado</span><strong id="vehicleStatusText">Listo</strong><small id="vehicleStatusDetail">Sin alertas activas.</small>
+                  </article>
+                  <article class="client-card vehicle-health-card">
+                    <span>Kilometraje</span><strong id="vehicleMileageText">Pendiente</strong><small>Ayuda a recomendar mejor.</small>
+                  </article>
+                  <article class="client-card vehicle-health-card">
+                    <span>Próximo paso</span><strong id="vehicleNextActionText">Agendar</strong><small id="vehicleNextActionDetail">Pedí servicio para este carro.</small>
+                  </article>
+                </div>
+
+                <div class="vehicle-inner-tabs" role="tablist" aria-label="Secciones del expediente">
+                  <button type="button" class="active" data-vehicle-tab="health" role="tab">Resumen</button>
+                  <button type="button" data-vehicle-tab="technical" role="tab">Ficha técnica</button>
+                  <button type="button" data-vehicle-tab="timeline" role="tab">Historial</button>
+                </div>
+
+                <div class="vehicle-tab-panel active" data-vehicle-tab-panel="health">
+                  <div class="vehicle-content-grid">
+                    <div class="client-card panel-card">
+                      <div class="panel-head"><div><h2>Recomendaciones</h2></div></div>
+                      <div id="vehicleRecommendations" class="recommendation-stack"></div>
+                    </div>
+                    <div class="client-card panel-card">
+                      <div class="panel-head"><div><h2>Resumen rápido</h2></div></div>
+                      <div id="vehicleQuickFacts" class="vehicle-quick-facts"></div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="vehicle-tab-panel" data-vehicle-tab-panel="technical">
+                  <div class="client-card form-card">
+                    <div class="panel-head"><div><h2>Datos del carro</h2></div></div>
+                    <form id="vehicleCareForm" class="client-form client-form-grid">
+                      <input type="hidden" id="vehicleCareId" />
+                      <label>Alias<input id="vehicleCareNickname" type="text" placeholder="Mi Focus" /></label>
+                      <label>Kilometraje<input id="vehicleCareMileage" type="number" min="0" inputmode="numeric" placeholder="142000" /></label>
+                      <label>Uso<select id="vehicleCareUseType"><option value="">Elegir</option><option>Diario</option><option>Trabajo</option><option>Familiar</option><option>Fines de semana</option><option>Proyecto / poco uso</option></select></label>
+                      <label>Motor<input id="vehicleCareEngine" type="text" placeholder="2.0" /></label>
+                      <label>Caja<input id="vehicleCareTransmission" type="text" placeholder="Automática" /></label>
+                      <label class="full-span">Notas importantes<textarea id="vehicleCareNotes" rows="3" placeholder="Detalles que D-TEK debe recordar..."></textarea></label>
+                      <button class="client-btn client-btn-primary full-span" type="submit">Guardar cambios</button>
+                    </form>
+                    <div id="vehicleCareStatus" class="status-box" aria-live="polite"></div>
+                  </div>
+                </div>
+
+                <div class="vehicle-tab-panel" data-vehicle-tab-panel="timeline">
+                  <div class="client-card panel-card">
+                    <div class="panel-head"><div><h2>Línea de tiempo</h2></div></div>
+                    <div id="vehicleTimeline" class="vehicle-timeline"></div>
+                  </div>
+                  <div id="clientVehicleHistory" class="hidden-field"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="client-section" id="section-appointments" data-section-panel="appointments">
+          <div class="section-action-row">
+            <div><h2>Citas</h2><p>Seguimiento claro desde la solicitud hasta el servicio terminado.</p></div>
+            <button class="client-icon-button" type="button" id="clientRefreshAppointments" aria-label="Actualizar citas">↻</button>
+          </div>
+
+          <div class="appointment-tabs" role="tablist" aria-label="Tipo de citas">
+            <button type="button" class="active" data-appointment-tab="upcoming" role="tab">Próximas</button>
+            <button type="button" data-appointment-tab="past" role="tab">Historial</button>
+          </div>
+
+          <div class="appointment-tab-panel active" data-appointment-tab-panel="upcoming">
+            <div class="client-card panel-card">
+              <div id="clientAppointments" class="client-list"></div>
+              <div class="claim-appointments-box">
+                
+                <button class="client-text-link" type="button" id="claimAppointments">Vincular citas anteriores</button>
+                <div id="claimStatus" class="status-box" aria-live="polite"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="appointment-tab-panel" data-appointment-tab-panel="past">
+            <div class="history-layout">
+              <div class="client-card panel-card">
+                <div class="panel-head"><div><h2>Citas pasadas</h2></div></div>
+                <div id="pastAppointments" class="client-list"></div>
+              </div>
+              <div class="client-card panel-card">
+                <div class="panel-head"><div><h2>Reportes técnicos</h2></div><button class="client-icon-button small" type="button" id="clientRefreshWorkOrders" aria-label="Actualizar reportes">↻</button></div>
+                <div id="clientWorkOrders" class="client-list"></div>
+              </div>
+            </div>
+            <button class="hidden-field" type="button" id="clearVehicleHistory">Limpiar vista</button>
+          </div>
+        </section>
+
+        <section class="client-section" id="section-benefits" data-section-panel="benefits">
+          <section class="points-wallet client-card">
+            <div class="points-wallet-main">
+              <span class="client-kicker">D-TEK Puntos</span>
+              <div class="points-number"><strong id="pointsBalance">0</strong><span>puntos</span></div>
+              <div class="points-source-row">
+                <span>Servicios <b id="servicePoints">0</b></span>
+                <span>Referidos <b id="referralPoints">0</b></span>
+              </div>
+            </div>
+            <div class="points-next" id="pointsNextReward">
+              <span>Próximo canje</span>
+              <strong>30 puntos</strong>
+              <div class="points-progress"><i id="pointsProgressBar"></i></div>
+            </div>
+          </section>
+
+          <div class="points-section-head">
+            <h2>Canjear</h2>
+            <span>1 punto por cada Q10</span>
+          </div>
+          <div id="rewardCatalog" class="reward-catalog"><div class="client-loading-copy">Cargando...</div></div>
+          <div id="pointsStatus" class="status-box" aria-live="polite"></div>
+
+          <div class="points-actions-grid">
+            <details class="client-card points-referral-card">
+              <summary><span>＋</span><strong>Recomendar</strong><small>100 puntos</small></summary>
+              <form id="clientReferralForm" class="client-form client-form-grid">
+                <label>Nombre<input id="clientReferredName" type="text" required placeholder="Nombre" /></label>
+                <label>WhatsApp<input id="clientReferredPhone" type="tel" required inputmode="tel" placeholder="502XXXXXXXX" /></label>
+                <label class="full-span">Carro<input id="clientReferredVehicle" type="text" placeholder="Mazda 3 2018" /></label>
+                <label class="full-span">Nota <span class="optional-label">Opcional</span><textarea id="clientReferralNotes" rows="2" placeholder="Ruido, servicio, Check Engine..."></textarea></label>
+                <button class="client-btn client-btn-primary full-span" type="submit">Registrar</button>
+              </form>
+              <div id="clientReferralStatus" class="status-box" aria-live="polite"></div>
+              <button class="client-text-link" type="button" id="shareReferralWhatsApp">Compartir por WhatsApp</button>
+            </details>
+
+            <div class="client-card points-list-card">
+              <div class="points-list-tabs">
+                <button class="active" type="button" data-points-list="activity">Movimientos</button>
+                <button type="button" data-points-list="redemptions">Canjes</button>
+                <button type="button" data-points-list="referrals">Referidos</button>
+              </div>
+              <div class="points-list-panel active" data-points-panel="activity" id="pointsActivity"></div>
+              <div class="points-list-panel" data-points-panel="redemptions" id="redemptionList"></div>
+              <div class="points-list-panel" data-points-panel="referrals" id="clientReferrals"></div>
+              <button class="hidden-field" type="button" id="clientRefreshReferrals">Actualizar</button>
+            </div>
+          </div>
+        </section>
+
+        <section class="client-section" id="section-profile" data-section-panel="profile">
+          <div class="profile-social-shell">
+            <section class="client-card profile-identity-card">
+              <div class="profile-cover-strip"></div>
+              <div class="profile-identity-main">
+                <span class="profile-avatar-large" id="profileHeroInitial">D</span>
+                <div class="profile-identity-copy"><h1 id="profileHeroName">Cliente D-TEK</h1></div>
+                <button class="client-btn client-btn-secondary" type="button" id="profileEditToggle">Editar</button>
+              </div>
+              <div class="profile-social-stats">
+                <button type="button" data-client-section="vehicles"><strong id="profileStatVehicles">0</strong><span>Carros</span></button>
+                <button type="button" data-client-section="appointments"><strong id="profileStatServices">0</strong><span>Servicios</span></button>
+                <button type="button" data-client-section="benefits"><strong id="profileStatReferrals">0</strong><span>Referidos</span></button>
+              </div>
+            </section>
+
+            <div class="profile-social-grid">
+              <div class="client-card panel-card"><h2>Actividad</h2><div id="profileActivityFeed" class="profile-activity-feed"></div></div>
+              <div class="client-card panel-card"><h2>Cuenta</h2><div id="clientProfile" class="profile-summary"></div></div>
+            </div>
+
+            <details class="client-card profile-edit-disclosure" id="profileEditPanel">
+              <summary><span><strong>Editar perfil</strong></span><span>＋</span></summary>
+              <div class="profile-edit-body">
+                <form id="profileForm" class="client-form">
+                  <label>Nombre<input id="profileFullName" type="text" placeholder="Nombre" /></label>
+                  <label>WhatsApp<input id="profilePhone" type="tel" inputmode="tel" placeholder="502XXXXXXXX" /></label>
+                  <label>Dirección<input id="profileDefaultLocation" type="text" placeholder="Casa u oficina" /></label>
+                  <label>Zona / municipio<input id="profileDefaultCity" type="text" placeholder="Zona 10, Mixco..." /></label>
+                  <div class="client-form-grid">
+                    <label>Horario<select id="profilePreferredTime"><option value="">Elegir</option><option>Mañana</option><option>Tarde</option><option>Noche</option><option>Fin de semana</option></select></label>
+                    <label>Contacto<select id="profileContactPreference"><option value="WhatsApp">WhatsApp</option><option value="Llamada">Llamada</option><option value="Correo">Correo</option></select></label>
+                  </div>
+                  <button class="client-btn client-btn-primary" type="submit">Guardar</button>
+                </form>
+                <div id="profileFormStatus" class="status-box" aria-live="polite"></div>
+              </div>
+            </details>
+
+            <details class="client-card profile-edit-disclosure access-edit-disclosure" id="accessEditPanel">
+              <summary><span><strong>Usuario y contraseña</strong><small>Controlá cómo entrás a tu Garage D-TEK.</small></span><span>＋</span></summary>
+              <div class="profile-edit-body access-edit-body">
+                <div id="temporaryPasswordNotice" class="access-warning hidden-field">
+                  <strong>Tu contraseña todavía es temporal.</strong>
+                  <span>Cambiala por una que solo vos conozcás.</span>
+                </div>
+                <form id="accessForm" class="client-form">
+                  <label>Usuario
+                    <input id="profileUsername" type="text" minlength="3" maxlength="30" autocomplete="username" placeholder="tu.usuario" autocapitalize="none" spellcheck="false" />
+                    <small id="profileUsernameHelp">Podés cambiar el usuario que te dio D-TEK.</small>
+                  </label>
+                  <label>Correo <span class="optional-label">opcional</span>
+                    <input id="profileContactEmail" type="email" autocomplete="email" placeholder="cliente@email.com" />
+                  </label>
+                  <button class="client-btn client-btn-primary" type="submit">Guardar acceso</button>
+                </form>
+                <div id="accessFormStatus" class="status-box" aria-live="polite"></div>
+
+                <div class="access-password-separator"><span>Cambiar contraseña</span></div>
+                <form id="passwordForm" class="client-form">
+                  <div class="client-form-grid">
+                    <label>Nueva contraseña<input id="profileNewPassword" type="password" autocomplete="new-password" minlength="6" required placeholder="Mínimo 6 caracteres" /></label>
+                    <label>Confirmar<input id="profileNewPasswordConfirm" type="password" autocomplete="new-password" minlength="6" required placeholder="Repetila" /></label>
+                  </div>
+                  <button class="client-btn client-btn-secondary" type="submit">Cambiar contraseña</button>
+                </form>
+                <div id="passwordFormStatus" class="status-box" aria-live="polite"></div>
+              </div>
+            </details>
+          </div>
+        </section>
+      </div>
+
+      <button class="mobile-service-cta" id="mobileServiceCta" type="button" data-open-client-booking>＋ Solicitar servicio</button>
+      <nav class="client-mobile-nav" aria-label="Navegación móvil">
+        <button type="button" class="active" data-client-section="overview"><span aria-hidden="true">⌂</span><small>Resumen</small></button>
+        <button type="button" data-client-section="vehicles"><span aria-hidden="true">◆</span><small>Vehículos</small></button>
+        <button type="button" data-client-section="appointments"><span aria-hidden="true">□</span><small>Citas</small></button>
+        <button type="button" data-client-section="benefits"><span aria-hidden="true">◇</span><small>Puntos</small></button>
+        <button type="button" data-client-section="profile"><span aria-hidden="true">◉</span><small>Perfil</small></button>
+      </nav>
+    </section>
+  </main>
+
+  <div class="client-modal client-booking-modal" id="clientBookingModal" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="clientBookingTitle">
+    <div class="client-modal-backdrop" data-close-client-booking></div>
+    <div class="client-modal-panel client-booking-panel">
+      <div class="client-modal-head">
+        <div><span class="client-kicker">Agenda interna</span><h2 id="clientBookingTitle">Solicitar servicio</h2><p id="clientBookingVehicleLabel">Vehículo seleccionado</p></div>
+        <button class="client-icon-button" type="button" data-close-client-booking aria-label="Cerrar agenda">×</button>
+      </div>
+      <div class="client-booking-progress"><span class="active" data-client-booking-progress="1">1. Servicio</span><span data-client-booking-progress="2">2. Horario</span><span data-client-booking-progress="3">3. Confirmar</span></div>
+      <form id="clientBookingForm" class="client-form">
+        <section class="client-booking-step active" data-client-booking-step="1">
+          <div class="client-booking-step-head"><strong>¿Qué necesitás?</strong><small>Abrí una categoría y elegí el servicio.</small></div>
+          <div class="selector-accordion booking internal" id="clientBookingServices"></div>
+          <div class="client-modal-actions"><button class="client-btn client-btn-primary" type="button" data-client-booking-next>Continuar</button></div>
+        </section>
+        <section class="client-booking-step" data-client-booking-step="2">
+          <div class="client-booking-step-head"><strong>Elegí día y hora</strong><small>Solo mostramos espacios compatibles con el servicio.</small></div>
+          <div class="client-booking-dates" id="clientBookingDates"></div>
+          <div class="client-booking-times" id="clientBookingTimes"></div>
+          <div class="client-modal-actions"><button class="client-btn client-btn-secondary" type="button" data-client-booking-back>Atrás</button><button class="client-btn client-btn-primary" type="button" data-client-booking-next>Continuar</button></div>
+        </section>
+        <section class="client-booking-step" data-client-booking-step="3">
+          <div class="client-booking-summary" id="clientBookingSummary"></div>
+          <div class="client-form-grid">
+            <label>WhatsApp de confirmación<input id="clientBookingPhone" type="tel" required placeholder="502XXXXXXXX" /></label>
+            <label>Zona / municipio<input id="clientBookingCity" type="text" required placeholder="Zona 10, Mixco..." /></label>
+            <label>¿Arranca y se mueve?<select id="clientBookingMoves" required><option value="">Elegir</option><option>Sí, arranca y se mueve</option><option>Arranca pero no se mueve</option><option>No arranca</option><option>No estoy seguro</option></select></label>
+            <label class="full-span">Dirección / referencia<input id="clientBookingAddress" type="text" required /></label>
+            <label class="full-span">Síntoma o comentario<textarea id="clientBookingComment" rows="3" placeholder="Contanos lo más importante..."></textarea></label>
+          </div>
+          <div class="client-modal-actions"><button class="client-btn client-btn-secondary" type="button" data-client-booking-back>Atrás</button><button class="client-btn client-btn-primary" type="submit">Enviar solicitud</button></div>
+        </section>
+      </form>
+      <div id="clientBookingStatus" class="status-box" aria-live="polite"></div>
+    </div>
+  </div>
+
+  <div class="client-modal" id="vehicleModal" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="vehicleModalTitle">
+    <div class="client-modal-backdrop" data-close-vehicle-modal></div>
+    <div class="client-modal-panel">
+      <div class="client-modal-head">
+        <div><span class="client-kicker">Mis vehículos</span><h2 id="vehicleModalTitle">Agregar un carro</h2></div>
+        <button class="client-icon-button" type="button" id="vehicleModalClose" data-close-vehicle-modal aria-label="Cerrar formulario">×</button>
+      </div>
+      <div class="vehicle-form-progress" aria-label="Progreso del formulario">
+        <span class="active" data-step-indicator="1">1. Datos básicos</span>
+        <span data-step-indicator="2">2. Detalles opcionales</span>
+      </div>
+      <form id="vehicleForm" class="client-form">
+        <fieldset class="vehicle-form-step active" data-vehicle-form-step="1">
+          <legend class="sr-only">Datos básicos del vehículo</legend>
+          <label>Alias del carro<input id="vehicleNicknameClient" type="text" placeholder="Mi Focus, la camioneta de casa..." /></label>
+          <div class="client-form-grid">
+            <label data-client-cascade="brand">Marca<select id="vehicleBrandClient" required><option value="">Elegir marca</option></select></label>
+            <label data-client-cascade="line" class="client-cascade-hidden">Línea / modelo<select id="vehicleLineClient" required disabled><option value="">Primero elegí marca</option></select></label>
+            <label data-client-cascade="year" class="client-cascade-hidden">Año<select id="vehicleYearClient"><option value="">Elegir año</option></select></label>
+            <label>Placa<input id="vehiclePlateClient" type="text" placeholder="Opcional" /></label>
+          </div>
+          <label>Kilometraje actual<input id="vehicleMileageClient" type="number" min="0" inputmode="numeric" placeholder="142000" /></label>
+          <button class="client-btn client-btn-primary" type="button" id="vehicleNextStep">Continuar</button>
+        </fieldset>
+
+        <fieldset class="vehicle-form-step" data-vehicle-form-step="2">
+          <legend class="sr-only">Detalles opcionales del vehículo</legend>
+          <div class="client-form-grid">
+            <label>Uso principal<select id="vehicleUseTypeClient"><option value="">Elegir</option><option>Diario</option><option>Trabajo</option><option>Familiar</option><option>Fines de semana</option><option>Proyecto / poco uso</option></select></label>
+            <label data-client-cascade="engine" class="client-cascade-hidden">Motor<select id="vehicleEngineClient"><option value="">Elegir motor</option></select></label>
+            <label>Caja<input id="vehicleTransmissionClient" type="text" placeholder="Automática, mecánica, CVT..." /></label>
+            <label>VIN<input id="vehicleVinClient" type="text" placeholder="Opcional" /></label>
+          </div>
+          <label>Notas<textarea id="vehicleNotesClient" rows="3" placeholder="Síntomas repetidos, servicios previos o detalles importantes..."></textarea></label>
+          <div class="client-modal-actions">
+            <button class="client-btn client-btn-secondary" type="button" id="vehiclePrevStep">Atrás</button>
+            <button class="client-btn client-btn-primary" type="submit">Guardar vehículo</button>
+          </div>
+        </fieldset>
+      </form>
+      <div id="vehicleFormStatus" class="status-box" aria-live="polite"></div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="supabase-config.js?v=30.3.3"></script>
+  <script src="supabase-client.js?v=30.3.3"></script>
+  <script src="services-data.js?v=30.3.3"></script>
+  <script src="portal-cliente.js?v=30.3.3"></script>
+  <script src="client-booking.js?v=30.3.3"></script>
+<script src="dtek-v30.js?v=30.3.3"></script></body>
+</html>

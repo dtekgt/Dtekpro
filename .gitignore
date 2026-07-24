@@ -1,0 +1,9 @@
+# Material de diseño/referencia, no usado por el sitio en producción
+referencias/
+
+# SO / editor
+.DS_Store
+Thumbs.db
+*.log
+.vscode/
+.idea/
