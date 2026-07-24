@@ -1809,3 +1809,30 @@
 .page-client-v23 .access-password-separator::before,
 .page-client-v23 .access-password-separator::after{background:var(--client-line)}
 .page-client-v23 .profile-data-row strong[data-empty="true"]{color:var(--client-muted)}
+
+/* ==========================================================================
+   D-TEK v31 · Panel del mecánico (admin.html / admin-backend.html)
+   Estas páginas solo cargaban styles.css y quedaron con el acento cyan
+   obsoleto (--cyan #00e5ff). Este bloque retinta esos mismos selectores
+   al sistema F1 rojo, sin tocar la estructura HTML ni el JS existente.
+   ========================================================================== */
+.page-admin-v31{
+  --cyan:var(--f1-red-hot);
+  --cyan-2:var(--f1-red);
+  --line-cyan:rgba(227,32,37,.28);
+}
+.page-admin-v31 .dtek-bg{
+  background:radial-gradient(circle at 15% 12%,rgba(225,6,0,.30),transparent 35%),radial-gradient(circle at 80% 18%,rgba(255,255,255,.09),transparent 30%),linear-gradient(180deg,#05080d 0%,#090d13 48%,#05080d 100%);
+}
+.page-admin-v31 .orb-cyan{background:rgba(255,255,255,.10)}
+.page-admin-v31 .dtek-glass,
+.page-admin-v31 .dtek-glass-strong{border-top-color:rgba(227,32,37,.34)}
+.page-admin-v31 .btn-cyan{background:rgba(227,32,37,.09);border-color:rgba(227,32,37,.32);color:#fff}
+.page-admin-v31 .btn-cyan:hover{background:rgba(227,32,37,.15)}
+.page-admin-v31 .status-pill.confirmed,
+.page-admin-v31 .status-pill.confirmada{color:var(--f1-red-hot);border-color:rgba(227,32,37,.4);background:rgba(227,32,37,.08)}
+.page-admin-v31 .memory-header span{border-color:rgba(227,32,37,.25);background:rgba(227,32,37,.08)}
+.page-admin-v31 .memory-actions button:hover{border-color:rgba(227,32,37,.35);background:rgba(227,32,37,.08)}
+.page-admin-v31 .automation-flow span{border-top-color:rgba(227,32,37,.25)}
+.page-admin-v31 .system-body-card .mini-metric{background:rgba(227,32,37,.08);border-color:rgba(227,32,37,.18)}
+.page-admin-v31 code{background:rgba(227,32,37,.08);border-color:rgba(227,32,37,.14)}
