@@ -1836,3 +1836,55 @@
 .page-admin-v31 .automation-flow span{border-top-color:rgba(227,32,37,.25)}
 .page-admin-v31 .system-body-card .mini-metric{background:rgba(227,32,37,.08);border-color:rgba(227,32,37,.18)}
 .page-admin-v31 code{background:rgba(227,32,37,.08);border-color:rgba(227,32,37,.14)}
+
+/* ==========================================================================
+   D-TEK v31 · Home — hint de CTA + franja "Cómo funciona"
+   ========================================================================== */
+.page-home-cinema .cinema-actions-hint{
+  margin:12px 0 0;
+  font-size:12px;
+  color:rgba(255,255,255,.5);
+  max-width:420px;
+}
+.page-home-cinema .cinema-actions-hint strong{color:rgba(255,255,255,.86);font-weight:600}
+
+.cinema-how{
+  position:relative;
+  padding:56px 0 64px;
+  background:#030405;
+  border-top:1px solid rgba(255,255,255,.08);
+}
+.cinema-how-inner{margin:0 auto;padding:0 60px}
+.cinema-how-kicker{
+  display:inline-flex;
+  color:rgba(255,255,255,.4);
+  font-size:11px;
+  font-weight:650;
+  letter-spacing:.14em;
+  text-transform:uppercase;
+  margin-bottom:18px;
+}
+.cinema-how-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.cinema-how-grid article{
+  position:relative;
+  overflow:hidden;
+  padding:24px;
+  border:1px solid rgba(255,255,255,.11);
+  border-radius:22px;
+  background:linear-gradient(145deg,rgba(255,255,255,.045),rgba(255,255,255,.018));
+}
+.cinema-how-grid article::after{
+  content:"";
+  position:absolute;
+  left:24px;right:55%;bottom:0;
+  height:2px;
+  background:linear-gradient(90deg,var(--f1-red-hot),transparent);
+  box-shadow:0 0 12px rgba(227,32,37,.36);
+}
+.cinema-how-grid article>span{display:block;margin-bottom:22px;color:var(--f1-red-hot);font:800 12px ui-monospace,monospace}
+.cinema-how-grid article strong{display:block;color:#fff;font-size:17px;font-weight:500}
+.cinema-how-grid article p{margin:8px 0 0;color:rgba(255,255,255,.56);font-size:13px;line-height:1.55}
+@media(max-width:820px){
+  .cinema-how-inner{padding:0 20px}
+  .cinema-how-grid{grid-template-columns:1fr}
+}
