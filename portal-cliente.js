@@ -353,21 +353,88 @@ function updateGarageTimelineDock(vehicle, compactSummary, tone = "neutral") {
   setText("#garageTimelineSummary", compactSummary || "Historial de servicio");
 }
 
+function renderSpineCars(activeVehicle) {
+  const holder = clientQs("#spineCars");
+  if (!holder) return;
+  const vehicles = clientPortalState.vehicles || [];
+  holder.innerHTML = `${vehicles.map((item) => {
+    const active = String(item.id) === String(activeVehicle.id);
+    return `<button type="button" class="spine-car ${active ? "active" : ""}" data-select-overview-vehicle="${clientSafe(item.id)}" aria-pressed="${active ? "true" : "false"}">
+      <span>${clientSafe(item.nickname || vehicleBaseTitle(item))}</span>
+      <small>${clientSafe(item.plate || item.year || "Guardado")}</small>
+    </button>`;
+  }).join("")}<button type="button" class="spine-car spine-car-add" data-open-vehicle-modal aria-label="Agregar otro carro"><span>＋</span><small>Agregar</small></button>`;
+}
+
+/* Nodo "HOY": la cabeza de la línea. Reúne la cita activa y el próximo
+   mantenimiento sugerido, para que lo accionable quede siempre arriba. */
+function spineTodayNode(vehicle, { summary = "", upcoming = "", tone = "" } = {}) {
+  const appointment = getVehicleInsight(vehicle).active;
+  let headline = "Sin cita agendada";
+  let copy = summary || `Cuando querás, pedí servicio para tu ${vehicleBaseTitle(vehicle)}.`;
+  let action = `<button class="client-btn client-btn-primary" type="button" data-open-client-booking data-vehicle-id="${clientSafe(vehicle.id)}">Solicitar servicio</button>`;
+
+  if (appointment) {
+    headline = appointment.service_name || "Servicio D-TEK";
+    copy = `${fmtDate(appointment.scheduled_start)}${appointment.location ? ` · ${appointment.location}` : ""}`;
+    action = `<button class="client-btn client-btn-primary" type="button" data-client-section="appointments">Ver mi cita</button>`;
+  }
+
+  return `<article class="spine-event spine-today ${clientSafe(tone)}" data-spine-event>
+    <span class="spine-node today" aria-hidden="true"></span>
+    <div class="spine-event-card">
+      <div class="spine-event-top"><small>Hoy</small>${appointment ? `<span class="client-status-badge ${statusTone(appointment.status)}">${clientSafe(statusLabel(appointment.status))}</span>` : ""}</div>
+      <strong>${clientSafe(headline)}</strong>
+      <p>${clientSafe(copy)}</p>
+      ${upcoming ? `<div class="spine-upcoming"><span aria-hidden="true">→</span><p>${clientSafe(upcoming)}</p></div>` : ""}
+      <div class="spine-event-actions">${action}</div>
+    </div>
+  </article>`;
+}
+
+function spineEventNode(item) {
+  const isReport = item.kind === "work_order";
+  const title = item.service_name || (isReport ? "Reporte técnico" : "Cita D-TEK");
+  const badge = isReport ? (item.work_order_status || "open") : (item.appointment_status || item.status || "requested");
+  const detail = item.diagnosis || item.symptom || item.recommendations || "";
+  const meta = [
+    item.mileage ? `${Number(item.mileage).toLocaleString("es-GT")} km` : "",
+    item.grand_total ? formatMoney(item.grand_total) : ""
+  ].filter(Boolean);
+
+  return `<article class="spine-event" data-spine-event>
+    <span class="spine-node" aria-hidden="true"></span>
+    <div class="spine-event-card">
+      <div class="spine-event-top"><small>${clientSafe(formatDateShort(item.scheduled_start || item.created_at))}</small><span class="client-status-badge ${statusTone(badge)}">${clientSafe(statusLabel(badge))}</span></div>
+      <strong>${clientSafe(title)}</strong>
+      ${detail ? `<p>${clientSafe(detail)}</p>` : ""}
+      ${meta.length ? `<div class="spine-event-meta">${meta.map((value) => `<span>${clientSafe(value)}</span>`).join("")}</div>` : ""}
+    </div>
+  </article>`;
+}
+
+function paintSpine(mount, innerHtml) {
+  mount.innerHTML = innerHtml;
+  window.DtekGarageMotion?.refresh?.();
+}
+
 function buildOverviewServiceTimeline(vehicle, history = []) {
   const mount = clientQs("#overviewServiceTimeline");
   if (!mount || !vehicle) return;
 
+  renderSpineCars(vehicle);
+
   const loadingHistory = Boolean(clientPortalState.loadingHistoryMap?.[vehicle.id]) && !(history || []).length;
   if (loadingHistory) {
     updateGarageTimelineDock(vehicle, "Cargando historial...", "loading");
-    mount.innerHTML = `<div class="service-timeline-card loading"><div class="service-timeline-head"><span class="card-label">Desde tu último servicio</span><strong>Cargando historial...</strong></div><div class="service-timeline-track loading"></div></div>`;
+    paintSpine(mount, `${spineTodayNode(vehicle)}<article class="spine-event"><span class="spine-node" aria-hidden="true"></span><div class="spine-event-card loading"><p>Cargando historial...</p></div></article>`);
     return;
   }
 
   const anchor = chooseMaintenanceAnchor(vehicle, history);
   if (!anchor) {
     updateGarageTimelineDock(vehicle, "Sin historial todavía", "empty");
-    mount.innerHTML = `<div class="service-timeline-card empty"><div class="service-timeline-head"><span class="card-label">Desde tu último servicio</span><strong>Todavía no hay historial.</strong></div><p>Tu primera cita empieza esta línea.</p></div>`;
+    paintSpine(mount, `${spineTodayNode(vehicle)}<article class="spine-event spine-origin" data-spine-event><span class="spine-node origin" aria-hidden="true"></span><div class="spine-event-card"><strong>Acá empieza tu línea.</strong><p>Tu primera cita abre el expediente de este carro.</p></div></article>`);
     return;
   }
 
@@ -376,12 +443,6 @@ function buildOverviewServiceTimeline(vehicle, history = []) {
   const lastDate = new Date(anchor.scheduled_start || anchor.created_at || Date.now());
   const nextDate = addMonths(lastDate, plan.monthInterval);
   const currentMileage = Number(vehicle.mileage || 0);
-  const timelineItems = [
-    { label: "Último", date: formatDateShort(lastDate), km: anchor.mileage ? formatKmCompact(anchor.mileage) : "Km no registrado", pointClass: "done" },
-    { label: "Hoy", date: formatDateShort(new Date()), km: formatKmCompact(currentMileage), pointClass: "today" },
-    { label: "Próximo", date: formatDateShort(nextDate), km: `Cada ${plan.kmInterval.toLocaleString("es-GT")} km`, pointClass: "target" }
-  ];
-
   const daysElapsed = daysBetween(lastDate, new Date());
   const daysLeft = Math.round((nextDate - new Date()) / 86400000);
   let tone = "ok";
@@ -402,33 +463,17 @@ function buildOverviewServiceTimeline(vehicle, history = []) {
     tone
   );
 
-  mount.innerHTML = `
-    <div class="service-timeline-card ${tone}">
-      <div class="service-timeline-head">
-        <div>
-          <span class="card-label">Desde tu último servicio</span>
-          <strong>${clientSafe(plan.label)}</strong>
-        </div>
-        <small>${clientSafe(serviceName)}</small>
-      </div>
-      <div class="service-timeline-rail">
-        <div class="service-timeline-line"></div>
-        ${timelineItems.map((item) => `
-          <div class="service-timeline-stop ${item.pointClass}">
-            <span class="service-stop-dot"></span>
-            <div class="service-stop-copy">
-              <small>${clientSafe(item.label)}</small>
-              <strong>${clientSafe(item.date)}</strong>
-              <span>${clientSafe(item.km)}</span>
-            </div>
-          </div>
-        `).join("")}
-      </div>
-      <div class="service-timeline-footer">
-        <p class="service-timeline-summary">${clientSafe(summary)}</p>
-        <button type="button" data-open-client-booking data-vehicle-id="${clientSafe(vehicle.id)}">Agendar próximo servicio</button>
-      </div>
-    </div>`;
+  const upcoming = `${plan.label} sugerido para ${formatDateShort(nextDate)} · cada ${plan.kmInterval.toLocaleString("es-GT")} km o ${plan.monthInterval} meses.`;
+  const todayNode = spineTodayNode(vehicle, { summary, upcoming, tone });
+  const pastNodes = (history || []).length
+    ? history.map(spineEventNode).join("")
+    : spineEventNode(anchor);
+  const originNode = `<article class="spine-event spine-origin" data-spine-event>
+    <span class="spine-node origin" aria-hidden="true"></span>
+    <div class="spine-event-card"><strong>Acá empieza tu ${clientSafe(vehicleBaseTitle(vehicle))}.</strong><p>Todo lo que hagamos queda registrado en esta línea.</p></div>
+  </article>`;
+
+  paintSpine(mount, `${todayNode}${pastNodes}${originNode}`);
 }
 
 function normalizeVehicleToken(value) {
@@ -668,31 +713,6 @@ function preferredVehicle() {
   return withActiveAppointment || vehicles[0];
 }
 
-function renderOverviewSwitcher(activeVehicle) {
-  const holder = clientQs("#overviewVehicleSwitcher");
-  if (!holder) return;
-  const vehicles = clientPortalState.vehicles || [];
-  if (vehicles.length <= 1) {
-    holder.classList.add("hidden-field");
-    holder.innerHTML = "";
-    return;
-  }
-  holder.classList.remove("hidden-field");
-  holder.innerHTML = `
-    <div class="overview-switcher-head">
-      <span>Cambiar carro</span>
-      <button class="overview-switcher-add" type="button" data-open-vehicle-modal aria-label="Agregar otro vehículo">＋ Agregar</button>
-    </div>
-    <div class="overview-switcher-track">
-      ${vehicles.map((vehicle) => {
-        const active = String(vehicle.id) === String(activeVehicle.id);
-        const name = vehicle.nickname || vehicleBaseTitle(vehicle);
-        const detail = [vehicle.brand && vehicle.line ? vehicleBaseTitle(vehicle) : "", vehicle.year || ""].filter(Boolean).join(" · ");
-        return `<button type="button" class="overview-switcher-car ${active ? "active" : ""}" data-select-overview-vehicle="${clientSafe(vehicle.id)}" aria-pressed="${active ? "true" : "false"}"><span>${clientSafe(name)}</span><small>${clientSafe(detail || vehicle.plate || "Vehículo guardado")}</small></button>`;
-      }).join("")}
-    </div>`;
-}
-
 async function ensureVehicleHistory(vehicleId, { refresh = false } = {}) {
   if (!vehicleId || !isDashboardReady()) return [];
   clientPortalState.vehicleHistoryMap = clientPortalState.vehicleHistoryMap || {};
@@ -750,7 +770,6 @@ function renderOverview() {
   const activeVehicle = preferredVehicle();
   clientPortalState.activeVehicleId = activeVehicle.id;
   setGlobalServiceLinks(activeVehicle.id);
-  renderOverviewSwitcher(activeVehicle);
 
   setText("#clientGreeting", `Hola, ${firstName}.`);
   setText("#clientNextStep", `Así está tu ${vehicleBaseTitle(activeVehicle)} hoy.`);

@@ -186,20 +186,21 @@
                 <p class="overview-hello" id="clientGreeting">Hola.</p>
                 <h2 id="clientNextStep">Así está tu carro hoy.</h2>
               </div>
-              <div class="overview-vehicle-switcher hidden-field" id="overviewVehicleSwitcher" aria-label="Cambiar vehículo activo"></div>
             </div>
 
-            <section class="garage-command-center" aria-labelledby="garageCommandTitle">
+            <section class="garage-spine" id="garageSpine" aria-labelledby="garageCommandTitle">
               <div class="garage-command-head">
                 <div class="garage-command-copy">
-                  <span>Historial inteligente del vehículo</span>
+                  <span>Tu línea de tiempo</span>
                   <h3 id="garageCommandTitle">Todo lo que pasó. Y lo que sigue.</h3>
-                  <p>Servicios, kilometraje y próxima acción conectados en una sola línea.</p>
                 </div>
-                <button class="garage-command-action" type="button" data-open-timeline>Ver historial completo</button>
+                <button class="garage-command-action" type="button" data-open-timeline>Ver expediente</button>
               </div>
-              <div class="overview-service-timeline" id="overviewServiceTimeline" aria-live="polite"></div>
-              <p class="timeline-mobile-hint" aria-hidden="true">Deslizá para recorrer el historial <span>→</span></p>
+              <div class="spine-cars" id="spineCars" aria-label="Elegir carro"></div>
+              <div class="spine-body">
+                <div class="spine-rail" aria-hidden="true"><i class="spine-rail-fill" id="spineRailFill"></i></div>
+                <div class="overview-service-timeline" id="overviewServiceTimeline" aria-live="polite"></div>
+              </div>
             </section>
 
             <div class="overview-layout">
@@ -614,5 +615,6 @@
   <script src="services-data.js?v=30.3.3"></script>
   <script src="portal-cliente.js?v=30.3.3"></script>
   <script src="client-booking.js?v=30.3.3"></script>
-<script src="dtek-v30.js?v=30.3.3"></script></body>
+<script src="dtek-v30.js?v=30.3.3"></script>
+<script src="garage-motion.js?v=30.3.3"></script></body>
 </html>
