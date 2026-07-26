@@ -1792,28 +1792,6 @@ code {
 }
 .page-client-v23 .overview-hello { margin: 0 0 3px; color: var(--client-muted); font-size: 15px; font-weight: 720; }
 .page-client-v23 .overview-intro h2 { margin: 0; color: var(--client-ink); font-size: clamp(25px, 3.5vw, 40px); line-height: 1.08; letter-spacing: -.045em; }
-.page-client-v23 .overview-vehicle-switcher {
-  display: flex;
-  max-width: 52%;
-  gap: 6px;
-  padding: 4px;
-  overflow-x: auto;
-  border: 1px solid var(--client-line);
-  border-radius: 10px;
-  background: #fff;
-}
-.page-client-v23 .overview-vehicle-switcher button {
-  min-height: 34px;
-  padding: 7px 10px;
-  border: 0;
-  border-radius: 7px;
-  color: var(--client-muted);
-  background: transparent;
-  font-size: 12px;
-  font-weight: 760;
-  white-space: nowrap;
-}
-.page-client-v23 .overview-vehicle-switcher button.active { color: #fff; background: #1f2937; }
 .page-client-v23 .overview-layout {
   display: grid;
   grid-template-columns: minmax(0, 1.85fr) minmax(280px, .72fr);
@@ -1878,81 +1856,6 @@ code {
   line-height: 1.45;
 }
 .page-client-v23 .overview-service-timeline { margin-top: 16px; }
-.page-client-v23 .service-timeline-card {
-  display: grid;
-  gap: 14px;
-  padding: 16px;
-  border: 1px solid var(--client-line);
-  border-radius: 12px;
-  background: linear-gradient(180deg, #fcfcfd 0%, #f7f8fa 100%);
-}
-.page-client-v23 .service-timeline-card.loading,
-.page-client-v23 .service-timeline-card.empty { background: #f9fafb; }
-.page-client-v23 .service-timeline-card.soon { border-color: #eed59d; background: linear-gradient(180deg, #fffdf8 0%, #fff8e7 100%); }
-.page-client-v23 .service-timeline-card.overdue { border-color: #efc4c0; background: linear-gradient(180deg, #fffafa 0%, #fff2f1 100%); }
-.page-client-v23 .service-timeline-head {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 12px;
-}
-.page-client-v23 .service-timeline-head strong { display: block; margin-top: 4px; color: var(--client-ink); font-size: 18px; line-height: 1.15; }
-.page-client-v23 .service-timeline-head small { max-width: 170px; color: var(--client-muted); text-align: right; line-height: 1.35; }
-.page-client-v23 .service-timeline-rail {
-  position: relative;
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0,1fr));
-  gap: 12px;
-}
-.page-client-v23 .service-timeline-line {
-  position: absolute;
-  top: 10px;
-  left: 32px;
-  right: 32px;
-  height: 2px;
-  border-radius: 999px;
-  background: linear-gradient(90deg, #d9dde3 0%, #cfd6de 50%, #d9dde3 100%);
-}
-.page-client-v23 .service-timeline-track.loading {
-  height: 64px;
-  border-radius: 12px;
-  background: linear-gradient(90deg, #eef0f3, #f8f9fb, #eef0f3);
-  background-size: 200% 100%;
-  animation: clientSkeleton 1.3s infinite;
-}
-.page-client-v23 .service-timeline-stop {
-  position: relative;
-  display: grid;
-  justify-items: center;
-  gap: 8px;
-  text-align: center;
-  z-index: 1;
-}
-.page-client-v23 .service-stop-dot {
-  width: 20px;
-  height: 20px;
-  border-radius: 50%;
-  border: 2px solid #cfd6de;
-  background: #fff;
-  box-shadow: 0 0 0 4px rgba(255,255,255,.9);
-}
-.page-client-v23 .service-timeline-stop.done .service-stop-dot { background: #1f2937; border-color: #1f2937; }
-.page-client-v23 .service-timeline-stop.today .service-stop-dot { border-color: var(--client-red); box-shadow: 0 0 0 4px rgba(229,43,30,.12); }
-.page-client-v23 .service-timeline-stop.target .service-stop-dot { background: #fff; border-color: #9ca3af; }
-.page-client-v23 .service-stop-copy {
-  display: grid;
-  gap: 2px;
-  justify-items: center;
-}
-.page-client-v23 .service-stop-copy small { color: var(--client-muted); font-size: 11px; font-weight: 780; text-transform: uppercase; letter-spacing: .04em; }
-.page-client-v23 .service-stop-copy strong { color: var(--client-ink); font-size: 12px; line-height: 1.35; }
-.page-client-v23 .service-stop-copy span { color: var(--client-muted); font-size: 12px; line-height: 1.35; }
-.page-client-v23 .service-timeline-summary {
-  margin: 0;
-  color: var(--client-ink-soft);
-  font-size: 13px;
-  line-height: 1.52;
-}
 .page-client-v23 .overview-benefit-card { background: #171b22; border-color: #171b22; color: #fff; box-shadow: var(--client-shadow-strong); }
 .page-client-v23 .overview-benefit-card .card-label { color: #ff8a80; }
 .page-client-v23 .overview-benefit-card h3 { color: #fff; font-size: 24px; }
@@ -2346,7 +2249,6 @@ code {
   .page-client-v23 .client-section-heading .client-kicker { display: none; }
   .page-client-v23 .client-section-heading h1 { font-size: 28px; }
   .page-client-v23 .overview-intro { align-items: flex-start; flex-direction: column; }
-  .page-client-v23 .overview-vehicle-switcher { max-width: 100%; width: 100%; }
   .page-client-v23 .overview-layout,
   .page-client-v23 .vehicles-workspace,
   .page-client-v23 .vehicle-content-grid,
@@ -2480,16 +2382,6 @@ code {
    D-TEK Web OS v23.2 · Mobile cockpit
    Resumen compacto: carros arriba, estado y cita visibles sin bajar.
    ====================================================================== */
-.page-client-v23 .overview-vehicle-switcher {
-  display: block;
-}
-.page-client-v23 .overview-switcher-head { display: none; }
-.page-client-v23 .overview-switcher-track {
-  display: flex;
-  gap: 6px;
-}
-.page-client-v23 .overview-switcher-car small { display: none; }
-
 @media (max-width: 767px) {
   .page-client-v23 .client-portal-header,
   .page-client-v23 .client-portal-bar { min-height: 58px; }
@@ -2518,7 +2410,6 @@ code {
     display: none;
   }
 
-  /* El selector de carros es el primer elemento útil de la pantalla. */
   .page-client-v23 .overview-intro {
     display: flex;
     align-items: stretch;
@@ -2526,85 +2417,6 @@ code {
     gap: 10px;
     margin-bottom: 10px;
   }
-  .page-client-v23 .overview-vehicle-switcher {
-    order: -1;
-    width: 100%;
-    max-width: none;
-    padding: 0;
-    overflow: visible;
-    border: 0;
-    border-radius: 0;
-    background: transparent;
-  }
-  .page-client-v23 .overview-switcher-head {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 12px;
-    margin-bottom: 6px;
-    color: var(--client-muted);
-    font-size: 11px;
-    font-weight: 850;
-    letter-spacing: .08em;
-    text-transform: uppercase;
-  }
-  .page-client-v23 .overview-vehicle-switcher .overview-switcher-add {
-    min-height: 28px;
-    padding: 4px 7px;
-    border: 0;
-    color: var(--client-red);
-    background: transparent;
-    font-size: 11px;
-    font-weight: 850;
-  }
-  .page-client-v23 .overview-switcher-track {
-    gap: 7px;
-    overflow-x: auto;
-    padding: 1px 1px 5px;
-    scrollbar-width: none;
-    scroll-snap-type: x proximity;
-  }
-  .page-client-v23 .overview-switcher-track::-webkit-scrollbar { display: none; }
-  .page-client-v23 .overview-vehicle-switcher .overview-switcher-car {
-    min-width: 132px;
-    min-height: 48px;
-    display: grid;
-    align-content: center;
-    gap: 1px;
-    padding: 7px 10px;
-    border: 1px solid var(--client-line);
-    border-radius: 10px;
-    color: var(--client-ink);
-    background: #fff;
-    box-shadow: none;
-    text-align: left;
-    scroll-snap-align: start;
-  }
-  .page-client-v23 .overview-vehicle-switcher .overview-switcher-car span {
-    overflow: hidden;
-    font-size: 12px;
-    font-weight: 850;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-  .page-client-v23 .overview-vehicle-switcher .overview-switcher-car small {
-    display: block;
-    overflow: hidden;
-    color: var(--client-muted);
-    font-size: 9px;
-    font-weight: 650;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-  .page-client-v23 .overview-vehicle-switcher .overview-switcher-car.active {
-    color: #fff;
-    border-color: #1f2937;
-    background: #1f2937;
-  }
-  .page-client-v23 .overview-vehicle-switcher .overview-switcher-car.active small {
-    color: #d7dce4;
-  }
-
   .page-client-v23 .overview-hello {
     margin: 0;
     font-size: 12px;
@@ -2686,44 +2498,6 @@ code {
   }
   .page-client-v23 #section-overview .overview-service-timeline {
     margin-top: 12px;
-  }
-  .page-client-v23 #section-overview .service-timeline-card {
-    gap: 10px;
-    padding: 12px;
-  }
-  .page-client-v23 #section-overview .service-timeline-head {
-    flex-direction: column;
-    gap: 6px;
-  }
-  .page-client-v23 #section-overview .service-timeline-head strong {
-    font-size: 16px;
-  }
-  .page-client-v23 #section-overview .service-timeline-head small {
-    max-width: none;
-    text-align: left;
-    font-size: 12px;
-  }
-  .page-client-v23 #section-overview .service-timeline-rail {
-    gap: 6px;
-  }
-  .page-client-v23 #section-overview .service-timeline-line {
-    left: 22px;
-    right: 22px;
-  }
-  .page-client-v23 #section-overview .service-stop-dot {
-    width: 16px;
-    height: 16px;
-  }
-  .page-client-v23 #section-overview .service-stop-copy small {
-    font-size: 9px;
-  }
-  .page-client-v23 #section-overview .service-stop-copy strong,
-  .page-client-v23 #section-overview .service-stop-copy span {
-    font-size: 11px;
-  }
-  .page-client-v23 #section-overview .service-timeline-summary {
-    font-size: 12px;
-    line-height: 1.45;
   }
   .page-client-v23 #section-overview .client-card-actions {
     display: flex;
@@ -2809,9 +2583,6 @@ code {
 }
 
 @media (max-width: 360px) {
-  .page-client-v23 .overview-vehicle-switcher .overview-switcher-car {
-    min-width: 118px;
-  }
   .page-client-v23 #section-overview .client-card-actions {
     gap: 7px;
   }
@@ -4162,10 +3933,6 @@ code {
 }
 .page-client-v23 .garage-timeline-panel[hidden] { display: none; }
 .page-client-v23 .garage-timeline-panel .overview-service-timeline { margin: 0; }
-.page-client-v23 .garage-timeline-panel .service-timeline-card {
-  border: 0;
-  box-shadow: none;
-}
 
 @media (max-width: 1023px) {
   .page-client-v23 .garage-timeline-dock-inner {
@@ -4213,7 +3980,6 @@ code {
     padding: 6px;
     border-radius: 12px;
   }
-  .page-client-v23 .garage-timeline-panel .service-timeline-card { padding: 12px; }
 }
 
 @media (max-width: 360px) {

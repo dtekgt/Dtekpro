@@ -888,52 +888,6 @@
 .page-client-v23 .overview-intro{margin-bottom:18px}
 .page-client-v23 .overview-hello{color:var(--client-muted);font-weight:550}
 .page-client-v23 .overview-intro h2{color:#fff;font-weight:300}
-.page-client-v23 .overview-vehicle-switcher{
-  padding:4px;
-  border-color:var(--client-line);
-  border-radius:999px;
-  background:rgba(255,255,255,.025);
-}
-.page-client-v23 .overview-vehicle-switcher button{border-radius:999px;color:var(--client-muted);font-weight:550}
-.page-client-v23 .overview-vehicle-switcher button.active{
-  color:#fff;
-  background:linear-gradient(90deg,rgba(227,32,37,.38),rgba(126,5,10,.28));
-  box-shadow:inset 0 -2px var(--f1-red-hot),0 0 18px rgba(227,32,37,.13);
-}
-.page-client-v23 .garage-command-center{
-  position:relative;
-  overflow:hidden;
-  margin-bottom:18px;
-  padding:clamp(22px,4vw,38px);
-  border:1px solid rgba(255,255,255,.13);
-  border-radius:30px;
-  background:
-    radial-gradient(circle at 78% 12%,rgba(227,32,37,.14),transparent 32%),
-    linear-gradient(145deg,#13171d,#07080b 72%);
-  box-shadow:0 30px 100px rgba(0,0,0,.35),inset 0 1px rgba(255,255,255,.04);
-  isolation:isolate;
-}
-.page-client-v23 .garage-command-center::before{
-  content:"";
-  position:absolute;
-  z-index:-1;
-  left:42%;right:-8%;top:11%;
-  height:1px;
-  transform:rotate(-7deg);
-  background:linear-gradient(90deg,transparent,var(--f1-red-hot),rgba(255,59,63,.2),transparent);
-  box-shadow:0 0 20px rgba(227,32,37,.55);
-  animation:v30LedSweep 7s var(--f1-ease) infinite;
-}
-.page-client-v23 .garage-command-center::after{
-  content:"";
-  position:absolute;
-  z-index:-1;
-  inset:0;
-  opacity:.11;
-  background:repeating-linear-gradient(120deg,transparent 0 36px,rgba(255,255,255,.07) 37px 38px);
-  -webkit-mask-image:linear-gradient(90deg,transparent 35%,#000);
-  mask-image:linear-gradient(90deg,transparent 35%,#000);
-}
 .page-client-v23 .garage-command-head{
   display:flex;
   align-items:flex-end;
@@ -972,85 +926,6 @@
   font-weight:550;
 }
 .page-client-v23 .overview-service-timeline{margin:0}
-.page-client-v23 .service-timeline-card{
-  gap:20px;
-  padding:22px;
-  border-color:rgba(255,255,255,.1);
-  border-radius:22px;
-  color:#fff;
-  background:rgba(0,0,0,.22);
-  backdrop-filter:blur(10px);
-}
-.page-client-v23 .service-timeline-card.soon{border-color:rgba(255,186,86,.22);background:linear-gradient(90deg,rgba(255,186,86,.05),rgba(0,0,0,.2))}
-.page-client-v23 .service-timeline-card.overdue{border-color:rgba(255,59,63,.28);background:linear-gradient(90deg,rgba(227,32,37,.08),rgba(0,0,0,.22))}
-.page-client-v23 .service-timeline-card.loading,
-.page-client-v23 .service-timeline-card.empty{
-  background:rgba(0,0,0,.22);
-  color:#fff;
-}
-.page-client-v23 .service-timeline-card.empty strong{color:#fff}
-.page-client-v23 .service-timeline-card.empty p{color:var(--client-muted)}
-.page-client-v23 .service-timeline-track.loading{
-  background:linear-gradient(90deg,rgba(255,255,255,.06),rgba(255,255,255,.12),rgba(255,255,255,.06));
-  background-size:200% 100%;
-}
-.page-client-v23 .service-timeline-head strong{color:#fff;font-size:clamp(20px,3vw,30px);font-weight:400}
-.page-client-v23 .service-timeline-head small{color:var(--client-muted)}
-.page-client-v23 .service-timeline-rail{
-  position:relative;
-  min-height:128px;
-  padding-top:20px;
-}
-.page-client-v23 .service-timeline-line{
-  left:7%;right:7%;top:39px;
-  height:7px;
-  border-radius:999px;
-  background:
-    linear-gradient(90deg,rgba(255,255,255,.34),rgba(227,32,37,.9) 50%,rgba(255,59,63,.22));
-  box-shadow:0 0 24px rgba(227,32,37,.42),inset 0 1px rgba(255,255,255,.5);
-}
-.page-client-v23 .service-timeline-stop{z-index:1}
-.page-client-v23 .service-stop-dot{
-  width:22px;
-  height:22px;
-  border:5px solid #11151a;
-  background:rgba(255,255,255,.5);
-  box-shadow:0 0 0 1px rgba(255,255,255,.2),0 0 14px rgba(255,255,255,.15);
-}
-.page-client-v23 .service-timeline-stop.today .service-stop-dot{
-  width:27px;height:27px;
-  background:#fff;
-  box-shadow:0 0 0 5px rgba(255,255,255,.08),0 0 20px rgba(255,255,255,.28);
-}
-.page-client-v23 .service-timeline-stop.target .service-stop-dot{
-  background:var(--f1-red-hot);
-  box-shadow:0 0 0 5px rgba(227,32,37,.1),0 0 28px rgba(227,32,37,.7);
-  animation:v30TargetPulse 2.5s ease-in-out infinite;
-}
-.page-client-v23 .service-stop-copy small{color:rgba(255,255,255,.35);letter-spacing:.1em}
-.page-client-v23 .service-stop-copy strong{color:#fff;font-size:15px}
-.page-client-v23 .service-stop-copy span{color:var(--client-muted)}
-.page-client-v23 .service-timeline-summary{color:rgba(255,255,255,.62)}
-.page-client-v23 .service-timeline-footer{
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:16px;
-  padding-top:14px;
-  border-top:1px solid var(--client-line);
-}
-.page-client-v23 .service-timeline-footer p{margin:0;color:rgba(255,255,255,.56);font-size:12px}
-.page-client-v23 .service-timeline-footer button{
-  min-height:40px;
-  padding:0 15px;
-  border:0;
-  border-radius:999px;
-  color:#fff;
-  background:linear-gradient(135deg,var(--f1-red-hot),var(--f1-red));
-  font-size:11px;
-  font-weight:600;
-  box-shadow:0 10px 26px rgba(227,32,37,.2);
-}
 .page-client-v23 .overview-layout{grid-template-columns:minmax(0,1.45fr) minmax(280px,.65fr);gap:18px}
 .page-client-v23 .next-action-card,
 .page-client-v23 .active-vehicle-card,
@@ -1419,8 +1294,6 @@
 .v30-sheen:hover::before{opacity:1}
 .v30-sheen>*{position:relative;z-index:1}
 @keyframes v30NavIn{from{opacity:0;transform:translateY(-16px)}to{opacity:1;transform:none}}
-@keyframes v30LedSweep{0%,100%{opacity:.12;transform:translateX(12%) rotate(-7deg) scaleX(.8)}48%{opacity:.9;transform:translateX(-8%) rotate(-7deg) scaleX(1)}}
-@keyframes v30TargetPulse{0%,100%{transform:scale(.92);box-shadow:0 0 0 5px rgba(227,32,37,.08),0 0 18px rgba(227,32,37,.4)}50%{transform:scale(1.04);box-shadow:0 0 0 7px rgba(227,32,37,.12),0 0 32px rgba(227,32,37,.75)}}
 
 /* ------------------------------
    Responsive
@@ -1494,7 +1367,6 @@
   .page-client-v23 .client-portal-content{width:calc(100% - 24px);padding-top:22px;padding-bottom:calc(154px + env(safe-area-inset-bottom))}
   .page-client-v23 .garage-section-kicker{display:none}
   .page-client-v23 .client-section-heading h1{font-size:30px}
-  .page-client-v23 .garage-command-center{padding:20px 14px;border-radius:24px}
   .page-client-v23 .garage-command-head{align-items:flex-start;flex-direction:column}
   .page-client-v23 .garage-command-copy h3{font-size:clamp(35px,12vw,50px)}
   .page-client-v23 .garage-command-action{width:100%}
@@ -1545,32 +1417,13 @@
 @media(max-width:520px){
   .page-client-v23 .overview-secondary-column{grid-template-columns:1fr}
   .page-client-v23 .client-section-heading{align-items:center}
-  .page-client-v23 .service-timeline-head{align-items:flex-start;flex-direction:column}
   .page-client-v23 .points-wallet{padding:18px}
   .page-client-v23 .profile-social-stats{grid-template-columns:repeat(3,1fr)}
 }
 
-/* Mobile timeline affordance and legacy-specificity corrections. */
-.page-client-v23 .timeline-mobile-hint{display:none}
+/* Legacy-specificity corrections. */
 @media(max-width:767px){
   .page-client-v23 #section-overview .overview-secondary-column{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
-  .page-client-v23 .timeline-mobile-hint{
-    display:flex;
-    align-items:center;
-    justify-content:flex-end;
-    gap:8px;
-    margin:8px 2px 0;
-    color:rgba(255,255,255,.4);
-    font-size:10px;
-    font-weight:600;
-    letter-spacing:.08em;
-    text-transform:uppercase;
-  }
-  .page-client-v23 .timeline-mobile-hint span{
-    color:var(--f1-red-hot);
-    font-size:15px;
-    text-shadow:0 0 12px rgba(227,32,37,.65);
-  }
 }
 @media(max-width:520px){
   .page-client-v23 #section-overview .overview-secondary-column{grid-template-columns:1fr}
@@ -1578,8 +1431,6 @@
 
 @media(prefers-reduced-motion:reduce){
   .v30-reveal{opacity:1!important;transform:none!important;transition:none!important}
-  .page-client-v23 .garage-command-center::before,
-  .page-client-v23 .service-timeline-stop.target .service-stop-dot{animation:none!important}
 }
 
 /* v24 components inherit the dark F1 material instead of their old light palette. */
