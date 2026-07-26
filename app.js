@@ -773,13 +773,20 @@ function renderDateButtons() {
   const firstOpen = dates.find(date => getWorkingWindow(formatDateForInput(date)));
   selectedAgendaDate = selectedAgendaDate || formatDateForInput(firstOpen || dates[0]);
 
-  holder.innerHTML = dates.map(date => {
+  const weekdayHeaders = ["Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"];
+  const leadBlanks = dates[0].getDay();
+  const blanksHtml = Array.from({ length: leadBlanks }, () => `<span class="calendar-blank"></span>`).join("");
+
+  const cellsHtml = dates.map((date, index) => {
     const value = formatDateForInput(date);
-    const labelTop = date.toLocaleDateString("es-GT", { weekday: "short" }).replace(".", "");
-    const labelDay = date.toLocaleDateString("es-GT", { day: "numeric", month: "short" }).replace(".", "");
+    const dayNum = date.getDate();
     const closed = !getWorkingWindow(value);
-    return `<button class="date-chip ${value === selectedAgendaDate ? "selected" : ""} ${closed ? "disabled" : ""}" type="button" data-date="${value}" ${closed ? "disabled" : ""}><small>${labelTop}</small><strong>${labelDay}</strong>${closed ? "<em>Cerrado</em>" : ""}</button>`;
+    const showMonth = index === 0 || dayNum === 1;
+    const monthTag = showMonth ? `<small>${date.toLocaleDateString("es-GT", { month: "short" }).replace(".", "")}</small>` : "";
+    return `<button class="date-chip ${value === selectedAgendaDate ? "selected" : ""} ${closed ? "disabled" : ""}" type="button" data-date="${value}" ${closed ? "disabled" : ""}>${monthTag}<strong>${dayNum}</strong>${closed ? "<em>Cerrado</em>" : ""}</button>`;
   }).join("");
+
+  holder.innerHTML = `<div class="calendar-weekdays">${weekdayHeaders.map(day => `<span>${day}</span>`).join("")}</div><div class="calendar-grid">${blanksHtml}${cellsHtml}</div>`;
 }
 
 async function renderTimeButtons() {

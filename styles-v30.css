@@ -2035,3 +2035,63 @@
   line-height:1.5;
 }
 .page-client-v23 .referral-public-hint a{color:var(--client-red,var(--f1-red-hot));text-decoration:underline}
+
+/* ==========================================================================
+   D-TEK v31 · Agenda — selector de fecha en formato calendario mensual
+   ========================================================================== */
+.page-agenda-v25-pro #dateButtons.date-grid{
+  display:block;
+  flex-wrap:wrap;
+  overflow:visible;
+  padding:2px 2px 4px;
+}
+.page-agenda-v25-pro .calendar-weekdays{
+  width:100%;
+  flex:1 1 100%;
+  display:grid;
+  grid-template-columns:repeat(7,1fr);
+  gap:6px;
+  margin-bottom:6px;
+}
+.page-agenda-v25-pro .calendar-weekdays span{
+  text-align:center;
+  font-size:10px;
+  font-weight:650;
+  letter-spacing:.06em;
+  text-transform:uppercase;
+  color:rgba(255,255,255,.4);
+}
+.page-agenda-v25-pro .calendar-grid{
+  width:100%;
+  flex:1 1 100%;
+  display:grid;
+  grid-template-columns:repeat(7,1fr);
+  gap:6px;
+}
+.page-agenda-v25-pro .calendar-blank{visibility:hidden}
+.page-agenda-v25-pro .calendar-grid .date-chip{
+  flex:none;
+  min-width:0;
+  min-height:0;
+  width:100%;
+  aspect-ratio:1/1;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:1px;
+  padding:4px;
+  text-align:center;
+}
+.page-agenda-v25-pro .calendar-grid .date-chip small{
+  font-size:8px;
+  text-transform:uppercase;
+  letter-spacing:.04em;
+  opacity:.55;
+}
+.page-agenda-v25-pro .calendar-grid .date-chip strong{font-size:15px}
+.page-agenda-v25-pro .calendar-grid .date-chip em{font-size:6.5px;opacity:.6;font-style:normal}
+@media (max-width:480px){
+  .page-agenda-v25-pro .calendar-weekdays span{font-size:9px}
+  .page-agenda-v25-pro .calendar-grid .date-chip strong{font-size:13px}
+}
