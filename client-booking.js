@@ -145,7 +145,9 @@
   function openBooking(trigger) {
     const id = trigger?.dataset.vehicleId || clientPortalState.activeVehicleId;
     booking.vehicle = (clientPortalState.vehicles || []).find(vehicle => String(vehicle.id) === String(id)) || (clientPortalState.vehicles || [])[0] || null;
-    if (!booking.vehicle) { openVehicleModal(); return; }
+    // Garage vacío: en vez de forzar a guardar un carro, mandamos a la agenda pública,
+    // donde el vehículo se escribe a mano y la cita se agenda igual.
+    if (!booking.vehicle) { window.location.href = "agenda.html?from=garage"; return; }
     booking.service = null; booking.slot = null; booking.date = ""; booking.busy = {};
     const modal = $("#clientBookingModal");
     modal.setAttribute("aria-hidden", "false");

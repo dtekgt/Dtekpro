@@ -160,7 +160,11 @@
     const line = $("#vehicleLine")?.value || "";
     const year = $("#vehicleYear")?.value || "";
     const engine = $("#vehicleEngine")?.value || "";
-    const states = { line: Boolean(brand), year: Boolean(brand && line), engine: Boolean(brand && line && year), moves: Boolean(brand && line && year && engine) };
+    // Un carro traído del Garage puede venir sin motor: no lo escondamos o el paso 1 se traba.
+    const linked = document.body.dataset.vehicleLinked === "true";
+    const states = linked
+      ? { line: true, year: true, engine: true, moves: true }
+      : { line: Boolean(brand), year: Boolean(brand && line), engine: Boolean(brand && line && year), moves: Boolean(brand && line && year && engine) };
     Object.entries(states).forEach(([level, visible]) => {
       const label = $(`[data-cascade-level="${level}"]`);
       if (label) label.classList.toggle("cascade-hidden", !visible);
@@ -231,15 +235,17 @@
     getStep: () => Number(document.body.dataset.bookingStep || 1)
   };
 
+  window.DtekSelectorPro = { updateVehicleCascade: updatePublicVehicleCascade };
+
   function selectedServiceExists() {
     return Boolean($("#agendaService")?.value);
   }
 
   function validateStep(step) {
     if (step === 1) {
-      const linked = new URLSearchParams(location.search).get("vehicle_id");
-      if (linked) return true;
-      const ordered = ["#vehicleBrand", "#vehicleLine", "#vehicleYear", "#vehicleEngine", "#vehicleMoves"];
+      // Con un carro del Garage los selects quedan bloqueados: solo falta confirmar si arranca.
+      const linked = document.body.dataset.vehicleLinked === "true";
+      const ordered = linked ? ["#vehicleMoves"] : ["#vehicleBrand", "#vehicleLine", "#vehicleYear", "#vehicleEngine", "#vehicleMoves"];
       for (const selector of ordered) {
         const field = $(selector);
         if (field && !field.value) {
@@ -268,12 +274,9 @@
 
   function initAgendaWizard() {
     if (!$("#agendaForm") || !$("[data-booking-step]")) return;
-    const params = new URLSearchParams(location.search);
-    const linked = params.get("vehicle_id");
-    const service = params.get("servicio");
-    let initial = linked ? 2 : 1;
-    if (service) initial = linked ? 3 : 1;
-    setBookingStep(initial, { scroll: false });
+    // Siempre arrancamos en el paso 1. Si el carro guardado sí carga, app.js adelanta el paso;
+    // si no carga, la persona lo escribe a mano sin quedarse sin vehículo.
+    setBookingStep(1, { scroll: false });
 
     document.addEventListener("click", event => {
       const next = event.target.closest("[data-booking-next]");

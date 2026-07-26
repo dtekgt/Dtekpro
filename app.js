@@ -18,6 +18,8 @@ let selectedSymptomLabel = "";
 let selectedAgendaServiceIds = [];
 let smartAgendaContextPromise = null;
 let smartProfileEditing = false;
+let agendaGarageVehicles = [];
+let agendaAccountMode = "guest";
 const DTEK_CLIENT_PREFS_KEY = "dtek_client_preferences_v1";
 
 const qs = (selector, scope = document) => scope.querySelector(selector);
@@ -404,6 +406,97 @@ function compactSmartAgendaFields() {
 
   qsa(".vehicle-manual-field").forEach(label => label.classList.toggle("auto-field-hidden", hasVehicle));
   renderSmartProfileBanner();
+  renderGuestAccountChoice();
+}
+
+/* Paso 4: invitado por defecto. Crear perfil siempre es opcional. */
+function renderGuestAccountChoice() {
+  const block = qs("#guestAccountChoice");
+  if (!block) return;
+  const alreadyLogged = Boolean(linkedAgendaSession?.user);
+  block.classList.toggle("hidden-field", alreadyLogged);
+  if (alreadyLogged && agendaAccountMode !== "guest") setAgendaAccountMode("guest");
+  qsa("#guestAccountFields input").forEach(input => { input.disabled = alreadyLogged || agendaAccountMode !== "create"; });
+}
+
+function setAgendaAccountMode(mode) {
+  agendaAccountMode = mode === "create" ? "create" : "guest";
+  qsa("[data-account-mode]").forEach(button => {
+    const active = button.dataset.accountMode === agendaAccountMode;
+    button.classList.toggle("active", active);
+    button.setAttribute("aria-pressed", String(active));
+  });
+  const fields = qs("#guestAccountFields");
+  fields?.classList.toggle("hidden-field", agendaAccountMode !== "create");
+  // Deshabilitados en modo invitado: si no, un usuario a medio escribir dispara
+  // la validación nativa sobre un campo oculto y el botón "Confirmar" no responde.
+  qsa("#guestAccountFields input").forEach(input => { input.disabled = agendaAccountMode !== "create"; });
+  setGuestAccountStatus("");
+}
+
+function setGuestAccountStatus(message = "", tone = "") {
+  const el = qs("#guestAccountStatus");
+  if (!el) return;
+  el.textContent = message;
+  el.className = `guest-account-status-v31 ${message ? `is-visible ${tone}` : ""}`.trim();
+}
+
+function guestAccountRequest() {
+  return {
+    username: qs("#guestAccountUser")?.value.trim() || "",
+    password: qs("#guestAccountPassword")?.value || "",
+    confirm: qs("#guestAccountPasswordConfirm")?.value || "",
+    saveVehicle: Boolean(qs("#guestAccountSaveVehicle")?.checked)
+  };
+}
+
+function validateGuestAccountFields() {
+  if (agendaAccountMode !== "create") return { ok: true };
+  const { username, password, confirm } = guestAccountRequest();
+  if (username.length < 3) return { ok: false, message: "Elegí un usuario de al menos 3 caracteres.", focus: "#guestAccountUser" };
+  if (password.length < 6) return { ok: false, message: "La contraseña necesita al menos 6 caracteres.", focus: "#guestAccountPassword" };
+  if (password !== confirm) return { ok: false, message: "Las contraseñas no coinciden.", focus: "#guestAccountPasswordConfirm" };
+  return { ok: true };
+}
+
+/* Se ejecuta DESPUÉS de guardar la cita: si el perfil falla, la cita ya está a salvo. */
+async function createProfileAfterBooking(data) {
+  if (agendaAccountMode !== "create") return null;
+  if (!dtekBackendActive() || !window.DtekBackend?.signUpLocal) {
+    return { ok: false, message: "El perfil no se pudo crear desde aquí, pero tu cita ya quedó guardada." };
+  }
+  const { username, password, saveVehicle } = guestAccountRequest();
+  try {
+    await window.DtekBackend.signUpLocal({
+      username,
+      password,
+      contactEmail: data.email,
+      fullName: data.fullName,
+      phone: data.phone
+    });
+    smartAgendaContextPromise = null;
+    linkedAgendaSession = await window.DtekBackend.getSession?.() || null;
+
+    try { await window.DtekBackend.updateMyProfile?.(data.fullName, data.phone, { default_location: data.address, default_city: data.city }); }
+    catch (profileError) { console.warn("Perfil creado, pero no se guardaron las preferencias", profileError); }
+
+    if (saveVehicle && data.brand && window.DtekBackend?.createMyVehicle) {
+      try { await window.DtekBackend.createMyVehicle({ brand: data.brand, line: data.line, year: data.year, engine: data.engine }); }
+      catch (vehicleError) { console.warn("Perfil creado, pero el carro no se guardó en el Garage", vehicleError); }
+    }
+
+    try { await window.DtekBackend.claimMyAppointments?.(); }
+    catch (claimError) { console.warn("Perfil creado, pero la cita no se vinculó automáticamente", claimError); }
+
+    return { ok: true, username };
+  } catch (error) {
+    console.warn("No se pudo crear el perfil desde la agenda", error);
+    const code = error?.code || "";
+    const message = code === "USERNAME_TAKEN" ? "Ese usuario ya existe."
+      : code === "EMAIL_ALREADY_REGISTERED" ? "Ese correo ya tiene cuenta."
+      : String(error?.message || "No se pudo crear el perfil.");
+    return { ok: false, message: `${message} Tu cita sí quedó guardada; podés crear tu perfil después desde el Garage.` };
+  }
 }
 
 async function fetchLatestAgendaDetails() {
@@ -930,6 +1023,87 @@ function lockVehicleFields(locked = true) {
       el.classList.toggle("linked-locked", locked);
     }
   });
+  document.body.dataset.vehicleLinked = locked ? "true" : "false";
+}
+
+function clearVehicleFields() {
+  ["#vehicleBrandOther", "#vehicleLineOther"].forEach(selector => setFieldValue(selector, ""));
+  setFieldValue("#vehicleBrand", "");
+  updateVehicleLineOptions();
+  setFieldValue("#vehicleYear", "");
+  setFieldValue("#vehicleEngine", "");
+  setFieldValue("#vehicleMoves", "");
+  toggleVehicleCustomFields();
+}
+
+/* Modo manual: cualquiera puede escribir su carro sin tenerlo en el Garage. */
+function useManualVehicle({ clear = true } = {}) {
+  linkedAgendaVehicle = null;
+  linkedAgendaVehicleId = "";
+  lockVehicleFields(false);
+  if (clear) clearVehicleFields();
+  renderLinkedVehicleBanner(null);
+  window.DtekSelectorPro?.updateVehicleCascade?.();
+  renderVehicleSourcePicker();
+  compactSmartAgendaFields();
+  updateAgendaSummary();
+  qs("#vehicleBrand")?.focus();
+}
+
+function useGarageVehicle(vehicleId) {
+  const vehicle = agendaGarageVehicles.find(item => String(item.id) === String(vehicleId));
+  if (!vehicle) return;
+  linkedAgendaVehicle = vehicle;
+  linkedAgendaVehicleId = vehicle.id;
+  applyVehicleToAgendaFields(vehicle);
+  renderLinkedVehicleBanner(vehicle);
+  window.DtekSelectorPro?.updateVehicleCascade?.();
+  renderVehicleSourcePicker();
+  compactSmartAgendaFields();
+  updateAgendaSummary();
+}
+
+function vehicleSourceLabel(vehicle) {
+  return [vehicle.nickname || vehicle.brand, vehicle.nickname ? "" : vehicle.line, vehicle.year || ""].filter(Boolean).join(" ");
+}
+
+/* Solo aparece si la persona ya inició sesión y tiene carros guardados.
+   Siempre incluye la salida "Otro carro" para no obligar a usar el Garage. */
+function renderVehicleSourcePicker() {
+  const holder = qs("#vehicleSourcePicker");
+  if (!holder) return;
+  if (!agendaGarageVehicles.length) {
+    holder.classList.add("hidden-field");
+    holder.innerHTML = "";
+    return;
+  }
+  const activeId = linkedAgendaVehicle?.id || linkedAgendaVehicleId || "";
+  holder.classList.remove("hidden-field");
+  holder.innerHTML = `
+    <span class="vehicle-source-eyebrow-v31">Tus carros guardados</span>
+    <div class="vehicle-source-options-v31">
+      ${agendaGarageVehicles.map(vehicle => `
+        <button type="button" class="vehicle-source-chip-v31 ${String(vehicle.id) === String(activeId) ? "active" : ""}" data-garage-vehicle="${safeText(vehicle.id)}" aria-pressed="${String(vehicle.id) === String(activeId)}">
+          <strong>${safeText(vehicleSourceLabel(vehicle))}</strong>
+          <small>${safeText([vehicle.brand, vehicle.line].filter(Boolean).join(" ") || "Vehículo guardado")}</small>
+        </button>`).join("")}
+      <button type="button" class="vehicle-source-chip-v31 manual ${activeId ? "" : "active"}" data-manual-vehicle aria-pressed="${!activeId}">
+        <strong>Otro carro</strong>
+        <small>Escribilo ahora. No se guarda en tu Garage.</small>
+      </button>
+    </div>`;
+}
+
+async function loadAgendaGarageVehicles() {
+  if (!qs("#agendaForm") || !linkedAgendaSession?.user || !window.DtekBackend?.listMyVehicles) return [];
+  try {
+    agendaGarageVehicles = (await window.DtekBackend.listMyVehicles()) || [];
+  } catch (error) {
+    console.warn("No se pudieron cargar los carros del Garage para la agenda", error);
+    agendaGarageVehicles = [];
+  }
+  renderVehicleSourcePicker();
+  return agendaGarageVehicles;
 }
 
 function applyVehicleToAgendaFields(vehicle) {
@@ -991,6 +1165,7 @@ function renderLinkedVehicleBanner(vehicle) {
       <span class="eyebrow">Vehículo seleccionado</span>
       <strong>${safeText(vehicle.brand)} ${safeText(vehicle.line)} ${safeText(vehicle.year || "")}</strong>
       <small>Placa: ${safeText(vehicle.plate || "—")} · VIN: ${safeText(vehicle.vin || "—")}</small>
+      <button class="linked-vehicle-switch-v31" type="button" data-manual-vehicle>Es otro carro, quiero escribirlo</button>
     </div>`;
 }
 
@@ -1000,16 +1175,18 @@ async function loadLinkedVehicleFromUrl() {
   if (!qs("#agendaForm")) return;
 
   await loadSmartAgendaContext();
+  await loadAgendaGarageVehicles();
 
   if (!vehicleId) {
+    lockVehicleFields(false);
     compactSmartAgendaFields();
     updateAgendaSummary();
     return;
   }
 
   if (!dtekBackendActive() || !window.DtekBackend?.getMyVehicle) {
-    renderLinkedVehicleBanner({ brand: "Vehículo guardado", line: "pendiente", year: "" });
-    setBookingStatus("Para cargar este carro guardado, iniciá sesión en el portal cliente y asegurate de tener Supabase activo.", "error");
+    setAgendaStepMessage("Ese carro guardado solo se carga con tu sesión abierta. Escribilo aquí abajo y seguimos igual.");
+    useManualVehicle();
     return;
   }
 
@@ -1018,18 +1195,20 @@ async function loadLinkedVehicleFromUrl() {
     linkedAgendaVehicle = vehicle;
     applyVehicleToAgendaFields(vehicle);
     renderLinkedVehicleBanner(vehicle);
+    renderVehicleSourcePicker();
+    window.DtekSelectorPro?.updateVehicleCascade?.();
     compactSmartAgendaFields();
     updateAgendaSummary();
     if (params.get("from") === "garage" && !params.get("servicio") && !qs("#agendaService")?.value) {
       renderAgendaGroups();
     }
+    // El carro ya está resuelto: saltamos al paso que toca.
+    const target = params.get("servicio") ? 3 : 2;
+    if (window.DtekBookingWizard?.getStep?.() === 1) window.DtekBookingWizard.setStep(target, { scroll: false });
   } catch (error) {
     console.warn("No se pudo cargar vehículo ligado", error);
-    setBookingStatus(`No se pudo cargar el vehículo guardado: ${error.message}. Podés completar los datos manualmente.`, "error");
-    linkedAgendaVehicle = null;
-    linkedAgendaVehicleId = "";
-    renderLinkedVehicleBanner(null);
-    compactSmartAgendaFields();
+    setAgendaStepMessage("No pudimos abrir ese carro guardado. Escribí los datos aquí abajo y tu cita sigue igual.");
+    useManualVehicle();
   }
 }
 
@@ -1338,13 +1517,17 @@ ${selectedAddOnsText(data.addOns)}
 Entiendo que la cita queda sujeta a confirmación final según ubicación, acceso, vehículo, disponibilidad y alcance real del servicio.`;
 }
 
-function showBookingSuccess(saved, data, waMessage) {
+function showBookingSuccess(saved, data, waMessage, accountResult = null) {
   const holder = qs("#bookingSuccess");
   if (!holder) return;
   const vehicle = [data.brand, data.line, data.year].filter(Boolean).join(" ") || "Sin datos";
   const endTime = data.slot ? formatMinutes(data.slot.end) : "";
   const folio = saved.id ? String(saved.id).slice(0, 8).toUpperCase() : "—";
   const waHref = typeof waLink === "function" ? waLink(waMessage) : "#";
+  const accountNote = !accountResult ? ""
+    : accountResult.ok
+      ? `<div class="success-account-v31 ok"><strong>Tu perfil quedó listo.</strong><p>Entrá al Garage con el usuario <b>${safeText(accountResult.username)}</b> y la contraseña que elegiste.</p></div>`
+      : `<div class="success-account-v31 warn"><strong>La cita quedó guardada.</strong><p>${safeText(accountResult.message)}</p></div>`;
 
   holder.innerHTML = `
     <div class="booking-success-card-v25">
@@ -1361,6 +1544,7 @@ function showBookingSuccess(saved, data, waMessage) {
       </div>
 
       <div class="success-folio-v25">Folio de referencia: <strong>DTK-${safeText(folio)}</strong></div>
+      ${accountNote}
 
       <div class="success-whatsapp-v25">
         <p>Ya abrimos WhatsApp con el resumen listo. Si no se abrió, tocá el botón y solo hace falta que presiones <strong>Enviar</strong>.</p>
@@ -1474,6 +1658,11 @@ function clearBookingStatus() {
   if (!el) return;
   el.className = "booking-status";
   el.textContent = "";
+}
+
+function setAgendaStepMessage(message = "") {
+  const el = qs("#agendaStepMessage");
+  if (el) el.textContent = message;
 }
 
 function prepareConfirmationEmails(appointment) {
@@ -1841,6 +2030,27 @@ function setupEvents() {
       return;
     }
 
+    const manualVehicle = event.target.closest("[data-manual-vehicle]");
+    if (manualVehicle) {
+      setAgendaStepMessage("");
+      useManualVehicle();
+      return;
+    }
+
+    const garageVehicle = event.target.closest("[data-garage-vehicle]");
+    if (garageVehicle) {
+      setAgendaStepMessage("");
+      useGarageVehicle(garageVehicle.dataset.garageVehicle);
+      return;
+    }
+
+    const accountMode = event.target.closest("[data-account-mode]");
+    if (accountMode) {
+      setAgendaAccountMode(accountMode.dataset.accountMode);
+      if (agendaAccountMode === "create") qs("#guestAccountUser")?.focus();
+      return;
+    }
+
     const statusButton = event.target.closest("[data-appointment-status]");
     if (statusButton) {
       const id = statusButton.dataset.appointmentId;
@@ -1941,6 +2151,7 @@ function setupEvents() {
   if (agendaForm) {
     agendaForm.addEventListener("submit", async (event) => {
       event.preventDefault();
+      setAgendaStepMessage("");
       const data = getAgendaFormValues();
       if (!data.service) {
         alert("Elegí un servicio antes de continuar.");
@@ -1957,7 +2168,23 @@ function setupEvents() {
         return;
       }
       if (!agendaForm.checkValidity()) {
+        // Un campo obligatorio de otro paso está oculto: reportValidity no puede enfocarlo
+        // y el botón parecería no responder. Llevamos a la persona al paso correcto.
+        const firstInvalid = agendaForm.querySelector(":invalid");
+        const stepNumber = Number(firstInvalid?.closest("[data-booking-step]")?.dataset.bookingStep || 0);
+        if (stepNumber && stepNumber !== window.DtekBookingWizard?.getStep?.()) {
+          window.DtekBookingWizard?.setStep?.(stepNumber);
+          setAgendaStepMessage("Falta un dato en este paso para poder confirmar tu cita.");
+          window.setTimeout(() => firstInvalid.reportValidity(), 260);
+          return;
+        }
         agendaForm.reportValidity();
+        return;
+      }
+      const accountCheck = validateGuestAccountFields();
+      if (!accountCheck.ok) {
+        setGuestAccountStatus(accountCheck.message, "error");
+        qs(accountCheck.focus)?.focus();
         return;
       }
       const submitButton = agendaForm.querySelector(".submit-booking");
@@ -1986,6 +2213,7 @@ function setupEvents() {
         return;
       }
       await persistSmartAgendaProfile(data);
+      const accountResult = await createProfileAfterBooking(data);
       renderTimeButtons();
       updateAgendaSummary();
       renderAgendaMemory();
@@ -1993,7 +2221,7 @@ function setupEvents() {
       setBookingStatus(`Solicitud guardada. Ahora abrimos WhatsApp con el resumen.`, "ok");
       prepareConfirmationEmails(saved);
       const waMessage = buildAgendaMessage(saved.id);
-      showBookingSuccess(saved, data, waMessage);
+      showBookingSuccess(saved, data, waMessage, accountResult);
       openWhatsApp(waMessage);
     });
   }

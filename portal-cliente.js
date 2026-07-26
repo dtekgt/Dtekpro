@@ -564,11 +564,13 @@ function vehicleServiceUrl(vehicleId) {
 }
 
 function setGlobalServiceLinks(vehicleId = null) {
+  // Sin carros guardados el botón sigue vivo: manda a la agenda pública, que sí permite
+  // escribir el vehículo a mano. Nadie tiene que armar su Garage para poder agendar.
   ["#globalServiceCta", "#mobileServiceCta"].forEach((selector) => {
     const trigger = clientQs(selector);
     if (!trigger) return;
     trigger.dataset.vehicleId = vehicleId || "";
-    trigger.disabled = !vehicleId;
+    trigger.disabled = false;
   });
 }
 
@@ -859,7 +861,7 @@ function renderVehicleWorkspace() {
     picker.classList.add("hidden-field");
     clientQs("#vehicleProfileView")?.classList.add("hidden-field");
     clientQs("#vehicleProfileEmpty")?.classList.remove("hidden-field");
-    clientQs("#vehicleProfileEmpty").innerHTML = `<span class="client-kicker">Tu primer carro</span><h2>Todavía no tenés vehículos guardados.</h2><p>Agregá uno para empezar su expediente y agendar sin repetir datos.</p><button class="client-btn client-btn-primary" type="button" data-open-vehicle-modal>Agregar mi primer carro</button>`;
+    clientQs("#vehicleProfileEmpty").innerHTML = `<span class="client-kicker">Tu primer carro</span><h2>Todavía no tenés vehículos guardados.</h2><p>Guardar un carro es opcional: sirve para su expediente y para no repetir datos. Para agendar hoy no hace falta.</p><button class="client-btn client-btn-primary" type="button" data-open-vehicle-modal>Agregar mi primer carro</button><a class="client-btn client-btn-secondary" href="agenda.html?from=garage">Agendar sin guardar carro</a>`;
     return;
   }
 
