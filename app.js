@@ -2168,17 +2168,18 @@ function setupEvents() {
         return;
       }
       if (!agendaForm.checkValidity()) {
-        // Un campo obligatorio de otro paso está oculto: reportValidity no puede enfocarlo
+        // Un campo obligatorio de otro paso está oculto: el aviso nativo no puede enfocarlo
         // y el botón parecería no responder. Llevamos a la persona al paso correcto.
         const firstInvalid = agendaForm.querySelector(":invalid");
         const stepNumber = Number(firstInvalid?.closest("[data-booking-step]")?.dataset.bookingStep || 0);
+        const hint = window.DtekSelectorPro?.messageFor?.(`#${firstInvalid?.id}`);
         if (stepNumber && stepNumber !== window.DtekBookingWizard?.getStep?.()) {
           window.DtekBookingWizard?.setStep?.(stepNumber);
           setAgendaStepMessage("Falta un dato en este paso para poder confirmar tu cita.");
-          window.setTimeout(() => firstInvalid.reportValidity(), 260);
+          window.setTimeout(() => window.DtekSelectorPro?.flagField?.(firstInvalid, hint), 260);
           return;
         }
-        agendaForm.reportValidity();
+        window.DtekSelectorPro?.flagField?.(firstInvalid, hint);
         return;
       }
       const accountCheck = validateGuestAccountFields();

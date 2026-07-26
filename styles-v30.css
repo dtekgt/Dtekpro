@@ -1346,20 +1346,21 @@
   .page-agenda-v25-pro .booking-progress-v25 span{min-width:112px;scroll-snap-align:start}
   .page-agenda-v25-pro .booking-panel-v25,
   .page-agenda-v25-pro .booking-summary-v25{border-radius:22px}
-  .page-agenda-v25-pro .booking-step-v25{padding:20px 16px 96px}
+  .page-agenda-v25-pro .booking-step-v25{padding:20px 16px 24px}
   .page-agenda-v25-pro .booking-step-head-v25 h2{font-size:38px}
   .page-agenda-v25-pro .schedule-selector-v25{margin-inline:-3px;padding:16px 12px;border-radius:20px}
   .page-agenda-v25-pro .date-chip{min-width:96px;min-height:88px}
   .page-agenda-v25-pro .time-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  /* Sin sticky: el pie flotante se montaba encima de los últimos 44px de cada paso
+     y en el paso 1 tapaba justo el selector de Marca. */
   .page-agenda-v25-pro .booking-step-footer-v25{
-    position:sticky;
-    left:0;right:0;bottom:calc(68px + env(safe-area-inset-bottom));
-    z-index:22;
-    margin:24px -16px -96px;
-    padding:12px 16px calc(12px + env(safe-area-inset-bottom));
+    position:static;
+    z-index:auto;
+    margin:24px 0 0;
+    padding:16px 0 0;
     border-top:1px solid var(--f1-line);
-    background:rgba(5,6,8,.94);
-    backdrop-filter:blur(18px);
+    background:transparent;
+    backdrop-filter:none;
   }
   .page-agenda-v25-pro .booking-step-footer-v25 .public-btn-v25{min-height:48px}
   .page-client-v23 .client-dashboard{padding-top:72px}
@@ -2340,4 +2341,62 @@
 .page-client-v23 .client-empty-state a.client-btn{
   margin-top:10px;
   text-decoration:none;
+}
+
+/* v31 · El paso 1 tiene que verse como formulario, no como una pantalla vacía */
+.page-agenda-v25-pro .booking-step-head-v25 p{
+  margin:0 0 4px;
+  font-size:14px;
+  line-height:1.5;
+}
+.page-agenda-v25-pro .vehicle-cascade-v25 label > span,
+.page-agenda-v25-pro .confirm-grid-v25 label > span{
+  color:rgba(255,255,255,.82);
+  font-size:12px;
+  font-weight:650;
+  letter-spacing:.04em;
+}
+.page-agenda-v25-pro .vehicle-cascade-v25 select,
+.page-agenda-v25-pro .confirm-grid-v25 input,
+.page-agenda-v25-pro .confirm-grid-v25 textarea{
+  font-size:16px; /* menos de 16px hace que iOS haga zoom al enfocar */
+}
+.page-agenda-v25-pro .vehicle-cascade-v25 select:focus-visible{
+  outline:none;
+  border-color:rgba(230,54,43,.6);
+  box-shadow:var(--v25-glow-red);
+}
+/* Campo que frenó el paso: se marca en rojo hasta que la persona lo llena */
+.field-needs-attention-v31{
+  border-color:rgba(230,54,43,.75)!important;
+  box-shadow:0 0 0 3px rgba(230,54,43,.18)!important;
+}
+
+@media (max-width:680px){
+  /* El paso 2 traía un pie blanco pegajoso heredado de styles.css: mismo trato que el resto. */
+  .page-agenda-v25-pro .booking-step-v25[data-booking-step="2"]{padding-bottom:24px}
+  .page-agenda-v25-pro .booking-step-v25[data-booking-step="2"] .booking-step-footer-v25{
+    position:static;
+    z-index:auto;
+    margin:24px 0 0;
+    padding:16px 0 0;
+    border-top:1px solid var(--f1-line);
+    background:transparent;
+    backdrop-filter:none;
+  }
+  .page-agenda-v25-pro .booking-step-v25[data-booking-step="2"] .booking-step-footer-v25 .primary{order:0}
+}
+.field-hint-v31{
+  grid-column:1/-1;
+  margin:-6px 0 2px;
+  padding:9px 12px;
+  border:1px solid rgba(230,54,43,.45);
+  border-radius:8px;
+  background:rgba(230,54,43,.14);
+  color:#ff9f97;
+  font-size:13px;
+  font-weight:700;
+  line-height:1.4;
+  text-transform:none;
+  letter-spacing:0;
 }

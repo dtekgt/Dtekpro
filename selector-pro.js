@@ -179,6 +179,8 @@
     fillEngineSelect();
     updatePublicVehicleCascade();
     ["#vehicleBrand", "#vehicleLine", "#vehicleYear", "#vehicleEngine"].forEach(selector => $(selector)?.addEventListener("change", () => window.setTimeout(updatePublicVehicleCascade, 0)));
+    Object.keys(FIELD_MESSAGES).forEach(selector => $(selector)?.addEventListener("change", clearFieldAttention));
+    Object.keys(FIELD_MESSAGES).forEach(selector => $(selector)?.addEventListener("input", clearFieldAttention));
     $$('[data-agenda-list-mode]').forEach(button => button.addEventListener('click', () => {
       const mode = button.dataset.agendaListMode;
       $$('[data-agenda-list-mode]').forEach(item => item.classList.toggle('active', item === button));
@@ -235,7 +237,46 @@
     getStep: () => Number(document.body.dataset.bookingStep || 1)
   };
 
-  window.DtekSelectorPro = { updateVehicleCascade: updatePublicVehicleCascade };
+  /* El aviso nativo del navegador sale en inglés ("Select an item in the list") y en el
+     webview de iOS se ancla lejos del campo. Usamos uno propio, en español y pegado al campo. */
+  const FIELD_MESSAGES = {
+    "#vehicleBrand": "Elegí la marca de tu carro para continuar.",
+    "#vehicleLine": "Elegí la línea o modelo.",
+    "#vehicleYear": "Elegí el año del carro.",
+    "#vehicleEngine": "Elegí el motor. Si no lo sabés, elegí «No sé».",
+    "#vehicleMoves": "Contanos si el carro arranca y se mueve.",
+    "#clientName": "Escribí tu nombre.",
+    "#clientPhone": "Escribí tu teléfono para confirmarte por WhatsApp.",
+    "#clientEmail": "Escribí un correo válido.",
+    "#clientCity": "Escribí tu zona o municipio.",
+    "#clientAddress": "Escribí la dirección o una referencia."
+  };
+
+  function clearFieldAttention() {
+    $$(".field-needs-attention-v31").forEach(el => el.classList.remove("field-needs-attention-v31"));
+    $$(".field-hint-v31").forEach(el => el.remove());
+  }
+
+  function flagField(field, message) {
+    if (!field) return;
+    clearFieldAttention();
+    field.classList.add("field-needs-attention-v31");
+    const anchor = field.closest("label") || field;
+    const hint = document.createElement("p");
+    hint.className = "field-hint-v31";
+    hint.setAttribute("role", "alert");
+    hint.textContent = message || "Completá este dato para continuar.";
+    anchor.insertAdjacentElement("afterend", hint);
+    field.scrollIntoView({ block: "center", behavior: "smooth" });
+    window.setTimeout(() => { try { field.focus({ preventScroll: true }); } catch (error) { /* iOS puede rechazar el focus */ } }, 220);
+  }
+
+  window.DtekSelectorPro = {
+    updateVehicleCascade: updatePublicVehicleCascade,
+    flagField,
+    clearFieldAttention,
+    messageFor: selector => FIELD_MESSAGES[selector]
+  };
 
   function selectedServiceExists() {
     return Boolean($("#agendaService")?.value);
@@ -250,10 +291,11 @@
         const field = $(selector);
         if (field && !field.value) {
           updatePublicVehicleCascade();
-          field.reportValidity();
+          flagField(field, FIELD_MESSAGES[selector]);
           return false;
         }
       }
+      clearFieldAttention();
       return true;
     }
     if (step === 2 && !selectedServiceExists()) {
