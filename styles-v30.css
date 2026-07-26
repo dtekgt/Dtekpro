@@ -178,6 +178,14 @@
   border-color:rgba(255,59,63,.62);
   box-shadow:0 0 0 3px rgba(227,32,37,.12),0 0 22px rgba(227,32,37,.1);
 }
+/* El popup nativo del select se pinta con el fondo del sistema (blanco), así que
+   el texto blanco heredado quedaba invisible hasta pasar el cursor encima. */
+.page-public-v25 select option,
+.page-client-v23 select option,
+.page-admin-v31 select option{
+  color:#f5f6f8;
+  background-color:#12161f;
+}
 
 /* ------------------------------
    Services
@@ -1903,7 +1911,16 @@
 .selector-service-extra p{margin:0;color:rgba(255,255,255,.55);font-size:12.5px;line-height:1.4;max-width:520px}
 .selector-service-extra .selector-service-detail-link{flex:none;color:var(--f1-red-hot);font-size:12px;font-weight:700;white-space:nowrap;text-decoration:none}
 .selector-service-extra .selector-service-detail-link:hover{text-decoration:underline}
-@media(max-width:640px){.selector-service-extra{padding-left:25px}}
+@media(max-width:640px){
+  .selector-service-extra{padding-left:25px}
+  /* En táctil el enlace medía 18px de alto; se le da área de toque usable. */
+  .selector-service-extra .selector-service-detail-link{
+    display:inline-flex;
+    align-items:center;
+    min-height:40px;
+    padding:2px 0;
+  }
+}
 
 /* ==========================================================================
    D-TEK v31 · Agenda — total persistente en el resumen + campos obligatorios

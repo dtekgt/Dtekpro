@@ -747,16 +747,6 @@ code {
     min-width: 78%;
     scroll-snap-align:start;
   }
-  .date-grid, .time-grid {
-    display:flex !important;
-    overflow-x:auto;
-    gap:10px;
-    padding-bottom: 6px;
-    scroll-snap-type:x mandatory;
-  }
-  .date-chip { min-width: 86px; }
-  .time-chip { min-width: 112px; }
-  .date-chip, .time-chip { scroll-snap-align:start; }
   .booking-layout { padding-bottom: 114px; }
   .booking-summary.compact-summary {
     position:fixed !important;
@@ -4880,6 +4870,11 @@ html, body { max-width: 100%; overflow-x: hidden; }
 @media (max-width: 560px) {
   .additional-catalog-grid-v274 { grid-template-columns: 1fr; }
   .additional-catalog-card-v274 p { min-height: 0; }
+  .additional-catalog-card-v274 a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 40px;
+  }
 }
 
 
