@@ -2400,3 +2400,51 @@
   text-transform:none;
   letter-spacing:0;
 }
+
+/* Si el navegador bloqueó la pestaña de WhatsApp, el botón deja de ser un respaldo
+   discreto y pasa a ser la acción principal de la pantalla de éxito. */
+.success-whatsapp-v25.needs-tap-v31{
+  border-color:rgba(230,54,43,.5);
+  border-radius:14px;
+  background:rgba(230,54,43,.1);
+  box-shadow:0 0 26px rgba(227,32,37,.14);
+}
+.success-whatsapp-v25.needs-tap-v31 p{color:#ffd9d6;font-size:14px}
+
+/* =========================================================
+   v31 · Garage: el paso "día y hora" se salía del modal
+   La tira de días es flex con scroll horizontal. Como el formulario es un grid
+   y sus celdas nacen con min-width:auto, esa tira imponía su ancho de contenido
+   (952px en un modal de 359px): la grilla de horas quedaba de 2 columnas de
+   472px y solo se veía la primera. En la práctica, la mitad de los turnos
+   caía fuera de la pantalla, igual que le pasaba a la agenda de invitado.
+   ========================================================= */
+.page-client-v23 .client-booking-modal .client-form,
+.page-client-v23 .client-booking-step,
+.page-client-v23 .client-booking-step > *{min-width:0}
+.page-client-v23 .client-booking-dates{
+  min-width:0;
+  overflow-x:auto;
+  overflow-y:hidden;
+  padding-bottom:6px;
+  scroll-snap-type:x proximity;
+  -webkit-overflow-scrolling:touch;
+  scrollbar-width:none;
+}
+.page-client-v23 .client-booking-dates::-webkit-scrollbar{display:none}
+.page-client-v23 .client-booking-dates button{flex:0 0 auto;scroll-snap-align:start}
+.page-client-v23 .client-booking-times{min-width:0}
+.page-client-v23 .client-booking-times button{min-width:0;padding-inline:6px}
+/* Las píldoras del progreso venían del tema claro: fondo casi blanco con texto
+   blanco encima, así que "2. Horario" y "3. Confirmar" no se leían. */
+.page-client-v23 .client-booking-progress span,
+.page-client-v23 .client-booking-progress span.pending{
+  color:rgba(255,255,255,.62);
+  background:rgba(255,255,255,.04);
+}
+.page-client-v23 .client-booking-progress span.done{
+  color:var(--f1-green);
+  background:rgba(111,227,184,.09);
+  box-shadow:none;
+}
+.page-client-v23 .client-booking-progress span.active{color:#fff}

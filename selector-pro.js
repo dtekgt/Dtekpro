@@ -241,7 +241,9 @@
      webview de iOS se ancla lejos del campo. Usamos uno propio, en español y pegado al campo. */
   const FIELD_MESSAGES = {
     "#vehicleBrand": "Elegí la marca de tu carro para continuar.",
+    "#vehicleBrandOther": "Escribí la marca de tu carro para continuar.",
     "#vehicleLine": "Elegí la línea o modelo.",
+    "#vehicleLineOther": "Escribí la línea o modelo de tu carro.",
     "#vehicleYear": "Elegí el año del carro.",
     "#vehicleEngine": "Elegí el motor. Si no lo sabés, elegí «No sé».",
     "#vehicleMoves": "Contanos si el carro arranca y se mueve.",
@@ -286,10 +288,21 @@
     if (step === 1) {
       // Con un carro del Garage los selects quedan bloqueados: solo falta confirmar si arranca.
       const linked = document.body.dataset.vehicleLinked === "true";
-      const ordered = linked ? ["#vehicleMoves"] : ["#vehicleBrand", "#vehicleLine", "#vehicleYear", "#vehicleEngine", "#vehicleMoves"];
+      // Un carro que no está en la lista se escribe a mano en "Otra marca" / "Otra línea".
+      // Ese texto es obligatorio: si se dejaba vacío, el paso 1 daba por buena la selección
+      // y recién el botón "Confirmar cita" del paso 4 lo rebotaba, sin cita y sin WhatsApp.
+      const ordered = linked ? ["#vehicleMoves"] : [
+        "#vehicleBrand",
+        ...($("#vehicleBrand")?.value === "Otra marca" ? ["#vehicleBrandOther"] : []),
+        "#vehicleLine",
+        ...($("#vehicleLine")?.value === "Otra línea" ? ["#vehicleLineOther"] : []),
+        "#vehicleYear",
+        "#vehicleEngine",
+        "#vehicleMoves"
+      ];
       for (const selector of ordered) {
         const field = $(selector);
-        if (field && !field.value) {
+        if (field && !String(field.value || "").trim()) {
           updatePublicVehicleCascade();
           flagField(field, FIELD_MESSAGES[selector]);
           return false;

@@ -147,13 +147,56 @@ function waLink(message) {
   return `https://wa.me/${number}?text=${encodeURIComponent(message)}`;
 }
 
-function openWhatsApp(message) {
+function whatsAppReady() {
   const number = getDtekWhatsAppNumber();
-  if (!number || number.includes("XXXXXXXX") || number.length < 11) {
-    alert("Falta configurar correctamente el WhatsApp oficial de D-TEK en services-data.js.");
-    return;
+  return Boolean(number) && !number.includes("XXXXXXXX") && number.length >= 11;
+}
+
+/* El navegador solo deja abrir una pestaña mientras dura el gesto de la persona.
+   Guardar la cita se lleva varios segundos en datos móviles, así que para entonces
+   window.open ya viene bloqueado y el WhatsApp nunca se abría. Reservamos la pestaña
+   en el mismo clic y hasta después le ponemos la dirección. */
+function reserveWhatsAppWindow() {
+  if (!whatsAppReady()) return null;
+  try {
+    const reserved = window.open("", "_blank");
+    if (!reserved) return null;
+    try { reserved.opener = null; } catch (error) { /* algunos navegadores no lo permiten */ }
+    try {
+      reserved.document.write('<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>D-TEK GT</title></head><body style="margin:0;display:grid;place-items:center;min-height:100vh;background:#07080b;color:#fff;font:600 16px/1.5 system-ui,sans-serif">Preparando tu mensaje de WhatsApp...</body></html>');
+      reserved.document.close();
+    } catch (error) { /* about:blank basta */ }
+    return reserved;
+  } catch (error) {
+    return null;
   }
-  window.open(waLink(message), "_blank", "noopener,noreferrer");
+}
+
+function closeReservedWhatsAppWindow(reserved) {
+  try { if (reserved && !reserved.closed) reserved.close(); }
+  catch (error) { /* la persona ya la cerró */ }
+}
+
+/* Devuelve true solo si WhatsApp realmente se abrió: el mensaje de éxito no debe
+   decir "ya abrimos WhatsApp" cuando el navegador lo bloqueó. */
+function deliverWhatsApp(message, reserved = null) {
+  if (!whatsAppReady()) {
+    closeReservedWhatsAppWindow(reserved);
+    alert("Falta configurar correctamente el WhatsApp oficial de D-TEK en services-data.js.");
+    return false;
+  }
+  const href = waLink(message);
+  try {
+    if (reserved && !reserved.closed) { reserved.location.replace(href); return true; }
+  } catch (error) {
+    console.warn("No se pudo reutilizar la pestaña reservada de WhatsApp", error);
+  }
+  try { return Boolean(window.open(href, "_blank", "noopener,noreferrer")); }
+  catch (error) { return false; }
+}
+
+function openWhatsApp(message) {
+  return deliverWhatsApp(message);
 }
 
 function getDtekOwnerEmail() {
@@ -1517,7 +1560,7 @@ ${selectedAddOnsText(data.addOns)}
 Entiendo que la cita queda sujeta a confirmación final según ubicación, acceso, vehículo, disponibilidad y alcance real del servicio.`;
 }
 
-function showBookingSuccess(saved, data, waMessage, accountResult = null) {
+function showBookingSuccess(saved, data, waMessage, accountResult = null, whatsappOpened = true) {
   const holder = qs("#bookingSuccess");
   if (!holder) return;
   const vehicle = [data.brand, data.line, data.year].filter(Boolean).join(" ") || "Sin datos";
@@ -1546,8 +1589,10 @@ function showBookingSuccess(saved, data, waMessage, accountResult = null) {
       <div class="success-folio-v25">Folio de referencia: <strong>DTK-${safeText(folio)}</strong></div>
       ${accountNote}
 
-      <div class="success-whatsapp-v25">
-        <p>Ya abrimos WhatsApp con el resumen listo. Si no se abrió, tocá el botón y solo hace falta que presiones <strong>Enviar</strong>.</p>
+      <div class="success-whatsapp-v25 ${whatsappOpened ? "" : "needs-tap-v31"}">
+        <p>${whatsappOpened
+          ? "Ya abrimos WhatsApp con el resumen listo. Si no se abrió, tocá el botón y solo hace falta que presiones <strong>Enviar</strong>."
+          : "<strong>Falta un paso.</strong> Tu navegador no dejó abrir WhatsApp solo. Tocá el botón y presioná <strong>Enviar</strong> para que recibamos tu solicitud."}</p>
         <a class="public-btn-v25 primary" href="${waHref}" target="_blank" rel="noopener noreferrer">Abrir WhatsApp y enviar</a>
       </div>
 
@@ -2190,11 +2235,14 @@ function setupEvents() {
       }
       const submitButton = agendaForm.querySelector(".submit-booking");
       clearBookingStatus();
+      // Se reserva aquí, todavía dentro del clic, porque después del await ya no hay permiso.
+      const waWindow = reserveWhatsAppWindow();
       if (submitButton) { submitButton.disabled = true; submitButton.textContent = "Guardando solicitud..."; }
       const saved = await saveAppointment();
       console.log("DTEK_FORM_SAVE_RESULT:", saved);
       if (submitButton) { submitButton.disabled = false; submitButton.textContent = "Guardar solicitud y abrir WhatsApp"; }
       if (!saved || saved.conflict) {
+        closeReservedWhatsAppWindow(waWindow);
         setBookingStatus("Ese horario se acaba de ocupar o genera traslape. Elegí otro espacio.", "error");
         alert("Ese horario se acaba de ocupar o genera traslape. Elegí otro espacio.");
         renderTimeButtons();
@@ -2204,11 +2252,13 @@ function setupEvents() {
         return;
       }
       if (saved.error) {
+        closeReservedWhatsAppWindow(waWindow);
         setBookingStatus(`No se pudo guardar la solicitud: ${saved.message}.`, "error");
         console.error("DTEK_FORM_SAVE_ERROR:", saved);
         return;
       }
       if (!saved.supabase || !saved.id) {
+        closeReservedWhatsAppWindow(waWindow);
         setBookingStatus("La solicitud no quedó confirmada en el sistema. Revisá consola antes de publicar.", "error");
         console.error("DTEK_FORM_SAVE_WITHOUT_SUPABASE_ID:", saved);
         return;
@@ -2219,11 +2269,13 @@ function setupEvents() {
       updateAgendaSummary();
       renderAgendaMemory();
       renderAdminAppointments();
-      setBookingStatus(`Solicitud guardada. Ahora abrimos WhatsApp con el resumen.`, "ok");
       prepareConfirmationEmails(saved);
       const waMessage = buildAgendaMessage(saved.id);
-      showBookingSuccess(saved, data, waMessage, accountResult);
-      openWhatsApp(waMessage);
+      const waOpened = deliverWhatsApp(waMessage, waWindow);
+      setBookingStatus(waOpened
+        ? "Solicitud guardada. Abrimos WhatsApp con el resumen."
+        : "Solicitud guardada. Tocá «Abrir WhatsApp y enviar» para mandarnos el resumen.", "ok");
+      showBookingSuccess(saved, data, waMessage, accountResult, waOpened);
     });
   }
 }
