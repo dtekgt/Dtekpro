@@ -3132,3 +3132,22 @@ h2.cinema-how-kicker{margin:0 0 18px;font-size:11px;line-height:1.4}
   .page-service-detail-v24 .servicio-ideal{padding:18px 19px}
   .page-service-detail-v24 .servicio-hermanos>div{grid-template-columns:1fr}
 }
+
+/* ======================================================================
+   D-TEK GT · v31.7 — El boton de menu del inicio salia vacio
+   Las tres barras heredaban margin:6px de la capa v3. En un boton de 42px
+   pedian 44px (36 de margenes + 8 de gaps), asi que flex las encogia a
+   0px de ancho: un circulo oscuro sin nada adentro en todo movil.
+   ====================================================================== */
+.page-home-cinema .cinema-menu span{
+  margin:0;
+  flex:0 0 auto;
+}
+
+/* Un icono sin palabra no se entiende. Donde hay lugar, vuelve el texto. */
+@media (min-width:360px){
+  .page-home-cinema .cinema-menu{width:auto;padding:0 14px;gap:4px}
+  .page-home-cinema .cinema-menu b{display:inline;margin-left:6px;font-size:10px;font-weight:550;letter-spacing:.08em;text-transform:uppercase}
+  .page-home-cinema .cinema-garage-pill{width:auto;padding:5px 14px 5px 5px}
+  .page-home-cinema .cinema-garage-pill b{display:inline;font-size:10px;font-weight:550;letter-spacing:.08em;text-transform:uppercase}
+}
