@@ -3151,3 +3151,41 @@ h2.cinema-how-kicker{margin:0 0 18px;font-size:11px;line-height:1.4}
   .page-home-cinema .cinema-garage-pill{width:auto;padding:5px 14px 5px 5px}
   .page-home-cinema .cinema-garage-pill b{display:inline;font-size:10px;font-weight:550;letter-spacing:.08em;text-transform:uppercase}
 }
+
+/* ======================================================================
+   D-TEK GT · v31.8 — Iconos que se entienden
+   Tres puntitos no dicen "menu" y cuatro puntos no dicen "garage".
+   Rayas de verdad para el menu, y el mismo carro que ya usa la barra
+   inferior para el Garage: si el usuario ya lo asocia abajo, lo asocia
+   arriba.
+   ====================================================================== */
+.page-home-cinema .cinema-menu-bars{
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  gap:3.5px;
+  width:17px;
+  flex:0 0 auto;
+}
+.page-home-cinema .cinema-menu-bars span{
+  width:100%;
+  height:2px;
+  margin:0;
+  border-radius:2px;
+  background:#fff;
+  transition:transform .3s var(--f1-ease,cubic-bezier(.16,1,.3,1)),opacity .3s var(--f1-ease,cubic-bezier(.16,1,.3,1));
+}
+/* Abierto: las rayas se vuelven una equis, que dice "cerrar" sin texto. */
+.page-home-cinema .cinema-menu[aria-expanded="true"] .cinema-menu-bars span:nth-child(1){transform:translateY(5.5px) rotate(45deg)}
+.page-home-cinema .cinema-menu[aria-expanded="true"] .cinema-menu-bars span:nth-child(2){opacity:0}
+.page-home-cinema .cinema-menu[aria-expanded="true"] .cinema-menu-bars span:nth-child(3){transform:translateY(-5.5px) rotate(-45deg)}
+
+.page-home-cinema .cinema-grid-icon{
+  display:grid;
+  place-items:center;
+  grid-template-columns:none;
+  color:#fff;
+}
+@media (prefers-reduced-motion:reduce){
+  .page-home-cinema .cinema-menu-bars span{transition:none}
+}
