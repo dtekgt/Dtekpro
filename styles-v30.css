@@ -2716,3 +2716,137 @@
 .page-client-v23 .vehicle-inner-tabs-label{color:rgba(255,255,255,.58)}
 .page-client-v23 .referral-public-hint a,
 .page-client-v23 .points-rule small{color:var(--f1-red-hot,#ff3b3f)}
+
+/* ======================================================================
+   D-TEK GT · v31.3 — Expediente del servicio (fase 1)
+   La linea de tiempo deja de ser una lista muerta: cada punto se abre.
+   ====================================================================== */
+
+/* Lo que se puede abrir tiene que parecer que se abre. */
+.page-client-v23 .spine-event-card.abrible,
+.page-client-v23 .timeline-card.abrible{
+  cursor:pointer;
+  transition:border-color .35s var(--f1-ease,cubic-bezier(.16,1,.3,1)),
+             transform .35s var(--f1-ease,cubic-bezier(.16,1,.3,1)),
+             background .35s var(--f1-ease,cubic-bezier(.16,1,.3,1));
+}
+.page-client-v23 .spine-event-card.abrible:hover,
+.page-client-v23 .timeline-card.abrible:hover{
+  transform:translateY(-2px);
+  border-color:rgba(255,59,63,.3);
+  background:rgba(255,255,255,.05);
+}
+.page-client-v23 .spine-event-card.abrible:focus-visible,
+.page-client-v23 .timeline-card.abrible:focus-visible{
+  outline:none;
+  box-shadow:0 0 0 3px rgba(227,32,37,.28),0 0 22px rgba(227,32,37,.1);
+}
+.page-client-v23 .spine-event-card.abrible::after,
+.page-client-v23 .timeline-card.abrible::after{
+  content:"→";
+  position:absolute;
+  top:16px;
+  right:16px;
+  color:rgba(255,255,255,.3);
+  font-size:13px;
+  transition:color .35s var(--f1-ease,cubic-bezier(.16,1,.3,1)),transform .35s var(--f1-ease,cubic-bezier(.16,1,.3,1));
+}
+.page-client-v23 .spine-event-card.abrible{position:relative;padding-right:38px}
+.page-client-v23 .timeline-card.abrible{position:relative;padding-right:38px}
+.page-client-v23 .spine-event-card.abrible:hover::after,
+.page-client-v23 .timeline-card.abrible:hover::after{color:var(--f1-red-hot,#ff3b3f);transform:translateX(3px)}
+
+/* --- el expediente --- */
+.page-client-v23 .expediente-panel{
+  width:min(680px,100%);
+  max-height:92vh;
+  overflow:hidden;
+  display:flex;
+  flex-direction:column;
+}
+.page-client-v23 .expediente-body{
+  overflow-y:auto;
+  padding:0 26px 26px;
+  display:flex;
+  flex-direction:column;
+  gap:18px;
+  -webkit-overflow-scrolling:touch;
+}
+.page-client-v23 .exp-cabecera{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  flex-wrap:wrap;
+  padding-bottom:4px;
+}
+.page-client-v23 .exp-fecha{color:var(--client-muted);font-size:13px}
+
+.page-client-v23 .exp-datos{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(140px,1fr));
+  gap:1px;
+  border:1px solid var(--client-line);
+  border-radius:16px;
+  overflow:hidden;
+  background:var(--client-line);
+}
+.page-client-v23 .exp-datos>div{background:var(--f1-black,#030405);padding:12px 14px}
+.page-client-v23 .exp-datos dt{
+  color:var(--client-muted);
+  font-size:9.5px;
+  font-weight:600;
+  letter-spacing:.13em;
+  text-transform:uppercase;
+  margin-bottom:5px;
+}
+.page-client-v23 .exp-datos dd{margin:0;color:#fff;font-size:14px;line-height:1.4}
+
+.page-client-v23 .exp-bloque{
+  padding:18px 20px;
+  border:1px solid var(--client-line);
+  border-radius:18px;
+  background:rgba(255,255,255,.025);
+}
+.page-client-v23 .exp-bloque h3{
+  margin:0 0 8px;
+  color:var(--client-muted);
+  font-size:10px;
+  font-weight:600;
+  letter-spacing:.14em;
+  text-transform:uppercase;
+}
+.page-client-v23 .exp-bloque p{margin:0;color:rgba(255,255,255,.86);font-size:15px;line-height:1.6}
+
+.page-client-v23 .exp-costos .exp-linea{
+  display:flex;
+  justify-content:space-between;
+  gap:14px;
+  padding:9px 0;
+  border-top:1px solid var(--client-line);
+  font-size:15px;
+}
+.page-client-v23 .exp-costos .exp-linea:first-of-type{border-top:0}
+.page-client-v23 .exp-costos span{color:var(--client-muted)}
+.page-client-v23 .exp-costos b{color:#fff;font-weight:550;font-variant-numeric:tabular-nums}
+.page-client-v23 .exp-total strong{color:var(--f1-red-hot,#ff3b3f);font-size:19px;font-weight:600;font-variant-numeric:tabular-nums}
+.page-client-v23 .exp-nota{margin-top:10px !important;color:var(--client-muted) !important;font-size:12.5px !important}
+
+.page-client-v23 .exp-aviso{border-color:rgba(255,186,86,.26);background:rgba(255,186,86,.06)}
+.page-client-v23 .exp-aviso h3{color:var(--f1-amber,#ffab2e)}
+
+.page-client-v23 .exp-pendiente{border-style:dashed;background:transparent}
+.page-client-v23 .exp-pendiente p{color:var(--client-muted);font-size:14px}
+
+@media (max-width:560px){
+  /* A pantalla completa: centrado dejaba el encabezado 8px arriba del borde. */
+  .page-client-v23 .expediente-modal{padding:0;place-items:stretch}
+  .page-client-v23 .expediente-panel{
+    width:100%;
+    height:100dvh;
+    max-height:100dvh;
+    border-radius:0;
+    border-width:0;
+  }
+  .page-client-v23 .expediente-body{padding:0 18px calc(26px + env(safe-area-inset-bottom))}
+  .page-client-v23 .exp-bloque{padding:16px 17px}
+}

@@ -402,9 +402,11 @@ function spineEventNode(item) {
     item.grand_total ? formatMoney(item.grand_total) : ""
   ].filter(Boolean);
 
+  const idServicio = item.appointment_id || item.id || "";
+
   return `<article class="spine-event" data-spine-event>
     <span class="spine-node" aria-hidden="true"></span>
-    <div class="spine-event-card">
+    <div class="spine-event-card${idServicio ? " abrible" : ""}"${idServicio ? ` data-open-expediente="${clientSafe(idServicio)}" role="button" tabindex="0" aria-label="Abrir expediente de ${clientSafe(title)}"` : ""}>
       <div class="spine-event-top"><small>${clientSafe(formatDateShort(item.scheduled_start || item.created_at))}</small><span class="client-status-badge ${statusTone(badge)}">${clientSafe(statusLabel(badge))}</span></div>
       <strong>${clientSafe(title)}</strong>
       ${detail ? `<p>${clientSafe(detail)}</p>` : ""}
@@ -678,9 +680,10 @@ function renderTimeline(history = []) {
     const detail = item.diagnosis || item.symptom || item.recommendations || "Sin detalle adicional.";
     const eventType = isReport ? "Reporte técnico" : "Cita";
     const mileage = item.mileage ? `${Number(item.mileage).toLocaleString("es-GT")} km` : "Kilometraje no registrado";
+    const idServicio = item.appointment_id || item.id || "";
     return `<article class="timeline-item ${isReport ? "report" : "appointment"}">
       <div class="timeline-dot"></div>
-      <div class="timeline-card">
+      <div class="timeline-card${idServicio ? " abrible" : ""}"${idServicio ? ` data-open-expediente="${clientSafe(idServicio)}" role="button" tabindex="0" aria-label="Abrir expediente de ${clientSafe(title)}"` : ""}>
         <div class="timeline-head"><strong>${clientSafe(title)}</strong><span class="client-status-badge ${statusTone(badge)}">${clientSafe(statusLabel(badge))}</span></div>
         <small>${clientSafe(fmtDate(item.scheduled_start || item.created_at))}</small>
         <p>${clientSafe(detail)}</p>
