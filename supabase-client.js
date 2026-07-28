@@ -810,20 +810,21 @@ const DtekBackend = (() => {
     return Array.isArray(data) ? data[0] : data;
   }
 
-  async function saveWorkOrderReport(payload) {
+  async function cerrarTrabajo(payload) {
     const sb = client();
     if (!sb) throw new Error("Supabase no está configurado todavía.");
-    const { data, error } = await sb.rpc("dtek_admin_upsert_work_order_report", {
+    const { data, error } = await sb.rpc("dtek_admin_cerrar_trabajo", {
       p_appointment_id: payload.appointment_id,
       p_diagnosis: payload.diagnosis || null,
       p_recommendations: payload.recommendations || null,
       p_parts_notes: payload.parts_notes || null,
-      p_labor_total: payload.labor_total !== "" && payload.labor_total != null ? Number(payload.labor_total) : null,
-      p_parts_total: payload.parts_total !== "" && payload.parts_total != null ? Number(payload.parts_total) : null,
+      p_mileage: payload.mileage !== "" && payload.mileage != null ? Number(payload.mileage) : null,
+      p_items: payload.items || [],
+      p_cerrar_cita: payload.cerrar_cita !== false,
       p_status: payload.status || "completed"
     });
     if (error) throw error;
-    return Array.isArray(data) ? data[0] : data;
+    return data;
   }
 
   async function listMyAppointments() {
@@ -897,7 +898,7 @@ const DtekBackend = (() => {
     getMyVehicle,
     listMyVehicleHistory,
     createAppointmentForVehicle,
-    saveWorkOrderReport,
+    cerrarTrabajo,
     listMyWorkOrders
   };
 })();

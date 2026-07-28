@@ -3189,3 +3189,33 @@ h2.cinema-how-kicker{margin:0 0 18px;font-size:11px;line-height:1.4}
 @media (prefers-reduced-motion:reduce){
   .page-home-cinema .cinema-menu-bars span{transition:none}
 }
+
+/* ======================================================================
+   D-TEK GT · v31.9 — Líneas del recibo
+   Panel de admin: filas dinámicas para armar el detalle del recibo.
+   Garage del cliente: la misma tabla, de solo lectura.
+   ====================================================================== */
+.page-admin-v31 .work-order-items{display:grid;gap:12px;margin:4px 0}
+.page-admin-v31 .work-order-items-head{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.page-admin-v31 .work-order-item-row{display:grid;gap:8px;padding:10px;border:1px solid rgba(255,255,255,.1);border-radius:12px;background:rgba(255,255,255,.03)}
+.page-admin-v31 .work-order-item-row input[data-field="description"]{min-height:40px;width:100%;border-radius:10px;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.06);color:#fff;padding:0 10px;font-size:13px}
+.page-admin-v31 .woi-fields{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.page-admin-v31 .woi-fields select,
+.page-admin-v31 .woi-fields input{min-height:38px;border-radius:10px;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.06);color:#fff;padding:0 8px;font-size:12.5px}
+.page-admin-v31 .woi-fields select{flex:1 1 84px}
+.page-admin-v31 .woi-fields input[data-field="quantity"]{flex:0 1 56px}
+.page-admin-v31 .woi-fields input[data-field="unit_price"]{flex:0 1 76px}
+.page-admin-v31 .work-order-item-subtotal{flex:1 1 auto;text-align:right;font-size:13px;color:#fff;white-space:nowrap}
+.page-admin-v31 .work-order-item-remove{flex:0 0 auto;min-width:30px;min-height:30px;border-radius:999px;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.05);color:#fff;font-size:15px;line-height:1}
+.page-admin-v31 .work-order-items-totals{display:flex;flex-wrap:wrap;gap:16px;padding-top:10px;border-top:1px solid rgba(255,255,255,.1)}
+.page-admin-v31 .work-order-items-totals span{display:flex;flex-direction:column;gap:2px;font-size:11px;color:rgba(255,255,255,.55)}
+.page-admin-v31 .work-order-items-totals strong{font-size:14px;color:#fff;font-weight:700}
+.page-admin-v31 .work-order-close-check{display:flex;align-items:center;gap:8px;font-weight:600;cursor:pointer}
+.page-admin-v31 .work-order-close-check input{width:auto;min-height:auto}
+
+.page-client-v23 .report-lineas{width:100%;border-collapse:collapse;margin-top:8px;font-size:12.5px}
+.page-client-v23 .report-lineas th{text-align:left;color:var(--client-muted);font-weight:600;padding:4px 6px 4px 0;border-bottom:1px solid var(--client-line)}
+.page-client-v23 .report-lineas td{padding:5px 6px 5px 0;border-bottom:1px solid var(--client-line);color:var(--client-ink-soft)}
+.page-client-v23 .report-lineas th:nth-child(n+2),
+.page-client-v23 .report-lineas td:nth-child(n+2){text-align:right}
+.page-client-v23 .report-lineas tr:last-child td{border-bottom:0}

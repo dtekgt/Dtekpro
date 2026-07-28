@@ -8,8 +8,8 @@
   <meta name="application-name" content="D-TEK GT Web OS" />
   <meta name="theme-color" content="#05080d" />
   <title>Admin Backend · D-TEK GT</title>
-  <link rel="stylesheet" href="styles.css?v=6abc986a" />
-  <link rel="stylesheet" href="styles-v30.css?v=c4e8892f" />
+  <link rel="stylesheet" href="styles.css?v=0876f8a9" />
+  <link rel="stylesheet" href="styles-v30.css?v=eede518b" />
 </head>
 <body class="page-admin-v31">
   <div class="dtek-bg"><span class="orb orb-red"></span><span class="orb orb-cyan"></span></div>
@@ -185,10 +185,21 @@
       <label>Repuestos / materiales / notas
         <textarea id="workOrderPartsNotes" rows="2" placeholder="Piezas usadas, marcas, notas..."></textarea>
       </label>
-      <div class="two-column-grid compact-grid">
-        <label>Mano de obra (Q)<input id="workOrderLaborTotal" type="number" min="0" step="0.01" placeholder="0.00"></label>
-        <label>Repuestos (Q)<input id="workOrderPartsTotal" type="number" min="0" step="0.01" placeholder="0.00"></label>
+      <label>Kilometraje del día<input id="workOrderMileage" type="number" min="0" step="1" placeholder="Ej. 85000"></label>
+
+      <div class="work-order-items">
+        <div class="work-order-items-head">
+          <strong>Líneas del recibo</strong>
+          <button type="button" class="btn btn-cyan" id="workOrderAddItem">+ Agregar línea</button>
+        </div>
+        <div id="workOrderItemsList"></div>
+        <div class="work-order-items-totals">
+          <span>Mano de obra<strong id="workOrderLaborPreview">Q0.00</strong></span>
+          <span>Repuestos<strong id="workOrderPartsPreview">Q0.00</strong></span>
+          <span>Total<strong id="workOrderGrandPreview">Q0.00</strong></span>
+        </div>
       </div>
+
       <label>Estado de la orden
         <select id="workOrderStatus">
           <option value="open">Abierta</option>
@@ -197,6 +208,10 @@
           <option value="completed" selected>Completada</option>
           <option value="cancelled">Cancelada</option>
         </select>
+      </label>
+      <label class="work-order-close-check">
+        <input type="checkbox" id="workOrderCerrarCita" checked>
+        Marcar la cita como realizada
       </label>
       <div id="workOrderStatusBox" class="status-box"></div>
       <div class="admin-modal-actions">
@@ -208,7 +223,7 @@
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="supabase-config.js?v=81e95d5d"></script>
-  <script src="supabase-client.js?v=e6eb922a"></script>
-  <script src="backend-admin.js?v=0ea2076c"></script>
+  <script src="supabase-client.js?v=ae518634"></script>
+  <script src="backend-admin.js?v=a29a988d"></script>
 </body>
 </html>

@@ -392,6 +392,77 @@ async function refreshAllAdminData() {
 }
 
 let dtekWorkOrderAppointmentId = null;
+let dtekWorkOrderItems = [];
+
+function blankWorkOrderItem() {
+  return { description: "", kind: "part", quantity: 1, unit_price: 0 };
+}
+
+function workOrderItemSubtotal(item) {
+  return (Number(item.quantity) || 0) * (Number(item.unit_price) || 0);
+}
+
+function formatQuetzales(amount) {
+  return `Q${(Number(amount) || 0).toFixed(2)}`;
+}
+
+function renderWorkOrderItems() {
+  const holder = adminQs("#workOrderItemsList");
+  if (!holder) return;
+  holder.innerHTML = dtekWorkOrderItems.map((item, index) => `
+    <div class="work-order-item-row" data-index="${index}">
+      <input type="text" data-field="description" placeholder="Descripción" value="${adminSafe(item.description)}">
+      <div class="woi-fields">
+        <select data-field="kind">
+          <option value="part" ${item.kind === "part" ? "selected" : ""}>Repuesto</option>
+          <option value="labor" ${item.kind === "labor" ? "selected" : ""}>Mano de obra</option>
+          <option value="service" ${item.kind === "service" ? "selected" : ""}>Servicio</option>
+        </select>
+        <input type="number" data-field="quantity" min="0.01" step="0.01" value="${item.quantity}">
+        <input type="number" data-field="unit_price" min="0" step="0.01" value="${item.unit_price}">
+        <strong class="work-order-item-subtotal">${formatQuetzales(workOrderItemSubtotal(item))}</strong>
+        <button type="button" class="work-order-item-remove" data-index="${index}" aria-label="Quitar línea">×</button>
+      </div>
+    </div>
+  `).join("");
+  updateWorkOrderTotals();
+}
+
+function updateWorkOrderTotals() {
+  const labor = dtekWorkOrderItems.filter(item => item.kind === "labor").reduce((sum, item) => sum + workOrderItemSubtotal(item), 0);
+  const parts = dtekWorkOrderItems.filter(item => item.kind !== "labor").reduce((sum, item) => sum + workOrderItemSubtotal(item), 0);
+  const laborEl = adminQs("#workOrderLaborPreview");
+  const partsEl = adminQs("#workOrderPartsPreview");
+  const grandEl = adminQs("#workOrderGrandPreview");
+  if (laborEl) laborEl.textContent = formatQuetzales(labor);
+  if (partsEl) partsEl.textContent = formatQuetzales(parts);
+  if (grandEl) grandEl.textContent = formatQuetzales(labor + parts);
+}
+
+function addWorkOrderItem() {
+  dtekWorkOrderItems.push(blankWorkOrderItem());
+  renderWorkOrderItems();
+}
+
+function handleWorkOrderItemsInput(event) {
+  const row = event.target.closest(".work-order-item-row");
+  const field = event.target.dataset.field;
+  if (!row || !field) return;
+  const item = dtekWorkOrderItems[Number(row.dataset.index)];
+  if (!item) return;
+  item[field] = event.target.value;
+  if (field === "quantity" || field === "unit_price") {
+    row.querySelector(".work-order-item-subtotal").textContent = formatQuetzales(workOrderItemSubtotal(item));
+    updateWorkOrderTotals();
+  }
+}
+
+function handleWorkOrderItemsClick(event) {
+  const button = event.target.closest(".work-order-item-remove");
+  if (!button) return;
+  dtekWorkOrderItems.splice(Number(button.dataset.index), 1);
+  renderWorkOrderItems();
+}
 
 function openWorkOrderModal(appointmentId) {
   const modal = adminQs("#workOrderModal");
@@ -407,7 +478,10 @@ function openWorkOrderModal(appointmentId) {
   }
   form.reset();
   adminQs("#workOrderStatus").value = "completed";
+  adminQs("#workOrderCerrarCita").checked = true;
   adminQs("#workOrderStatusBox").innerHTML = "";
+  dtekWorkOrderItems = [blankWorkOrderItem()];
+  renderWorkOrderItems();
   modal.classList.remove("hidden-field");
   adminQs("#workOrderDiagnosis")?.focus();
 }
@@ -428,16 +502,26 @@ async function submitWorkOrderReport(event) {
   try {
     if (statusBox) statusBox.innerHTML = `<p class="status-info">Guardando reporte...</p>`;
     const appointment = dtekAdminAppointmentsCache.find(item => String(item.id) === String(appointmentId));
+    const items = dtekWorkOrderItems
+      .map((item, index) => ({
+        description: String(item.description || "").trim(),
+        kind: item.kind || "part",
+        quantity: Number(item.quantity) || 1,
+        unit_price: Number(item.unit_price) || 0,
+        position: index
+      }))
+      .filter(item => item.description);
     const payload = {
       appointment_id: appointmentId,
       diagnosis: adminQs("#workOrderDiagnosis").value.trim(),
       recommendations: adminQs("#workOrderRecommendations").value.trim(),
       parts_notes: adminQs("#workOrderPartsNotes").value.trim(),
-      labor_total: adminQs("#workOrderLaborTotal").value,
-      parts_total: adminQs("#workOrderPartsTotal").value,
+      mileage: adminQs("#workOrderMileage").value,
+      items,
+      cerrar_cita: adminQs("#workOrderCerrarCita").checked,
       status: adminQs("#workOrderStatus").value
     };
-    const saved = await withTimeout(DtekBackend.saveWorkOrderReport(payload), 10000, "guardar reporte técnico");
+    const saved = await withTimeout(DtekBackend.cerrarTrabajo(payload), 10000, "guardar reporte técnico");
     await dtekSendZapierEvent("work_order_updated", { appointmentId, appointment, workOrder: saved });
     if (statusBox) statusBox.innerHTML = `<p class="status-ok">Reporte guardado. El cliente lo verá en el historial de su vehículo.</p>`;
     await refreshAllAdminData();
@@ -457,6 +541,9 @@ async function initBackendAdmin() {
   adminQs("#workOrderModal")?.addEventListener("click", (event) => {
     if (event.target.id === "workOrderModal") closeWorkOrderModal();
   });
+  adminQs("#workOrderAddItem")?.addEventListener("click", addWorkOrderItem);
+  adminQs("#workOrderItemsList")?.addEventListener("input", handleWorkOrderItemsInput);
+  adminQs("#workOrderItemsList")?.addEventListener("click", handleWorkOrderItemsClick);
 
   adminQs("#backendLoginForm")?.addEventListener("submit", async (event) => {
     event.preventDefault();
