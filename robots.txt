@@ -1,0 +1,11 @@
+User-agent: *
+Allow: /
+
+# Paneles internos: no tienen nada que hacer en un buscador.
+Disallow: /admin.html
+Disallow: /admin-backend.html
+Disallow: /zapier.html
+Disallow: /reset-password.html
+Disallow: /database/
+
+Sitemap: https://dtekpro.vercel.app/sitemap.xml

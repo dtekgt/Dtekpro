@@ -3045,3 +3045,90 @@ h2.cinema-how-kicker{margin:0 0 18px;font-size:11px;line-height:1.4}
    en 4.4. Son el primer punto de decision de la pagina. */
 .page-home-cinema .cinema-paths small{color:rgba(255,255,255,.56)}
 .page-home-cinema .cinema-paths em{color:rgba(255,255,255,.62)}
+
+/* ======================================================================
+   D-TEK GT · v31.5 — Paginas de servicio
+   Elementos que no existian cuando el detalle se armaba solo con JS.
+   ====================================================================== */
+.page-service-detail-v24 .servicio-resumen{
+  max-width:62ch;
+  margin:14px 0 22px;
+  color:rgba(255,255,255,.68);
+  font-size:15.5px;
+  line-height:1.65;
+}
+.page-service-detail-v24 .servicio-ideal{
+  margin-top:18px;
+  padding:22px 24px;
+  border:1px solid rgba(255,255,255,.11);
+  border-radius:22px;
+  background:linear-gradient(145deg,rgba(255,255,255,.045),rgba(255,255,255,.018));
+}
+.page-service-detail-v24 .servicio-ideal h2{
+  margin:0 0 12px;
+  color:rgba(255,255,255,.6);
+  font-size:10px;
+  font-weight:650;
+  letter-spacing:.15em;
+  text-transform:uppercase;
+}
+.page-service-detail-v24 .servicio-ideal ul{
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+  margin:0;
+  padding:0;
+  list-style:none;
+}
+.page-service-detail-v24 .servicio-ideal li{
+  padding:7px 14px;
+  border:1px solid rgba(255,255,255,.14);
+  border-radius:999px;
+  color:rgba(255,255,255,.82);
+  font-size:13px;
+}
+.page-service-detail-v24 .servicio-nota{
+  max-width:74ch;
+  margin:16px 0 0;
+  color:rgba(255,255,255,.58);
+  font-size:13px;
+  line-height:1.6;
+}
+
+/* Enlaces entre servicios de la misma categoria: el camino que le faltaba
+   a Google para llegar a las 45, y una salida natural para el cliente. */
+.page-service-detail-v24 .servicio-hermanos{margin-top:38px}
+.page-service-detail-v24 .servicio-hermanos h2{
+  margin:0 0 14px;
+  color:rgba(255,255,255,.6);
+  font-size:10px;
+  font-weight:650;
+  letter-spacing:.15em;
+  text-transform:uppercase;
+}
+.page-service-detail-v24 .servicio-hermanos>div{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(230px,1fr));
+  gap:10px;
+}
+.page-service-detail-v24 .servicio-hermanos a{
+  display:flex;
+  flex-direction:column;
+  gap:5px;
+  padding:16px 18px;
+  border:1px solid rgba(255,255,255,.11);
+  border-radius:18px;
+  background:rgba(255,255,255,.028);
+  text-decoration:none;
+  transition:border-color .35s var(--f1-ease,cubic-bezier(.16,1,.3,1)),
+             transform .35s var(--f1-ease,cubic-bezier(.16,1,.3,1));
+}
+.page-service-detail-v24 .servicio-hermanos a:hover{transform:translateY(-2px);border-color:rgba(255,59,63,.32)}
+.page-service-detail-v24 .servicio-hermanos a:focus-visible{outline:none;box-shadow:0 0 0 3px rgba(227,32,37,.28)}
+.page-service-detail-v24 .servicio-hermanos strong{color:#fff;font-size:14.5px;font-weight:500;letter-spacing:-.01em}
+.page-service-detail-v24 .servicio-hermanos small{color:var(--f1-red-hot,#ff3b3f);font-size:12.5px;font-weight:500}
+
+@media (max-width:640px){
+  .page-service-detail-v24 .servicio-ideal{padding:18px 19px}
+  .page-service-detail-v24 .servicio-hermanos>div{grid-template-columns:1fr}
+}

@@ -207,8 +207,10 @@ function agendaUrl(id = "") {
   return id ? `agenda.html?servicio=${encodeURIComponent(id)}` : "agenda.html";
 }
 
+// Cada servicio tiene su pagina estatica generada por generar-paginas-servicio.js.
+// Ruta absoluta para que sirva igual desde la raiz que desde /servicio/.
 function serviceUrl(id = "") {
-  return id ? `servicio.html?servicio=${encodeURIComponent(id)}` : "servicios.html";
+  return id ? `/servicio/${encodeURIComponent(id)}.html` : "/servicios.html";
 }
 
 function setFieldValue(selector, value) {
