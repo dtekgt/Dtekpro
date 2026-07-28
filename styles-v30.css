@@ -2659,3 +2659,60 @@
 @media (max-width:520px){
   .selector-service-parts{font-size:11px;padding:4px 10px 4px 9px}
 }
+
+/* ======================================================================
+   D-TEK GT · v31.2 — Fugas del tema claro viejo en el Garage
+   En movil quedaban dos reglas de la capa v23 con #id (especificidad
+   0,1,2,0) que le ganaban a esta capa oscura (0,0,2,0). El panel salia
+   blanco con el texto blanco encima: ilegible.
+   ====================================================================== */
+@media (max-width: 767px){
+  .page-client-v23 #section-vehicles .vehicle-picker-panel{
+    border:1px solid var(--client-line);
+    border-right:0;
+    border-left:0;
+    background:linear-gradient(160deg,#11151a,#07080a);
+    box-shadow:0 10px 26px rgba(0,0,0,.42);
+  }
+  .page-client-v23 #section-overview .overview-primary-column{
+    border-color:var(--client-line);
+    background:transparent;
+  }
+}
+
+/* Las etiquetas del portal estaban en 4.2:1, debajo del minimo legible,
+   y en mayusculas de 10px es donde mas se nota. */
+.page-client-v23 .card-label{color:rgba(255,255,255,.66)}
+.page-client-v23 .overview-secondary-column .card-label{opacity:.8}
+
+/* Un solo ajuste de raiz: --client-muted en .46 dejaba 43 textos del portal
+   por debajo del minimo legible. En .60 pasan todos sin cambiar el tono. */
+.page-client-v23{
+  --client-muted:rgba(247,247,245,.60);
+}
+.page-client-v23 .client-kicker{color:rgba(255,255,255,.62)}
+.page-client-v23 .garage-command-copy span{color:rgba(255,255,255,.6);font-size:10px}
+.page-client-v23 .vehicle-picker-icon{color:var(--f1-red-hot,#ff3b3f)}
+
+/* Botones de pestaña sin fondo declarado: el gris por defecto del navegador
+   quedaba debajo del texto claro. "Canjes" y "Referidos" eran ilegibles. */
+.page-client-v23 .vehicle-inner-tabs button,
+.page-client-v23 .appointment-tabs button,
+.page-client-v23 .points-list-tabs button{
+  border:0;
+  background:transparent;
+}
+
+/* Los contadores del perfil eran blanco sobre blanco: el fondo #fff venia
+   de la capa v23 y esta capa solo cambiaba el color del texto. */
+.page-client-v23 .profile-social-stats button{
+  background:rgba(255,255,255,.025);
+  color:var(--client-muted);
+}
+.page-client-v23 .profile-social-stats button:hover{background:rgba(255,255,255,.05)}
+.page-client-v23 .profile-social-stats strong{color:#fff}
+
+/* Textos de apoyo que quedaban por debajo del minimo legible. */
+.page-client-v23 .vehicle-inner-tabs-label{color:rgba(255,255,255,.58)}
+.page-client-v23 .referral-public-hint a,
+.page-client-v23 .points-rule small{color:var(--f1-red-hot,#ff3b3f)}
