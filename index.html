@@ -9,7 +9,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
 <link rel="preload" as="image" href="assets/hero-dtek-f1.webp" media="(min-width: 701px)" fetchpriority="high">
 <link rel="preload" as="image" href="assets/hero-dtek-f1-mobile.webp" media="(max-width: 700px)" fetchpriority="high">
-<link rel="stylesheet" href="styles.css?v=31.1.0"><link rel="stylesheet" href="styles-v30.css?v=31.1.0"><link rel="icon" href="assets/favicon-32.png" sizes="32x32" type="image/png">
+<link rel="stylesheet" href="styles.css?v=31.4.1"><link rel="stylesheet" href="styles-v30.css?v=31.4.1"><link rel="icon" href="assets/favicon-32.png" sizes="32x32" type="image/png">
 <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
 <link rel="manifest" href="site.webmanifest">
 <link rel="canonical" href="https://dtekpro.vercel.app/">
@@ -95,14 +95,110 @@
     </div>
   </section>
 
+  <!-- Precios en el HTML a propósito: es lo que buscan en Google y lo que
+       decide la visita. Si cambian en services-data.js, cambian aquí. -->
+  <section class="cinema-precios" aria-labelledby="precios-titulo">
+    <div class="cinema-precios-inner public-shell-v25">
+      <div class="cinema-precios-head">
+        <div>
+          <span class="cinema-how-kicker">Precios de referencia</span>
+          <h2 id="precios-titulo">Cuánto cuesta,<em>antes de escribir.</em></h2>
+        </div>
+        <a class="cinema-precios-todos" href="servicios.html"><span>Ver los 45 servicios</span><i>→</i></a>
+      </div>
+
+      <div class="cinema-precios-grid">
+        <a class="cinema-precio" href="servicios.html">
+          <span class="cinema-precio-cat">Diagnóstico</span>
+          <strong>Revisión Express</strong>
+          <p>Revisión inicial para saber por dónde empezar.</p>
+          <div class="cinema-precio-pie"><b>Desde Q200</b><small>30–45 min</small></div>
+        </a>
+        <a class="cinema-precio" href="servicios.html">
+          <span class="cinema-precio-cat">Diagnóstico</span>
+          <strong>Check Engine explicado</strong>
+          <p>Escaneo y explicación clara de los códigos.</p>
+          <div class="cinema-precio-pie"><b>Desde Q250</b><small>30–60 min</small></div>
+        </a>
+        <a class="cinema-precio" href="compra-segura.html">
+          <span class="cinema-precio-cat">Compra segura</span>
+          <strong>Revisión precompra</strong>
+          <p>Antes de pagar por un usado. Reporte por WhatsApp.</p>
+          <div class="cinema-precio-pie"><b>Desde Q350</b><small>60–90 min</small></div>
+        </a>
+        <a class="cinema-precio" href="servicios.html">
+          <span class="cinema-precio-cat">Mantenimiento</span>
+          <strong>Servicio Menor Full</strong>
+          <p>Aceite y filtros incluidos, en tu casa u oficina.</p>
+          <div class="cinema-precio-pie"><b>Desde Q650</b><small>30–60 min</small></div>
+        </a>
+        <a class="cinema-precio" href="servicios.html">
+          <span class="cinema-precio-cat">Frenos</span>
+          <strong>Servicio de frenos</strong>
+          <p>Pastillas, limpieza de cáliper y lubricación de pines.</p>
+          <div class="cinema-precio-pie"><b>Desde Q1,000</b><small>por eje · 60–120 min</small></div>
+        </a>
+        <a class="cinema-precio" href="servicios.html">
+          <span class="cinema-precio-cat">Diagnóstico</span>
+          <strong>Diagnóstico Pro</strong>
+          <p>Casos difíciles: no arranca, compresión, datos en vivo.</p>
+          <div class="cinema-precio-pie"><b>Desde Q850</b><small>3–6 h</small></div>
+        </a>
+      </div>
+
+      <p class="cinema-precios-nota"><strong>Con repuesto incluido.</strong> Cuando el servicio indica una pieza, nosotros la conseguimos y la compramos. Son precios base sobre un sedán de 4 cilindros y pueden variar según el vehículo.</p>
+    </div>
+  </section>
+
   <section class="cinema-how" aria-label="Cómo funciona">
     <div class="cinema-how-inner public-shell-v25">
-      <span class="cinema-how-kicker">Cómo funciona</span>
+      <h2 class="cinema-how-kicker">Cómo funciona</h2>
       <div class="cinema-how-grid">
         <article><span>01</span><strong>Contanos qué necesita el carro</strong><p>Elegí un servicio o describí el síntoma. Sin llamadas, sin filas.</p></article>
         <article><span>02</span><strong>Confirmamos día y hora</strong><p>Vemos disponibilidad real y te confirmamos por WhatsApp.</p></article>
         <article><span>03</span><strong>Vamos a tu casa u oficina</strong><p>Diagnóstico y trabajo en el lugar. Todo queda guardado en tu Garage.</p></article>
       </div>
+    </div>
+  </section>
+
+  <section class="cinema-contacto" aria-labelledby="contacto-titulo">
+    <div class="cinema-contacto-inner public-shell-v25">
+      <div class="cinema-contacto-copy">
+        <span class="cinema-how-kicker">Dónde llegamos</span>
+        <h2 id="contacto-titulo">Ciudad de Guatemala<em>y alrededores.</em></h2>
+        <p>Ocho años haciendo mecánica a domicilio. Todo trabajo lleva <strong>tres meses de garantía</strong>.</p>
+        <div class="cinema-contacto-acciones">
+          <a class="cinema-btn cinema-btn-primary" href="agenda.html"><span>Agendar servicio</span><i>↗</i></a>
+          <a class="cinema-btn cinema-btn-wa" href="https://wa.me/50247082329?text=Hola%20D-TEK%2C%20quiero%20consultar%20por%20un%20servicio%20a%20domicilio." target="_blank" rel="noopener"><span>Escribir por WhatsApp</span><i>→</i></a>
+        </div>
+      </div>
+
+      <dl class="cinema-contacto-datos">
+        <div>
+          <dt>Cobertura</dt>
+          <dd>Toda la ciudad capital sin recargo. Fuera de la capital, recargo de Q100 a Q200 según distancia.</dd>
+        </div>
+        <div>
+          <dt>Horario</dt>
+          <dd>Lunes a viernes de 8:00 a 18:00. Sábado de 8:00 a 13:00. Emergencias fuera de horario, consultá.</dd>
+        </div>
+        <div>
+          <dt>Anticipación</dt>
+          <dd>Conviene agendar con 24 a 48 horas. Para casos urgentes, escribinos directo.</dd>
+        </div>
+        <div>
+          <dt>Garantía</dt>
+          <dd>Tres meses sobre el trabajo realizado.</dd>
+        </div>
+        <div>
+          <dt>Pago</dt>
+          <dd>Transferencia o efectivo, al terminar el servicio.</dd>
+        </div>
+        <div>
+          <dt>WhatsApp</dt>
+          <dd><a href="https://wa.me/50247082329" target="_blank" rel="noopener">502 4708 2329</a></dd>
+        </div>
+      </dl>
     </div>
   </section>
 </main>
