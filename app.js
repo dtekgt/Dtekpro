@@ -2177,20 +2177,8 @@ function setupEvents() {
     }
   });
 
-  const adminLoginForm = qs("#adminLoginForm");
-  if (adminLoginForm) {
-    adminLoginForm.addEventListener("submit", (event) => {
-      event.preventDefault();
-      const entered = qs("#adminPinInput")?.value || "";
-      const expected = String(window.DTEK_ADMIN_PIN || "");
-      if (entered && entered === expected) {
-        setAdminUnlocked(true);
-        renderAdminPage();
-      } else {
-        alert("PIN incorrecto.");
-      }
-    });
-  }
+  // El acceso por PIN se retiró: viajaba al navegador en services-data.js.
+  // El panel real es admin-backend.html, con sesión de Supabase y role admin.
 
   const agendaForm = qs("#agendaForm");
   if (agendaForm) {

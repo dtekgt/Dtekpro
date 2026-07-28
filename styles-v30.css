@@ -2448,3 +2448,214 @@
   box-shadow:none;
 }
 .page-client-v23 .client-booking-progress span.active{color:#fff}
+
+/* ======================================================================
+   D-TEK GT · v31.1 — Contacto directo, ritmo del hero y pie en móvil
+   Correcciones de la auditoría del 27 jul 2026.
+   ====================================================================== */
+
+/* ---- Botón flotante de WhatsApp ------------------------------------- */
+/* Verde de plataforma a propósito: es una marca reconocible, no decoración.
+   El rojo D-TEK sigue siendo el único acento de la interfaz. */
+.dtek-wa-float{
+  position:fixed;
+  z-index:120;
+  right:22px;
+  bottom:22px;
+  display:inline-flex;
+  align-items:center;
+  gap:9px;
+  min-height:48px;
+  padding:0 19px 0 16px;
+  border-radius:999px;
+  border:1px solid rgba(255,255,255,.17);
+  background:linear-gradient(150deg,#22b45c,#12833c);
+  color:#fff;
+  font-family:Inter,system-ui,sans-serif;
+  font-size:14px;
+  font-weight:600;
+  letter-spacing:-.01em;
+  text-decoration:none;
+  box-shadow:0 18px 40px rgba(0,0,0,.42);
+  transition:transform .35s var(--f1-ease,cubic-bezier(.16,1,.3,1)),
+             box-shadow .35s var(--f1-ease,cubic-bezier(.16,1,.3,1));
+}
+.dtek-wa-float:hover{
+  transform:translateY(-2px);
+  box-shadow:0 22px 48px rgba(0,0,0,.5);
+}
+.dtek-wa-float:focus-visible{
+  outline:none;
+  box-shadow:0 0 0 3px rgba(34,180,92,.38),0 18px 40px rgba(0,0,0,.42);
+}
+.dtek-wa-float svg{flex:0 0 auto}
+
+@media (max-width:700px){
+  /* Encima de la barra inferior para no tapar la navegación. */
+  .dtek-wa-float{
+    right:14px;
+    bottom:calc(78px + env(safe-area-inset-bottom));
+    min-height:44px;
+    padding:0 16px 0 13px;
+    font-size:13px;
+    gap:7px;
+  }
+  .page-client-v23 .dtek-wa-float{bottom:calc(80px + env(safe-area-inset-bottom))}
+}
+@media print{.dtek-wa-float{display:none}}
+
+/* En la agenda el botón se montaba encima del selector de marca. Esa página
+   es un solo embudo y ya tiene WhatsApp en el pie. */
+.page-agenda-v25-pro .dtek-wa-float{display:none}
+
+/* ---- Hero: la entrada tardaba casi 2 s en dejar ver el botón --------- */
+.page-home-cinema .cinema-kicker{animation:cinemaRise .5s var(--cinema-ease) .10s both}
+.page-home-cinema .cinema-copy h1{animation:cinemaRise .55s var(--cinema-ease) .16s both}
+.page-home-cinema .cinema-copy>p{animation:cinemaRise .5s var(--cinema-ease) .26s both}
+.page-home-cinema .cinema-actions{animation:cinemaRise .5s var(--cinema-ease) .30s both}
+.page-home-cinema .cinema-paths{animation:cinemaRise .55s var(--cinema-ease) .38s both}
+.page-home-cinema .cinema-trust{animation:cinemaRise .5s var(--cinema-ease) .44s both}
+
+/* ---- Las tres puertas: apiladas, no en carrusel ---------------------- */
+@media (max-width:700px){
+  .page-home-cinema .cinema-paths{
+    display:grid;
+    grid-auto-flow:row;
+    overflow:visible;
+    gap:7px;
+    scroll-snap-type:none;
+  }
+  .page-home-cinema .cinema-paths a{
+    min-width:0;
+    width:100%;
+    min-height:62px;
+    grid-template-columns:25px minmax(0,1fr) 28px;
+    padding:0 14px;
+    scroll-snap-align:none;
+  }
+  .page-home-cinema .cinema-hero-content{gap:20px;padding-bottom:96px}
+}
+
+/* ---- El pie estaba oculto justo donde está el grueso del tráfico ----- */
+.page-home-cinema .public-footer-v25{
+  display:grid;
+  position:relative;
+  z-index:14;
+  background:rgba(255,255,255,.03);
+}
+@media (max-width:680px){
+  .page-agenda-v25-pro .public-footer-v25,
+  .page-services-v27 .public-footer-v25{display:grid}
+}
+@media (max-width:700px){
+  .public-footer-v25{padding-bottom:96px}
+  .public-footer-v25 nav{flex-wrap:wrap;gap:14px 18px}
+}
+.public-footer-v25 a:focus-visible{
+  outline:none;
+  box-shadow:0 0 0 3px rgba(227,32,37,.28);
+  border-radius:6px;
+}
+
+/* ---- Precio a la vista sin tener que abrir la categoría -------------- */
+.selector-group-toggle > span{align-items:start}
+.selector-group-price{
+  font-style:normal;
+  font-size:11.5px;
+  font-weight:500;
+  letter-spacing:.01em;
+  color:var(--f1-red-hot,#ff3b3f);
+}
+.selector-group.open .selector-group-price{color:rgba(255,255,255,.5)}
+@media (max-width:520px){
+  .selector-group-price{font-size:11px}
+}
+
+/* ---- La barra de ventajas quedaba corrida media pantalla ------------- */
+/* cinemaRise termina en transform:none y borraba el translateX(-50%) que
+   la centra. Necesita su propia animación que conserve el centrado. */
+@keyframes cinemaRiseCentered{
+  from{opacity:0;transform:translate(-50%,18px)}
+  to{opacity:1;transform:translateX(-50%)}
+}
+.page-home-cinema .cinema-trust{
+  animation:cinemaRiseCentered .5s var(--cinema-ease) .44s both;
+}
+@media (max-width:700px){
+  /* En móvil la tira se alinea a la izquierda y termina antes del botón de
+     WhatsApp, en vez de pasar por debajo. Aquí no va centrada, así que
+     vuelve a la animación normal que termina en transform:none. */
+  .page-home-cinema .cinema-trust{
+    left:15px;
+    width:calc(100% - 166px);
+    transform:none;
+    animation:cinemaRise .5s var(--cinema-ease) .44s both;
+  }
+}
+
+/* El Garage es un formulario denso: un botón flotante se montaba encima del
+   campo de usuario. En su lugar, una salida de texto dentro de la tarjeta. */
+.page-client-v23 .dtek-wa-float{display:none}
+.client-login-help{
+  margin:4px 0 0;
+  text-align:center;
+  font-size:13px;
+  color:var(--client-muted,rgba(255,255,255,.62));
+}
+.client-login-help a{
+  color:var(--f1-red-hot,#ff3b3f);
+  font-weight:600;
+  text-decoration:none;
+}
+.client-login-help a:hover{text-decoration:underline}
+.client-login-help a:focus-visible{
+  outline:none;
+  box-shadow:0 0 0 3px rgba(227,32,37,.28);
+  border-radius:6px;
+}
+
+/* ---- Aviso de precio de referencia en el catálogo -------------------- */
+.catalog-price-note-v311{
+  margin:0 0 16px;
+  padding:14px 18px;
+  border:1px solid var(--line,rgba(255,255,255,.11));
+  border-left:2px solid var(--f1-red-hot,#ff3b3f);
+  border-radius:16px;
+  background:rgba(255,255,255,.035);
+  color:rgba(255,255,255,.68);
+  font-size:13.5px;
+  line-height:1.6;
+  max-width:74ch;
+}
+.catalog-price-note-v311 b{color:#f7f7f5;font-weight:600}
+@media (max-width:560px){
+  .catalog-price-note-v311{font-size:13px;padding:13px 15px}
+}
+
+/* ---- Repuesto incluido, visible en cada servicio -------------------- */
+.selector-service-parts{
+  display:inline-flex;
+  align-items:center;
+  gap:7px;
+  margin:2px 0 4px;
+  padding:5px 12px 5px 10px;
+  border:1px solid rgba(111,227,184,.32);
+  border-radius:999px;
+  background:rgba(111,227,184,.09);
+  color:var(--f1-green,#6fe3b8);
+  font-size:11.5px;
+  font-weight:500;
+  letter-spacing:.01em;
+  line-height:1.35;
+}
+.selector-service-parts::before{
+  content:"";
+  width:5px;
+  height:5px;
+  border-radius:50%;
+  background:currentColor;
+  flex:0 0 auto;
+}
+@media (max-width:520px){
+  .selector-service-parts{font-size:11px;padding:4px 10px 4px 9px}
+}

@@ -15,14 +15,30 @@
     return Math.max(10, Math.floor(price / 10));
   };
 
+  // El repuesto incluido es el argumento más fuerte del catálogo y no estaba a la vista.
+  // Se omite cuando no hay pieza o cuando el texto solo repite el nombre del servicio.
+  const sinTildes = t => String(t).toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "");
+  const GENERICOS = ["no", "limpieza", "diagnostico", "cambio"];
+
+  function partsBadge(service) {
+    const parts = String(service.partsIncluded || "").trim();
+    if (!parts) return "";
+    const plano = sinTildes(parts);
+    if (GENERICOS.includes(plano)) return "";
+    const nombre = sinTildes(service.name || "");
+    if (nombre.includes(plano) || plano.includes(nombre)) return "";
+    return `<span class="selector-service-parts">Incluye ${esc(parts.toLowerCase())}</span>`;
+  }
+
   function serviceRow(service, { booking = false, compact = false } = {}) {
     const selected = Boolean(booking && window.DtekServiceBuilder?.isSelected?.(service.id));
     const action = booking
       ? `<button type="button" class="selector-service-pick ${selected ? "selected" : ""}" data-agenda-service="${esc(service.id)}" aria-pressed="${selected}">${selected ? "Quitar" : "Agregar"}</button>`
       : `<a class="selector-service-pick" href="agenda.html?servicio=${encodeURIComponent(service.id)}">Agendar</a>`;
     const showDetail = !booking && !compact && service.short;
+    const partsTag = partsBadge(service);
     const detail = showDetail
-      ? `<div class="selector-service-extra"><p>${esc(service.short)}</p><a class="selector-service-detail-link" href="${serviceUrl(service.id)}">Ver qué incluye →</a></div>`
+      ? `<div class="selector-service-extra"><p>${esc(service.short)}</p>${partsTag}<a class="selector-service-detail-link" href="${serviceUrl(service.id)}">Ver qué incluye →</a></div>`
       : "";
     return `<article class="selector-service-row ${compact ? "compact" : ""} ${selected ? "selected" : ""} ${service.requiresDescription ? "open-request" : ""}" data-service-name="${esc(`${service.name} ${service.category}`.toLowerCase())}">
       <div class="selector-service-toggle selector-service-direct">
@@ -33,14 +49,26 @@
     </article>`;
   }
 
-  function serviceAccordionHtml({ booking = false, limitGroups = 0, compact = false, openFirst = true } = {}) {
+  // El precio es el argumento de venta: si vive solo dentro del acordeón cerrado,
+  // la persona tiene que abrir ocho categorías para saber cuánto cuesta algo.
+  function priceHint(groupServices) {
+    const amounts = groupServices
+      .map(service => String(service?.price || "").replace(/,/g, "").match(/(\d+(?:\.\d+)?)/))
+      .filter(Boolean)
+      .map(match => Number(match[1]))
+      .filter(value => value > 0);
+    if (!amounts.length) return "Precio según revisión";
+    return `Desde Q${Math.min(...amounts).toLocaleString("es-GT")}`;
+  }
+
+  function serviceAccordionHtml({ booking = false, limitGroups = 0, compact = false, openCount = 1 } = {}) {
     const set = limitGroups ? groups().slice(0, limitGroups) : groups();
     return set.map((group, index) => {
       const groupServices = group.services.map(serviceById).filter(Boolean);
-      const opened = openFirst && index === 0;
+      const opened = index < openCount;
       return `<section class="selector-group ${opened ? "open" : ""}">
         <button type="button" class="selector-group-toggle" aria-expanded="${opened ? "true" : "false"}">
-          <span><strong>${esc(group.title)}</strong></span>
+          <span><strong>${esc(group.title)}</strong><em class="selector-group-price">${esc(priceHint(groupServices))}</em></span>
           <b>${groupServices.length}</b><i>${opened ? "−" : "＋"}</i>
         </button>
         <div class="selector-group-content" ${opened ? "" : "hidden"}>${groupServices.map(service => serviceRow(service, { booking, compact })).join("")}</div>
@@ -48,10 +76,10 @@
     }).join("");
   }
 
-  function symptomAccordionHtml({ booking = false, openFirst = true } = {}) {
+  function symptomAccordionHtml({ booking = false, openCount = 1 } = {}) {
     return symptoms().map((symptom, index) => {
       const recommendations = symptom.recommended.map(serviceById).filter(Boolean).slice(0, 4);
-      const opened = openFirst && index === 0;
+      const opened = index < openCount;
       return `<section class="selector-group symptom ${opened ? "open" : ""}">
         <button type="button" class="selector-group-toggle" aria-expanded="${opened ? "true" : "false"}">
           <span><strong>${esc(symptom.label)}</strong></span><b>${recommendations.length}</b><i>${opened ? "−" : "＋"}</i>
@@ -67,18 +95,9 @@
       if (groupButton) {
         const group = groupButton.closest(".selector-group");
         const content = $(".selector-group-content", group);
+        // El catálogo es para comparar: cerrar las demás categorías al abrir una
+        // obligaba a ir y volver para ver dos precios.
         const opening = !group.classList.contains("open");
-        if (opening && document.body.classList.contains("page-services-v27")) {
-          const accordion = group.parentElement;
-          $$(".selector-group.open", accordion).forEach(other => {
-            if (other === group) return;
-            other.classList.remove("open");
-            $(".selector-group-content", other).hidden = true;
-            $(".selector-group-toggle", other).setAttribute("aria-expanded", "false");
-            const otherIcon = $(".selector-group-toggle i", other);
-            if (otherIcon) otherIcon.textContent = "＋";
-          });
-        }
         group.classList.toggle("open", opening);
         groupButton.setAttribute("aria-expanded", String(opening));
         const icon = $("i", groupButton);
@@ -101,9 +120,9 @@
   function renderServiceCatalog() {
     const holder = $("#serviceAccordion");
     if (!holder) return;
-    holder.innerHTML = serviceAccordionHtml({ openFirst: false });
+    holder.innerHTML = serviceAccordionHtml({ openCount: 2 });
     const symptomHolder = $("#symptomAccordion");
-    if (symptomHolder) symptomHolder.innerHTML = symptomAccordionHtml({ openFirst: false });
+    if (symptomHolder) symptomHolder.innerHTML = symptomAccordionHtml({ openCount: 1 });
 
     const addOnHolder = $("#serviceAddOnsCatalog");
     if (addOnHolder) {
@@ -145,7 +164,7 @@
   function renderHomeQuickServices() {
     const holder = $("#homeQuickServices");
     if (!holder) return;
-    holder.innerHTML = serviceAccordionHtml({ limitGroups: 4, compact: true, openFirst: false });
+    holder.innerHTML = serviceAccordionHtml({ limitGroups: 4, compact: true, openCount: 0 });
   }
 
   function fillEngineSelect() {
