@@ -15,11 +15,38 @@
 */
 const fs = require("fs");
 const path = require("path");
+const crypto = require("crypto");
 
 const RAIZ = __dirname;
 const SITIO = "https://dtekpro.vercel.app";
 const WA = "50247082329";
-const VERSION = "31.5.0";
+
+/*
+  Version por contenido en vez de a mano.
+
+  Antes el ?v= se escribia a mano y quedaba distinto en cada pagina: unas en
+  31.1.0 y otras en 31.5.0. Con cache de un año eso significa que alguien se
+  queda con CSS viejo hasta que alguien se acuerde de subir el numero.
+
+  Ahora el ?v= es el hash del archivo: si el archivo cambia, la direccion
+  cambia sola y el navegador lo vuelve a bajar. Si no cambia, no baja nada.
+*/
+const ASSETS = [
+  "styles.css", "styles-v30.css",
+  "app.js", "services-data.js", "selector-pro.js", "dtek-v30.js",
+  "portal-cliente.js", "client-booking.js", "garage-motion.js", "expediente.js",
+  "supabase-config.js", "supabase-client.js", "backend-admin.js",
+  "referidos.js", "reset-password.js"
+];
+
+const HASH = {};
+ASSETS.forEach((archivo) => {
+  const ruta = path.join(RAIZ, archivo);
+  if (!fs.existsSync(ruta)) return;
+  HASH[archivo] = crypto.createHash("md5").update(fs.readFileSync(ruta)).digest("hex").slice(0, 8);
+});
+
+const v = (archivo) => HASH[archivo] || "1";
 
 global.window = {};
 eval(fs.readFileSync(path.join(RAIZ, "services-data.js"), "utf8"));
@@ -143,7 +170,7 @@ function pagina(servicio) {
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../styles.css?v=${VERSION}"><link rel="stylesheet" href="../styles-v30.css?v=${VERSION}">
+<link rel="stylesheet" href="../styles.css?v=${v("styles.css")}"><link rel="stylesheet" href="../styles-v30.css?v=${v("styles-v30.css")}">
 <script type="application/ld+json">${JSON.stringify(fichaGoogle)}</script>
 <script type="application/ld+json">${JSON.stringify(migas)}</script>
 </head>
@@ -192,7 +219,7 @@ ${NAV}
 ${PIE}
 ${NAV_MOVIL}
 <a class="dtek-wa-float" href="https://wa.me/${WA}?text=${encodeURIComponent(`Hola D-TEK, quiero consultar por ${servicio.name}.`)}" target="_blank" rel="noopener" aria-label="Escribir a D-TEK por WhatsApp">${WA_SVG}<b>WhatsApp</b></a>
-<script src="../services-data.js?v=${VERSION}"></script><script src="../app.js?v=${VERSION}"></script><script src="../dtek-v30.js?v=${VERSION}"></script>
+<script src="../services-data.js?v=${v("services-data.js")}"></script><script src="../app.js?v=${v("app.js")}"></script><script src="../dtek-v30.js?v=${v("dtek-v30.js")}"></script>
 </body></html>`;
 }
 
@@ -220,6 +247,31 @@ SERVICIOS.forEach((s) => {
   fs.writeFileSync(path.join(carpeta, `${s.id}.html`), pagina(s), "utf8");
   escritas++;
 });
+
+/* ---------- sellar el ?v= de todas las paginas ---------- */
+
+// Recorre cada .html del sitio y pone el hash real de cada archivo.
+// Asi ninguna pagina queda apuntando a una version vieja por olvido.
+function sellar(carpetaBase, archivos) {
+  let tocados = 0, reemplazos = 0;
+  archivos.forEach((nombre) => {
+    const ruta = path.join(carpetaBase, nombre);
+    let html = fs.readFileSync(ruta, "utf8");
+    const antes = html;
+    Object.keys(HASH).forEach((asset) => {
+      const esc = asset.replace(/\./g, "\\.");
+      const re = new RegExp(`(${esc})\\?v=[0-9a-zA-Z.]+`, "g");
+      html = html.replace(re, (m) => { reemplazos++; return `${asset}?v=${HASH[asset]}`; });
+    });
+    if (html !== antes) { fs.writeFileSync(ruta, html, "utf8"); tocados++; }
+  });
+  return { tocados, reemplazos };
+}
+
+const htmlRaiz = fs.readdirSync(RAIZ).filter((f) => f.endsWith(".html"));
+const selloRaiz = sellar(RAIZ, htmlRaiz);
+const htmlServicio = fs.readdirSync(carpeta).filter((f) => f.endsWith(".html"));
+const selloServicio = sellar(carpeta, htmlServicio);
 
 /* ---------- mapa del sitio ---------- */
 
@@ -258,3 +310,5 @@ Sitemap: ${SITIO}/sitemap.xml
 console.log(`paginas de servicio: ${escritas}`);
 console.log(`sitemap.xml: ${fijas.length + SERVICIOS.length} direcciones`);
 console.log("robots.txt: escrito");
+console.log(`version por hash: ${selloRaiz.reemplazos + selloServicio.reemplazos} referencias selladas en ${selloRaiz.tocados + selloServicio.tocados} paginas`);
+Object.keys(HASH).forEach((a) => console.log(`   ${a.padEnd(22)} ${HASH[a]}`));
