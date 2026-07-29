@@ -272,6 +272,39 @@ function renderMetrics(items) {
     ["Realizadas", counts.completed || 0],
     ["Canceladas", counts.cancelled || 0]
   ].map(([label, value]) => `<div class="metric-card"><span>${label}</span><strong>${value}</strong></div>`).join("");
+
+  renderPendientes(items);
+}
+
+// C-06 · El panel mostraba listas pero nada decia que estaba esperando algo
+// de vos. Asi se acumularon quince trabajos sin cerrar sin que nadie lo notara.
+function renderPendientes(items = []) {
+  const box = adminQs("#backendPendientes");
+  if (!box) return;
+
+  const ahora = Date.now();
+  const yaPaso = (item) => new Date(item.scheduled_start || 0).getTime() < ahora;
+
+  const porConfirmar = items.filter((i) => (i.status || "requested") === "requested");
+  const sinCerrar = items.filter((i) => yaPaso(i) && (i.status || "") !== "cancelled" && (i.status || "") !== "completed");
+  const sinTotal = items.filter((i) => (i.status || "") === "completed" && !Number(i.grand_total || 0));
+
+  const avisos = [
+    [porConfirmar.length, "por confirmar", "por confirmar", "requested"],
+    [sinCerrar.length, "ya pasó y sigue abierta", "ya pasaron y siguen abiertas", "confirmed"],
+    [sinTotal.length, "realizada sin monto", "realizadas sin monto", "completed"]
+  ].filter(([n]) => n > 0)
+   .map(([n, uno, varios, filtro]) => [n, n === 1 ? uno : varios, filtro]);
+
+  if (!avisos.length) {
+    box.className = "pendientes-v318 al-dia";
+    box.innerHTML = `<strong>Todo al día.</strong><span>No hay nada esperando por vos.</span>`;
+    return;
+  }
+
+  box.className = "pendientes-v318";
+  box.innerHTML = `<strong>Te toca revisar</strong>` + avisos.map(([n, texto, filtro]) =>
+    `<button type="button" data-admin-filter="${filtro}"><b>${n}</b> ${adminSafe(texto)}</button>`).join("");
 }
 
 function renderAppointmentsList(items) {

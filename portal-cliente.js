@@ -386,7 +386,11 @@ function spineTodayNode(vehicle, { summary = "", upcoming = "", tone = "" } = {}
       <div class="spine-event-top"><small>Hoy</small>${appointment ? `<span class="client-status-badge ${statusTone(appointment.status)}">${clientSafe(statusLabel(appointment.status))}</span>` : ""}</div>
       <strong>${clientSafe(headline)}</strong>
       <p>${clientSafe(copy)}</p>
-      ${upcoming ? `<div class="spine-upcoming"><span aria-hidden="true">→</span><p>${clientSafe(upcoming)}</p></div>` : ""}
+      ${upcoming ? `<div class="spine-upcoming proximo-v318">
+        <span class="proximo-rotulo-v318">Lo que sigue</span>
+        <p>${clientSafe(upcoming)}</p>
+        <button class="client-btn client-btn-secondary proximo-btn-v318" type="button" data-open-client-booking data-vehicle-id="${clientSafe(vehicle.id)}">Agendarlo</button>
+      </div>` : ""}
       <div class="spine-event-actions">${action}</div>
     </div>
   </article>`;
@@ -693,6 +697,29 @@ function renderTimeline(history = []) {
   }).join("");
 }
 
+
+// V-01 · Lo invertido en el carro existia dato por dato y nunca se sumaba.
+// Es lo que convierte el Garage de lista en expediente economico del vehiculo.
+function totalInvertido(history = []) {
+  const vistos = new Set();
+  let suma = 0;
+  (history || []).forEach((item) => {
+    const monto = Number(item.grand_total || 0);
+    if (!monto) return;
+    // el historial trae la cita y su reporte: el monto se cuenta una sola vez
+    const clave = String(item.appointment_id ?? item.id);
+    if (vistos.has(clave)) return;
+    vistos.add(clave);
+    suma += monto;
+  });
+  return { total: suma, servicios: vistos.size };
+}
+
+function invertidoTexto(history = []) {
+  const t = totalInvertido(history);
+  if (!t.total) return "Todavía sin montos cerrados";
+  return `${formatMoney(t.total)} en ${t.servicios} servicio${t.servicios === 1 ? "" : "s"}`;
+}
 function renderQuickFacts(vehicle, history = []) {
   const orders = vehicleOrders(vehicle);
   const appointments = vehicleAppointments(vehicle);
@@ -704,7 +731,8 @@ function renderQuickFacts(vehicle, history = []) {
     ["Uso", vehicle.use_type || "Pendiente"],
     ["Placa", vehicle.plate || "Pendiente"],
     ["Movimientos", `${appointments.length} cita(s) · ${orders.length} reporte(s)`],
-    ["Última actividad", last ? fmtDate(last.scheduled_start || last.created_at) : "Sin historial"]
+    ["Última actividad", last ? fmtDate(last.scheduled_start || last.created_at) : "Sin historial"],
+    ["Invertido en este carro", invertidoTexto(history)]
   ];
   return lines.map(([label, value]) => `<div class="profile-data-row"><span>${clientSafe(label)}</span><strong>${clientSafe(value)}</strong></div>`).join("");
 }

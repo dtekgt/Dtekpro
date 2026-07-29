@@ -1589,6 +1589,16 @@ function showBookingSuccess(saved, data, waMessage, accountResult = null, whatsa
       </div>
 
       <div class="success-folio-v25">Folio de referencia: <strong>DTK-${safeText(folio)}</strong></div>
+
+      <div class="success-siguiente-v318">
+        <span>Qué sigue ahora</span>
+        <ol>
+          <li><b>Revisamos el horario</b><em>Confirmamos que el espacio siga libre y que se pueda llegar.</em></li>
+          <li><b>Te escribimos por WhatsApp</b><em>Normalmente el mismo día. Si agendaste de noche, a primera hora.</em></li>
+          <li><b>Llegamos a donde estés</b><em>Ese día trabajamos en el lugar y todo queda en tu Garage.</em></li>
+        </ol>
+        <p>Si necesitás moverlo o preguntar algo antes, escribinos y listo — no hace falta volver a agendar.</p>
+      </div>
       ${accountNote}
 
       <div class="success-whatsapp-v25 ${whatsappOpened ? "" : "needs-tap-v31"}">
