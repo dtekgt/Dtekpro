@@ -5575,3 +5575,56 @@ body.agenda-service-selected .agenda-start-compact-v2741 {
 .dtek-provision-credentials { display: grid; gap: 8px; margin: 14px 0; }
 .dtek-provision-credentials code { padding: 9px 12px; border-radius: 10px; background: rgba(0,0,0,.28); overflow-wrap: anywhere; }
 @media (max-width: 720px) { .dtek-provision-form .full-span { grid-column: auto; } }
+
+/* =========================================================
+   D-TEK v35.1 — Pasaporte: ejes paralelos tiempo/recorrido
+   ========================================================= */
+.page-client-v23 .vehicle-care-tools{display:flex;align-items:center;justify-content:flex-end;gap:10px;flex-wrap:wrap}
+.page-client-v23 .care-unit-toggle{display:inline-grid;grid-template-columns:1fr 1fr;padding:3px;border:1px solid var(--client-line);border-radius:999px;background:#f3f4f6}
+.page-client-v23 .care-unit-toggle button{min-width:58px;padding:8px 12px;border:0;border-radius:999px;background:transparent;color:var(--client-muted);font:800 11px/1 inherit;letter-spacing:.04em;text-transform:uppercase;cursor:pointer}
+.page-client-v23 .care-unit-toggle button[aria-pressed="true"]{color:#fff;background:#202226;box-shadow:0 5px 14px rgba(24,28,35,.2)}
+.page-client-v23 .vehicle-care-board{overflow:hidden}
+.page-client-v23 .care-command{display:grid;grid-template-columns:minmax(0,1fr) 150px;gap:24px;align-items:center;padding:26px;border:1px solid #e7e8eb;border-radius:24px;background:linear-gradient(135deg,#17191e,#272b33);color:#fff}
+.page-client-v23 .care-command-copy>small{display:block;margin:14px 0 5px;color:#aeb4bf;font-size:10px;font-weight:900;letter-spacing:.13em}
+.page-client-v23 .care-command h3{margin:0;font-size:clamp(28px,4vw,42px);letter-spacing:-.04em}
+.page-client-v23 .care-command p{margin:8px 0 0;color:#d0d4da}
+.page-client-v23 .care-live-pill{display:inline-flex;align-items:center;gap:7px;padding:7px 10px;border:1px solid rgba(255,255,255,.13);border-radius:999px;color:#eef0f3;font-size:11px;font-weight:800}
+.page-client-v23 .care-live-pill i{width:7px;height:7px;border-radius:50%;background:#48d597;box-shadow:0 0 0 5px rgba(72,213,151,.12)}
+.page-client-v23 .care-command-stats{display:flex;gap:18px;margin-top:21px;color:#aeb4bf;font-size:11px}
+.page-client-v23 .care-command-stats b{display:block;color:#fff;font-size:18px}
+.page-client-v23 .care-coverage{width:132px;aspect-ratio:1;border-radius:50%;display:grid;place-items:center;background:conic-gradient(#ef3338 var(--coverage),#3c414b 0);padding:8px}
+.page-client-v23 .care-coverage>div{width:100%;height:100%;display:grid;place-content:center;text-align:center;border-radius:50%;background:#20232a}
+.page-client-v23 .care-coverage strong{font-size:25px}.page-client-v23 .care-coverage span{color:#aeb4bf;font-size:10px}
+.page-client-v23 .care-mileage-route,.page-client-v23 .care-mileage-empty,.page-client-v23 .care-plan-strip{margin-top:14px;padding:18px 20px;border:1px solid var(--client-line);border-radius:18px;background:#fff}
+.page-client-v23 .care-route-head,.page-client-v23 .care-plan-strip{display:flex;justify-content:space-between;align-items:center;gap:16px}
+.page-client-v23 .care-route-head span,.page-client-v23 .care-plan-strip b{color:var(--client-muted);font-size:10px;font-weight:900;letter-spacing:.08em;text-transform:uppercase}
+.page-client-v23 .care-route-line{position:relative;height:92px;margin:14px 16px 0;border-top:3px solid #dfe2e7}
+.page-client-v23 .care-route-line>i{position:absolute;top:-7px;width:11px;height:11px;border-radius:50%;background:#ef3338;box-shadow:0 0 0 5px #fde4e5}
+.page-client-v23 .care-route-line button{position:absolute;top:-6px;transform:translateX(-50%);width:1px;padding:0;border:0;background:none;color:#202226}
+.page-client-v23 .care-route-line button>b{display:block;width:9px;height:9px;margin-left:-4px;border:2px solid #fff;border-radius:50%;background:#202226;box-shadow:0 0 0 2px #202226}
+.page-client-v23 .care-route-line button>span{display:block;width:110px;margin:10px 0 0 -55px;font-size:10px;font-weight:900;text-align:center}.page-client-v23 .care-route-line small{display:block;margin-top:3px;color:var(--client-muted);font-size:9px;font-weight:600}
+.page-client-v23 .care-plan-strip span{display:grid;gap:3px}.page-client-v23 .care-plan-strip a{color:#c52227;font-weight:800}.page-client-v23 .care-plan-strip em{color:var(--client-muted)}
+.page-client-v23 .care-system-grid{display:grid;gap:12px;margin-top:16px}
+.page-client-v23 .care-system{border:1px solid var(--client-line);border-radius:20px;background:#fff;overflow:hidden}
+.page-client-v23 .care-system>summary{display:grid;grid-template-columns:52px 1fr auto;gap:13px;align-items:center;padding:16px 18px;cursor:pointer;list-style:none}.page-client-v23 .care-system>summary::-webkit-details-marker{display:none}
+.page-client-v23 .care-system-ring{width:48px;aspect-ratio:1;padding:4px;border-radius:50%;display:grid;place-items:center;background:conic-gradient(#45b886 var(--ring),#e5e7eb 0)}.page-client-v23 .care-system-ring i{width:100%;height:100%;display:grid;place-items:center;border-radius:50%;background:#fff;font-size:11px;font-style:normal;font-weight:900}
+.page-client-v23 .care-system>summary span:nth-child(2){display:grid}.page-client-v23 .care-system>summary small{margin-top:3px;color:var(--client-muted)}.page-client-v23 .care-system>summary>b{color:#202226;font-size:11px}
+.page-client-v23 .care-system-body{border-top:1px solid var(--client-line)}
+.page-client-v23 .care-row{display:grid;grid-template-columns:42px minmax(0,1fr) 115px;gap:14px;padding:18px;border-bottom:1px solid #eceef1}.page-client-v23 .care-row:last-child{border-bottom:0}
+.page-client-v23 .care-row-icon{width:38px;height:38px;display:grid;place-items:center;border-radius:12px;background:#f2f3f5;color:#252a31;font-weight:900}
+.page-client-v23 .care-row-title,.page-client-v23 .care-row-foot,.page-client-v23 .care-axis>span{display:flex;justify-content:space-between;align-items:center;gap:12px}
+.page-client-v23 .care-row-title small,.page-client-v23 .care-row-foot em,.page-client-v23 .care-row-foot span{color:var(--client-muted);font-size:10px}.page-client-v23 .care-row-foot{margin-top:9px}.page-client-v23 .care-row-foot em{font-style:normal;text-align:right}
+.page-client-v23 .care-dual-tracks{display:grid;gap:9px;margin-top:13px;padding:12px;border-radius:14px;background:#f7f8fa}
+.page-client-v23 .care-axis{display:grid;grid-template-columns:74px minmax(0,1fr);gap:10px;align-items:center}.page-client-v23 .care-axis>span{font-size:9px;text-transform:uppercase;letter-spacing:.05em}.page-client-v23 .care-axis>span b{color:#505762}.page-client-v23 .care-axis>span em{color:#6d7480;font-style:normal;font-weight:900}
+.page-client-v23 .care-track{position:relative;height:8px;border-radius:999px;background:#dfe2e7;overflow:visible}.page-client-v23 .care-track>i{display:block;height:100%;border-radius:inherit;background:linear-gradient(90deg,#ef3338,#f4b342,#45b886)}.page-client-v23 .care-track>b{position:absolute;top:50%;width:12px;height:12px;transform:translate(-50%,-50%);border:2px solid #fff;border-radius:50%;background:#272c34;box-shadow:0 1px 4px rgba(0,0,0,.22)}.page-client-v23 .care-track.is-missing{background:repeating-linear-gradient(90deg,#d9dde3 0 7px,transparent 7px 12px)}.page-client-v23 .care-track.is-missing>b{display:none}
+.page-client-v23 .care-row-state{text-align:right}.page-client-v23 .care-row-state b,.page-client-v23 .care-row-state span{display:block}.page-client-v23 .care-row-state b{font-size:11px}.page-client-v23 .care-row-state span{margin-top:5px;color:var(--client-muted);font-size:18px;font-weight:900}
+.page-client-v23 .care-unverified-line{display:flex;align-items:center;gap:5px;margin-top:14px;color:var(--client-muted);font-size:10px}.page-client-v23 .care-unverified-line i{width:7px;height:7px;border-radius:50%;background:#d7dbe1}
+.page-client-v23 .care-note{margin-top:10px;color:var(--client-muted);font-size:10px}.page-client-v23 .care-note p{margin:6px 0 0;line-height:1.45}
+@media(max-width:720px){
+  .page-client-v23 .vehicle-care-board-head{align-items:flex-start}.page-client-v23 .vehicle-care-tools{width:100%;justify-content:space-between}
+  .page-client-v23 .care-command{grid-template-columns:1fr 92px;padding:20px;gap:12px}.page-client-v23 .care-coverage{width:88px}.page-client-v23 .care-coverage strong{font-size:19px}.page-client-v23 .care-command-stats{gap:12px}
+  .page-client-v23 .care-route-line{margin-left:4px;margin-right:4px}.page-client-v23 .care-route-line button>span{width:76px;margin-left:-38px;font-size:9px}
+  .page-client-v23 .care-row{grid-template-columns:34px minmax(0,1fr);padding:15px 12px;gap:10px}.page-client-v23 .care-row-icon{width:32px;height:32px}.page-client-v23 .care-row-state{grid-column:2;grid-row:1;text-align:right}.page-client-v23 .care-row-state span{font-size:14px}.page-client-v23 .care-row-main{grid-column:1/-1}
+  .page-client-v23 .care-row-title{align-items:flex-start}.page-client-v23 .care-row-title small{text-align:right}.page-client-v23 .care-row-foot{align-items:flex-start;flex-direction:column}.page-client-v23 .care-row-foot em{text-align:left}
+  .page-client-v23 .care-axis{grid-template-columns:68px minmax(0,1fr)}
+}

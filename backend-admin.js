@@ -450,6 +450,8 @@ function renderWorkOrderInspections(appointment = {}) {
       ${item.mode === "interval" ? `<div class="maintenance-interval-edit">
         <label>Intervalo meses<input type="number" min="1" step="1" value="${adminSafe(item.months || "")}" data-interval-months="${adminSafe(item.key)}"></label>
         <label>Intervalo km<input type="number" min="1" step="1" value="${adminSafe(item.km || "")}" data-interval-km="${adminSafe(item.key)}"></label>
+        <label>Fecha realizada<input type="date" data-service-date="${adminSafe(item.key)}"></label>
+        <label>Km realizado<input type="number" min="0" step="1" data-service-mileage="${adminSafe(item.key)}" placeholder="Usar km del cierre"></label>
       </div>` : ""}
     </div>`).join("");
 }
@@ -464,7 +466,9 @@ function collectWorkOrderInspections() {
         status: select.value,
         notes: adminQs(`[data-inspection-note="${key}"]`)?.value.trim() || null,
         interval_months: Number(adminQs(`[data-interval-months="${key}"]`)?.value || 0) || null,
-        interval_km: Number(adminQs(`[data-interval-km="${key}"]`)?.value || 0) || null
+        interval_km: Number(adminQs(`[data-interval-km="${key}"]`)?.value || 0) || null,
+        service_date: adminQs(`[data-service-date="${key}"]`)?.value || null,
+        service_mileage: Number(adminQs(`[data-service-mileage="${key}"]`)?.value || 0) || null
       };
     });
 }

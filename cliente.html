@@ -342,11 +342,17 @@
                         <h2 id="vehicleCareBoardTitle">Estado de tu vehículo</h2>
                         <p>Lo confirmado por D-TEK se distingue de lo estimado y de lo que todavía falta revisar.</p>
                       </div>
-                      <button class="client-btn client-btn-secondary vehicle-care-km-action" type="button" data-vehicle-tab-jump="technical">Actualizar km</button>
+                      <div class="vehicle-care-tools">
+                        <div class="care-unit-toggle" role="group" aria-label="Unidad de distancia">
+                          <button type="button" data-care-unit="km" aria-pressed="true">km</button>
+                          <button type="button" data-care-unit="mi" aria-pressed="false">millas</button>
+                        </div>
+                        <button class="client-btn client-btn-secondary vehicle-care-km-action" type="button" data-vehicle-tab-jump="technical">Actualizar recorrido</button>
+                      </div>
                     </div>
                     <div id="vehicleCareSummary" class="vehicle-care-summary" aria-live="polite"></div>
                     <div id="vehicleCareSystems" class="vehicle-care-systems"></div>
-                    <p class="vehicle-care-disclaimer">Las barras por tiempo o kilometraje son estimaciones de mantenimiento, no un diagnóstico. Frenos, llantas, batería y suspensión solo cambian de estado cuando existe una revisión registrada.</p>
+                    <p class="vehicle-care-disclaimer">El plan preventivo nace del manual aplicable. Los cálculos por tiempo/kilometraje son proyecciones; la condición de frenos, llantas, batería y suspensión solo cambia con evidencia de inspección.</p>
                   </section>
                   <div class="vehicle-content-grid">
                     <div class="client-card panel-card">
@@ -658,7 +664,7 @@
   <script src="supabase-config.js?v=81e95d5d"></script>
   <script src="supabase-client.js?v=33000001"></script>
   <script src="services-data.js?v=d5da499d"></script>
-  <script src="vehicle-health.js?v=34000001"></script>
+  <script src="vehicle-health.js?v=35100001"></script>
   <script src="portal-cliente.js?v=33000001"></script>
   <script src="client-booking.js?v=1f0da49a"></script>
 <script src="dtek-v30.js?v=0a32edec"></script>
