@@ -2051,6 +2051,7 @@ function setupEvents() {
       selectedAgendaTime = "";
       selectedSymptomLabel = "";
       setAgendaStartCollapsed(false);
+      qs("#agendaStart")?.classList.remove("path-chosen");
       renderAgendaStartDefault();
       renderAgendaCompactLaunchers();
       closeCompactPicker();

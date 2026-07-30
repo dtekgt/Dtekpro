@@ -3443,3 +3443,88 @@ h2.cinema-how-kicker{margin:0 0 18px;font-size:11px;line-height:1.4}
   .linea-v320 .linea-precio{grid-area:precio}
   .linea-v320 .linea-sub{grid-area:sub;text-align:left;padding-top:2px}
 }
+
+/* ======================================================================
+   D-TEK GT · v32.2 — C-02: una decision a la vez en el paso 2 de agenda
+   Antes se veian once controles juntos apenas se entraba al paso: dos
+   pestañas, "Limpiar" y ocho categorias. Ahora primero se elige el
+   camino con dos tarjetas grandes; el detalle aparece recien despues.
+   ====================================================================== */
+#agendaStart:not(.path-chosen) .agenda-service-tabs-v25,
+#agendaStart:not(.path-chosen) .agenda-list-panel-v25{
+  display:none;
+}
+#agendaStart.path-chosen #agendaPathChoice{
+  display:none;
+}
+
+.agenda-path-choice-v321{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:12px;
+  margin-bottom:4px;
+}
+.agenda-path-card-v321{
+  position:relative;
+  overflow:hidden;
+  display:flex;
+  flex-direction:column;
+  align-items:flex-start;
+  gap:8px;
+  min-height:120px;
+  padding:20px 52px 20px 22px;
+  border:1px solid var(--v25-line);
+  border-radius:20px;
+  background:rgba(255,255,255,.035);
+  text-align:left;
+  cursor:pointer;
+  transition:border-color .3s ease,transform .3s ease;
+}
+.agenda-path-card-v321 strong{
+  color:var(--v25-ink);
+  font-size:17px;
+  font-weight:600;
+  letter-spacing:-.01em;
+}
+.agenda-path-card-v321 span{
+  color:var(--v25-muted);
+  font-size:12.5px;
+  line-height:1.5;
+}
+.agenda-path-card-v321 b{
+  position:absolute;
+  right:18px;
+  top:18px;
+  color:var(--v25-red);
+  font-size:18px;
+  font-weight:500;
+  font-style:normal;
+}
+.agenda-path-card-v321:hover{transform:translateY(-2px)}
+.agenda-path-card-v321:focus-visible{outline:none;box-shadow:0 0 0 3px rgba(227,32,37,.28)}
+
+.page-agenda-v25-pro .agenda-path-card-v321{
+  border-color:var(--f1-line);
+  background:linear-gradient(135deg,rgba(255,255,255,.045),rgba(255,255,255,.015));
+}
+.page-agenda-v25-pro .agenda-path-card-v321::after{
+  content:"";
+  position:absolute;
+  left:22px;right:22px;bottom:0;
+  height:2px;
+  transform:scaleX(.12);
+  transform-origin:left;
+  border-radius:999px;
+  background:linear-gradient(90deg,var(--f1-red-hot),transparent);
+  box-shadow:0 0 12px rgba(227,32,37,.4);
+  transition:transform .35s var(--f1-ease);
+}
+.page-agenda-v25-pro .agenda-path-card-v321:hover::after{transform:scaleX(1)}
+.page-agenda-v25-pro .agenda-path-card-v321:hover{border-color:rgba(255,59,63,.3)}
+.page-agenda-v25-pro .agenda-path-card-v321 strong{color:#fff}
+.page-agenda-v25-pro .agenda-path-card-v321 b{color:var(--f1-red-hot)}
+
+@media (max-width:620px){
+  .agenda-path-choice-v321{grid-template-columns:1fr}
+  .agenda-path-card-v321{min-height:96px;padding:18px 46px 18px 20px}
+}

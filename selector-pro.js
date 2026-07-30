@@ -202,9 +202,14 @@
     Object.keys(FIELD_MESSAGES).forEach(selector => $(selector)?.addEventListener("input", clearFieldAttention));
     $$('[data-agenda-list-mode]').forEach(button => button.addEventListener('click', () => {
       const mode = button.dataset.agendaListMode;
-      $$('[data-agenda-list-mode]').forEach(item => item.classList.toggle('active', item === button));
+      // Ahora hay dos controles por modo (la tarjeta grande y la pestaña chica):
+      // el activo se decide por modo, no por identidad del boton clicado.
+      $$('[data-agenda-list-mode]').forEach(item => item.classList.toggle('active', item.dataset.agendaListMode === mode));
       $('#agendaServicesListPanel')?.classList.toggle('active', mode === 'services');
       $('#agendaSymptomsListPanel')?.classList.toggle('active', mode === 'symptoms');
+      // El primer clic decide el camino: de ahi en adelante se ve el detalle,
+      // no las dos tarjetas grandes.
+      $('#agendaStart')?.classList.add('path-chosen');
     }));
   }
 
