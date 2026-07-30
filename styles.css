@@ -6353,3 +6353,245 @@ body.agenda-service-selected .agenda-start-compact-v2741 {
     background:#20252d!important;
   }
 }
+
+/* =========================================================
+   D-TEK v37.2 — Contraste móvil integral
+   Cubre el flujo interno de solicitar servicio y cualquier
+   superficie clara heredada del portal anterior.
+   ========================================================= */
+@media(max-width:767px){
+  .page-client-v23{
+    --mobile-bg:#090b0e;
+    --mobile-panel:#181d23;
+    --mobile-raised:#20252d;
+    --mobile-input:#101419;
+    --mobile-border:#3a424d;
+    --mobile-text:#f7f8fa;
+    --mobile-copy:#c5cbd3;
+    --mobile-muted:#9aa3af;
+  }
+
+  /* Jerarquía tipográfica legible en todas las secciones del portal. */
+  .page-client-v23 :is(
+    .client-section-heading h1,.section-action-row h2,.client-card h2,
+    .client-card h3,.panel-head h2,.panel-head h3,.client-modal-head h2,
+    .client-booking-step-head strong,.client-booking-summary strong,
+    .client-empty-state h2,.client-empty-state h3,.vehicle-profile-hero h2,
+    .timeline-card h3,.reward-card strong,.points-list-item strong
+  ){color:var(--mobile-text)!important}
+  .page-client-v23 :is(
+    .client-section-heading p,.section-action-row p,.client-card p,
+    .client-card small,.panel-head p,.panel-head small,.client-modal-head p,
+    .client-booking-step-head small,.client-empty-state p,.timeline-card p,
+    .timeline-card small,.points-list-item span,.points-list-item small
+  ){color:var(--mobile-copy)!important}
+  .page-client-v23 :is(
+    .card-label,.client-kicker,.optional-label,.optional-mark,
+    .client-status-text,.vehicle-picker-state
+  ){color:var(--mobile-muted)!important}
+
+  /* Modal de solicitud: fondo sólido, alto contraste y scroll seguro. */
+  .page-client-v23 .client-booking-modal{
+    color:var(--mobile-text);
+  }
+  .page-client-v23 .client-booking-modal .client-modal-backdrop{
+    background:rgba(0,0,0,.86)!important;
+    -webkit-backdrop-filter:none;
+    backdrop-filter:none;
+  }
+  .page-client-v23 .client-booking-modal .client-booking-panel{
+    color:var(--mobile-text)!important;
+    border:1px solid var(--mobile-border)!important;
+    background:#11151a!important;
+    box-shadow:0 -18px 55px rgba(0,0,0,.62)!important;
+  }
+  .page-client-v23 .client-booking-modal .client-modal-head{
+    padding-bottom:13px;
+    border-bottom:1px solid #303640;
+  }
+  .page-client-v23 .client-booking-modal .client-modal-head p,
+  .page-client-v23 .client-booking-modal .client-booking-step-head small{
+    color:#b7bec8!important;
+  }
+  .page-client-v23 .client-booking-progress{
+    border-color:#303640!important;
+    background:#0d1014!important;
+  }
+  .page-client-v23 .client-booking-progress span,
+  .page-client-v23 .client-booking-progress span.pending{
+    color:#aeb6c1!important;
+    background:#20252d!important;
+  }
+  .page-client-v23 .client-booking-progress span.active{
+    color:#fff!important;
+    background:#b71822!important;
+    box-shadow:inset 0 -3px #ff4b55!important;
+  }
+  .page-client-v23 .client-booking-progress span.done{
+    color:#8ee8bf!important;
+    background:#14392c!important;
+  }
+
+  /* Categorías y servicios generados por JavaScript. */
+  .page-client-v23 .client-booking-modal .selector-accordion{
+    color:var(--mobile-text)!important;
+    border-color:var(--mobile-border)!important;
+    background:#0d1014!important;
+  }
+  .page-client-v23 .client-booking-modal .selector-group{
+    color:var(--mobile-text)!important;
+    border-color:#303640!important;
+    background:#181d23!important;
+  }
+  .page-client-v23 .client-booking-modal .selector-group-toggle{
+    min-height:56px;
+    color:var(--mobile-text)!important;
+    border-color:#303640!important;
+    background:#20252d!important;
+  }
+  .page-client-v23 .client-booking-modal .selector-group-toggle strong{
+    color:#fff!important;
+  }
+  .page-client-v23 .client-booking-modal .selector-group-toggle :is(b,i){
+    color:#ff747b!important;
+  }
+  .page-client-v23 .client-booking-modal .selector-group-content{
+    color:var(--mobile-text)!important;
+    border-color:#303640!important;
+    background:#11151a!important;
+  }
+  .page-client-v23 .client-booking-modal .client-booking-service{
+    min-height:58px;
+    color:#f5f7fa!important;
+    border-color:#303640!important;
+    background:#181d23!important;
+  }
+  .page-client-v23 .client-booking-modal .client-booking-service strong{
+    color:#f7f8fa!important;
+  }
+  .page-client-v23 .client-booking-modal .client-booking-service > span:last-child b{
+    color:#ff767d!important;
+  }
+  .page-client-v23 .client-booking-modal .client-booking-service > span:last-child small{
+    color:#8ee8bf!important;
+  }
+  .page-client-v23 .client-booking-modal .client-booking-service:hover,
+  .page-client-v23 .client-booking-modal .client-booking-service:focus-visible{
+    border-color:#596371!important;
+    background:#252b33!important;
+  }
+  .page-client-v23 .client-booking-modal .client-booking-service.selected{
+    color:#fff!important;
+    border-color:#e5232f!important;
+    background:#3a1b21!important;
+    box-shadow:inset 4px 0 #ff4b55!important;
+  }
+
+  /* Fechas, horarios y resumen de confirmación. */
+  .page-client-v23 .client-booking-dates button,
+  .page-client-v23 .client-booking-times button{
+    color:#eef1f5!important;
+    border-color:var(--mobile-border)!important;
+    background:#20252d!important;
+  }
+  .page-client-v23 .client-booking-dates button :is(strong,span,small),
+  .page-client-v23 .client-booking-times button :is(strong,span,small){
+    color:inherit!important;
+  }
+  .page-client-v23 .client-booking-dates button.selected,
+  .page-client-v23 .client-booking-times button.selected{
+    color:#fff!important;
+    border-color:#ff5961!important;
+    background:#8f1720!important;
+    box-shadow:inset 0 -3px #ff5961!important;
+  }
+  .page-client-v23 .client-booking-summary{
+    color:var(--mobile-text)!important;
+    border-color:#4a3136!important;
+    background:#21161a!important;
+  }
+  .page-client-v23 .client-booking-summary :is(p,span,small){
+    color:var(--mobile-copy)!important;
+  }
+
+  /* Campos, opciones nativas, validación y estados deshabilitados. */
+  .page-client-v23 .client-booking-modal .client-form label{
+    color:#d7dce3!important;
+  }
+  .page-client-v23 .client-booking-modal :is(input,select,textarea){
+    color:#f7f8fa!important;
+    caret-color:#ff5961;
+    border-color:#46505d!important;
+    background:#0d1014!important;
+    -webkit-text-fill-color:#f7f8fa;
+    opacity:1;
+  }
+  .page-client-v23 .client-booking-modal :is(input,textarea)::placeholder{
+    color:#89929e!important;
+    -webkit-text-fill-color:#89929e;
+    opacity:1;
+  }
+  .page-client-v23 .client-booking-modal select option{
+    color:#f7f8fa!important;
+    background:#11151a!important;
+  }
+  .page-client-v23 .client-booking-modal :is(input,select,textarea):focus{
+    border-color:#ff5961!important;
+    box-shadow:0 0 0 3px rgba(255,89,97,.18)!important;
+  }
+  .page-client-v23 .client-booking-modal :is(input,select,textarea):disabled,
+  .page-client-v23 .client-booking-modal button:disabled{
+    color:#818a96!important;
+    border-color:#2c333c!important;
+    background:#15191f!important;
+    -webkit-text-fill-color:#818a96;
+    opacity:1;
+  }
+  .page-client-v23 :is(.client-form-error,.booking-status.error,.field-error){
+    color:#ffb4b8!important;
+    border-color:#713139!important;
+    background:#35181d!important;
+  }
+  .page-client-v23 :is(.client-form-success,.booking-status.success){
+    color:#a8eccd!important;
+    border-color:#285b47!important;
+    background:#15382c!important;
+  }
+
+  /* Acciones siempre distinguibles del fondo. */
+  .page-client-v23 .client-booking-modal .client-btn-primary{
+    color:#fff!important;
+    border-color:#ff4b55!important;
+    background:linear-gradient(135deg,#f02a36,#b71822)!important;
+    box-shadow:0 8px 22px rgba(229,35,47,.24);
+  }
+  .page-client-v23 .client-booking-modal .client-btn-secondary{
+    color:#f0f3f6!important;
+    border-color:#46505d!important;
+    background:#20252d!important;
+  }
+  .page-client-v23 .mobile-service-cta{
+    color:#fff!important;
+    border-color:#ff5961!important;
+    background:linear-gradient(135deg,#f02a36,#b71822)!important;
+  }
+
+  /* Resto de superficies claras heredadas fuera del Garage. */
+  .page-client-v23 :is(
+    .reward-card,.points-list-tabs,.points-list-item,.profile-data-row,
+    .referral-card,.appointment-card,.client-list-item,.claim-appointments-box,
+    .summary-block,.timeline-card
+  ){
+    color:var(--mobile-text)!important;
+    border-color:#303640!important;
+    background:#181d23!important;
+  }
+  .page-client-v23 .points-list-tabs button{
+    color:#aeb6c1!important;
+    background:#20252d!important;
+  }
+  .page-client-v23 .points-list-tabs button.active{
+    color:#fff!important;
+    background:#8f1720!important;
+  }
+}

@@ -3572,3 +3572,172 @@ h2.cinema-how-kicker{margin:0 0 18px;font-size:11px;line-height:1.4}
   .inspection-row-v33{grid-template-columns:1fr}.inspection-row-v33+ .inspection-row-v33{padding-top:10px;border-top:1px solid rgba(255,255,255,.06)}
   .maintenance-interval-edit{grid-template-columns:1fr 1fr}
 }
+
+/* =========================================================
+   D-TEK v37.2 — Agenda pública legible en móvil
+   Esta hoja carga al final en agenda.html, por eso la capa
+   de contraste del flujo público vive también aquí.
+   ========================================================= */
+@media(max-width:767px){
+  body.page-agenda-v25-pro{
+    color-scheme:dark;
+    color:#f7f8fa;
+    background:#090b0e!important;
+  }
+  .page-agenda-v25-pro :is(
+    .booking-panel-v25,.booking-summary-v25,.schedule-selector-v25,
+    .service-picked-banner-v25,.agenda-list-panel-v25,.other-service-request-v274,
+    .guest-account-box-v31,.booking-success-card-v25
+  ){
+    color:#f7f8fa!important;
+    border-color:#343b45!important;
+    background:#151a20!important;
+    -webkit-backdrop-filter:none;
+    backdrop-filter:none;
+  }
+  .page-agenda-v25-pro :is(
+    .booking-step-head-v25 h2,.booking-step-head-v25 h3,
+    .selected-service-head-v2741 h2,.schedule-selector-v25 h3,
+    .booking-summary-v25 h2,.booking-summary-v25 h3
+  ){color:#f7f8fa!important}
+  .page-agenda-v25-pro :is(
+    .booking-step-head-v25 p,.selected-service-head-v2741 p,
+    .booking-summary-v25 p,.booking-summary-v25 small,
+    .campo-ayuda-v318,.other-service-request-v274 small
+  ){color:#bdc4ce!important}
+  .page-agenda-v25-pro :is(
+    .vehicle-cascade-v25 label,.confirm-grid-v25 label,
+    .other-service-request-v274>span
+  ){color:#d9dee5!important}
+  .page-agenda-v25-pro :is(input,select,textarea){
+    color:#f7f8fa!important;
+    border-color:#46505d!important;
+    background:#0d1014!important;
+    -webkit-text-fill-color:#f7f8fa;
+    opacity:1;
+  }
+  .page-agenda-v25-pro :is(input,textarea)::placeholder{
+    color:#89929e!important;
+    -webkit-text-fill-color:#89929e;
+    opacity:1;
+  }
+  .page-agenda-v25-pro select option{
+    color:#f7f8fa!important;
+    background:#11151a!important;
+  }
+  .page-agenda-v25-pro :is(input,select,textarea):focus{
+    border-color:#ff5961!important;
+    box-shadow:0 0 0 3px rgba(255,89,97,.18)!important;
+  }
+  .page-agenda-v25-pro :is(input,select,textarea):disabled{
+    color:#818a96!important;
+    border-color:#2c333c!important;
+    background:#15191f!important;
+    -webkit-text-fill-color:#818a96;
+    opacity:1;
+  }
+  .page-agenda-v25-pro .booking-progress-v25{
+    border-color:#303640!important;
+    background:#0d1014!important;
+  }
+  .page-agenda-v25-pro .booking-progress-v25 span{
+    color:#aeb6c1!important;
+    background:#181d23!important;
+  }
+  .page-agenda-v25-pro .booking-progress-v25 span.active{
+    color:#fff!important;
+    background:#74161d!important;
+  }
+  .page-agenda-v25-pro :is(.agenda-path-card-v321,.agenda-symptom-launcher-v2741,.additional-launcher-v2741){
+    color:#f7f8fa!important;
+    border-color:#3a424d!important;
+    background:#20252d!important;
+  }
+  .page-agenda-v25-pro :is(.agenda-path-card-v321,.agenda-symptom-launcher-v2741,.additional-launcher-v2741) :is(strong,em){
+    color:#f7f8fa!important;
+  }
+  .page-agenda-v25-pro :is(.agenda-path-card-v321,.agenda-symptom-launcher-v2741,.additional-launcher-v2741) :is(span,small){
+    color:#bdc4ce!important;
+  }
+  .page-agenda-v25-pro .selector-accordion{
+    color:#f7f8fa!important;
+    border-color:#3a424d!important;
+    background:#0d1014!important;
+  }
+  .page-agenda-v25-pro .selector-group,
+  .page-agenda-v25-pro .selector-group-content{
+    color:#f7f8fa!important;
+    border-color:#303640!important;
+    background:#11151a!important;
+  }
+  .page-agenda-v25-pro .selector-group-toggle,
+  .page-agenda-v25-pro .selector-service-row,
+  .page-agenda-v25-pro .selector-service-toggle,
+  .page-agenda-v25-pro .selector-service-direct{
+    color:#f7f8fa!important;
+    border-color:#303640!important;
+    background:#181d23!important;
+  }
+  .page-agenda-v25-pro .selector-group-toggle strong,
+  .page-agenda-v25-pro .selector-service-main strong{
+    color:#f7f8fa!important;
+  }
+  .page-agenda-v25-pro :is(.selector-service-main small,.selector-service-detail p,.selector-service-facts small){
+    color:#aeb6c1!important;
+  }
+  .page-agenda-v25-pro .selector-service-facts b{color:#ff747b!important}
+  .page-agenda-v25-pro .selector-service-row.selected,
+  .page-agenda-v25-pro .selector-service-pick.selected{
+    color:#fff!important;
+    border-color:#ff5961!important;
+    background:#3a1b21!important;
+  }
+  .page-agenda-v25-pro .date-chip,
+  .page-agenda-v25-pro .time-chip{
+    color:#eef1f5!important;
+    border-color:#3a424d!important;
+    background:#20252d!important;
+  }
+  .page-agenda-v25-pro :is(.date-chip,.time-chip) :is(strong,span,small,em){
+    color:inherit!important;
+  }
+  .page-agenda-v25-pro .date-chip.selected,
+  .page-agenda-v25-pro .time-chip.selected{
+    color:#fff!important;
+    border-color:#ff5961!important;
+    background:#8f1720!important;
+    box-shadow:inset 0 -3px #ff5961!important;
+  }
+  .page-agenda-v25-pro .booking-summary-v25 .summary-choice{
+    color:#f7f8fa!important;
+    border-color:#303640!important;
+    background:#20252d!important;
+  }
+  .page-agenda-v25-pro .booking-summary-v25 .summary-choice :is(strong,span){
+    color:#f7f8fa!important;
+  }
+  .page-agenda-v25-pro .booking-summary-v25 .summary-choice :is(small,em){
+    color:#b7bec8!important;
+  }
+  .page-agenda-v25-pro .public-btn-v25.primary,
+  .page-agenda-v25-pro .submit-booking{
+    color:#fff!important;
+    border-color:#ff5961!important;
+    background:linear-gradient(135deg,#f02a36,#b71822)!important;
+  }
+  .page-agenda-v25-pro .public-btn-v25.secondary{
+    color:#f0f3f6!important;
+    border-color:#46505d!important;
+    background:#20252d!important;
+  }
+  .page-agenda-v25-pro :is(.field-hint-v31,.booking-status.error){
+    color:#ffb4b8!important;
+    border-color:#713139!important;
+    background:#35181d!important;
+  }
+  .page-agenda-v25-pro .booking-status.success{
+    color:#a8eccd!important;
+    border-color:#285b47!important;
+    background:#15382c!important;
+  }
+}
