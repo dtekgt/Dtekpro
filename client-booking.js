@@ -1,4 +1,4 @@
-/* D-TEK v30.3.3 · Agenda interna para Garage D-TEK */
+/* D-TEK v38 · Solicitud interna para Garage D-TEK */
 (() => {
   const $ = (selector, root = document) => root.querySelector(selector);
   const $$ = (selector, root = document) => [...root.querySelectorAll(selector)];
@@ -59,7 +59,7 @@
     holder.innerHTML = source.map((group, index) => {
       const choices = group.services.map(serviceById).filter(Boolean);
       return `<section class="selector-group ${index === 0 ? "open" : ""}">
-        <button type="button" class="selector-group-toggle" aria-expanded="${index === 0}"><span><strong>${esc(group.title || group.label)}</strong></span><b>${choices.length}</b><i>${index === 0 ? "−" : "＋"}</i></button>
+        <button type="button" class="selector-group-toggle" aria-expanded="${index === 0}"><span><strong>${esc(group.title || group.label)}</strong>${group.hint ? `<small>${esc(group.hint)}</small>` : ""}</span><b>${choices.length}</b><i>${index === 0 ? "−" : "＋"}</i></button>
         <div class="selector-group-content" ${index === 0 ? "" : "hidden"}>${choices.map(service => `<button type="button" class="client-booking-service ${booking.service?.id === service.id ? "selected" : ""}" data-client-service="${esc(service.id)}"><span><strong>${esc(service.name)}</strong></span><span><b>${esc(service.price)}</b><small>+${estimatedPoints(service)} pts</small></span></button>`).join("")}</div>
       </section>`;
     }).join("");
@@ -153,7 +153,14 @@
     modal.setAttribute("aria-hidden", "false");
     document.body.classList.add("client-modal-open");
     $("#clientBookingVehicleLabel").textContent = booking.vehicle.nickname || `${booking.vehicle.brand} ${booking.vehicle.line} ${booking.vehicle.year || ""}`;
-    renderInternalList(trigger?.dataset.bookingSymptoms === "true");
+    const useSymptoms = trigger?.dataset.bookingSymptoms === "true";
+    const symptomsChoice = $("[data-booking-symptoms]:not([data-open-client-booking])");
+    if (symptomsChoice) {
+      symptomsChoice.setAttribute("aria-pressed", String(useSymptoms));
+      symptomsChoice.querySelector("strong").textContent = useSymptoms ? "Volver a ver todos los servicios" : "No sé qué servicio necesito";
+      symptomsChoice.querySelector("small").textContent = useSymptoms ? "Mostrando opciones según lo que hace tu carro" : "Elegí lo que hace tu carro y te orientamos";
+    }
+    renderInternalList(useSymptoms);
     setStep(1);
   }
   function closeBooking() {
@@ -253,9 +260,9 @@
       status.textContent = "Guardando solicitud...";
       const saved = await DtekBackend.createAppointmentForVehicle(payload);
       if (!saved?.id) throw new Error("No se recibió confirmación");
-      status.textContent = "Listo. Tu solicitud quedó guardada y la confirmamos por WhatsApp.";
+      status.textContent = "Solicitud enviada. D-TEK revisará el horario y te confirmará por WhatsApp.";
       await loadClientAppointments();
-      window.setTimeout(closeBooking, 1700);
+      window.setTimeout(closeBooking, 2600);
     } catch (error) {
       console.warn("D-TEK booking error", error);
       status.textContent = friendlyBookingError(error);
@@ -270,6 +277,15 @@
     document.addEventListener("click", async event => {
       const open = event.target.closest("[data-open-client-booking]"); if (open) openBooking(open);
       if (event.target.closest("[data-close-client-booking]")) closeBooking();
+      const symptomsChoice = event.target.closest("[data-booking-symptoms]:not([data-open-client-booking])");
+      if (symptomsChoice) {
+        const active = symptomsChoice.getAttribute("aria-pressed") === "true";
+        symptomsChoice.setAttribute("aria-pressed", String(!active));
+        symptomsChoice.querySelector("strong").textContent = active ? "No sé qué servicio necesito" : "Volver a ver todos los servicios";
+        symptomsChoice.querySelector("small").textContent = active ? "Elegí lo que hace tu carro y te orientamos" : "Mostrando opciones según lo que hace tu carro";
+        renderInternalList(!active);
+        $("#clientBookingStatus").textContent = "";
+      }
       const groupToggle = event.target.closest("#clientBookingServices .selector-group-toggle");
       if (groupToggle) {
         const group = groupToggle.closest(".selector-group"); const content = $(".selector-group-content", group); const opening = !group.classList.contains("open");

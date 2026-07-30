@@ -1,5 +1,5 @@
 /*
-  D-TEK GT Web OS v31.3 — Expediente del servicio (fase 1)
+  D-TEK GT Web OS v38 — Detalle del trabajo
   Propiedad de D-TEK GT / Dominic Morales.
 
   Cada servicio deja de estar repartido entre "cita" y "reporte técnico":
@@ -126,7 +126,7 @@
       </div>
 
       ${carro || exp.lugar ? `<div class="exp-datos">
-        ${carro ? `<div><dt>Vehículo</dt><dd>${seguro(carro)}</dd></div>` : ""}
+        ${carro ? `<div><dt>Carro</dt><dd>${seguro(carro)}</dd></div>` : ""}
         ${exp.vehiculo?.plate ? `<div><dt>Placa</dt><dd>${seguro(exp.vehiculo.plate)}</dd></div>` : ""}
         ${exp.vehiculo?.mileage ? `<div><dt>Kilometraje</dt><dd>${seguro(Number(exp.vehiculo.mileage).toLocaleString("es-GT"))} km</dd></div>` : ""}
         ${exp.lugar ? `<div><dt>Lugar</dt><dd>${seguro(exp.lugar)}</dd></div>` : ""}
@@ -139,8 +139,8 @@
       ${desglose(exp)}
 
       ${!exp.tieneReporte ? `<section class="exp-bloque exp-aviso">
-        <h3>Todavía sin reporte</h3>
-        <p>Cuando el trabajo se realice, acá va a quedar el diagnóstico, lo que se cambió y el total.</p>
+        <h3>Trabajo pendiente</h3>
+        <p>Cuando se realice, aquí aparecerán el diagnóstico, lo que se cambió y el total.</p>
       </section>` : ""}
 
       ${pendiente("Fotos del trabajo", "Próximamente vas a ver acá las fotos que se tomaron durante este servicio.")}

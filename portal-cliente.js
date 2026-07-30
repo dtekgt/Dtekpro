@@ -1,5 +1,5 @@
 /*
-  D-TEK GT Web OS v30.3 — Portal cliente
+  D-TEK GT Web OS v38 — Portal cliente
   Arquitectura: Inicio · Garage · Agenda · Cuenta
   Propiedad de D-TEK GT / Dominic Morales.
 */
@@ -116,11 +116,16 @@ function friendlyError() {
 
 function statusLabel(status) {
   const labels = {
-    requested: "Solicitada",
+    pending: "Esperando confirmación",
+    requested: "Esperando confirmación",
+    submitted: "Esperando confirmación",
+    scheduled: "Confirmada",
     confirmed: "Confirmada",
-    completed: "Realizada",
+    in_progress: "Servicio en proceso",
+    completed: "Terminado",
     cancelled: "Cancelada",
-    open: "Abierta",
+    canceled: "Cancelada",
+    open: "Revisión pendiente",
     quoted: "Cotizada",
     approved: "Aprobada"
   };
@@ -129,7 +134,7 @@ function statusLabel(status) {
 
 function statusTone(status) {
   if (["confirmed", "completed", "converted", "approved"].includes(status)) return "positive";
-  if (["requested", "submitted", "contacted", "scheduled", "quoted"].includes(status)) return "waiting";
+  if (["pending", "requested", "submitted", "contacted", "scheduled", "quoted", "in_progress"].includes(status)) return "waiting";
   if (["cancelled", "discarded"].includes(status)) return "negative";
   return "neutral";
 }
@@ -371,6 +376,31 @@ function renderGarageVehicleQuickSwitch() {
   }).join("");
 }
 
+function renderGarageToolsDrawer() {
+  const holder = clientQs("#clientToolsVehicles");
+  const vehicles = clientPortalState.vehicles || [];
+  const active = preferredVehicle();
+  const activeName = active ? (active.nickname || vehicleBaseTitle(active)) : "Sin carro seleccionado";
+  setText("#clientActiveCarName", activeName);
+  setText("#clientToolsVehicleName", activeName);
+  setText("#clientToolsVehicleMeta", active
+    ? [active.plate ? `Placa ${active.plate}` : "", active.mileage ? formatKm(active.mileage) : "Falta agregar kilometraje"].filter(Boolean).join(" · ")
+    : "Agregá un carro para ver su información");
+  setText("#clientToolsPoints", `${Number(clientPortalState.loyalty?.points_balance || 0).toLocaleString("es-GT")} puntos disponibles`);
+  if (!holder) return;
+  holder.innerHTML = vehicles.length
+    ? vehicles.map((vehicle) => {
+      const isActive = String(vehicle.id) === String(active?.id);
+      const insight = getVehicleInsight(vehicle);
+      return `<button type="button" class="client-tools-vehicle ${isActive ? "active" : ""}" data-quick-vehicle="${clientSafe(vehicle.id)}" aria-pressed="${isActive}">
+        <span aria-hidden="true">◆</span>
+        <span><strong>${clientSafe(vehicle.nickname || vehicleBaseTitle(vehicle))}</strong><small>${clientSafe(vehicle.plate || (vehicle.mileage ? formatKm(vehicle.mileage) : "Falta kilometraje"))}</small></span>
+        <em>${clientSafe(insight.active ? statusLabel(insight.active.status) : "Ver")}</em>
+      </button>`;
+    }).join("")
+    : `<div class="client-tools-empty"><p>Todavía no tenés carros guardados.</p><button class="client-btn client-btn-primary" type="button" data-open-vehicle-modal>Agregar mi primer carro</button></div>`;
+}
+
 function renderSpineCars(activeVehicle) {
   const holder = clientQs("#spineCars");
   if (!holder) return;
@@ -405,9 +435,9 @@ function spineTodayNode(vehicle, { summary = "", upcoming = "", tone = "" } = {}
       <strong>${clientSafe(headline)}</strong>
       <p>${clientSafe(copy)}</p>
       ${upcoming ? `<div class="spine-upcoming proximo-v318">
-        <span class="proximo-rotulo-v318">Lo que sigue</span>
+        <span class="proximo-rotulo-v318">Próximo servicio</span>
         <p>${clientSafe(upcoming)}</p>
-        <button class="client-btn client-btn-secondary proximo-btn-v318" type="button" data-open-client-booking data-vehicle-id="${clientSafe(vehicle.id)}">Agendarlo</button>
+        <button class="client-btn client-btn-secondary proximo-btn-v318" type="button" data-open-client-booking data-vehicle-id="${clientSafe(vehicle.id)}">Solicitar servicio</button>
       </div>` : ""}
       <div class="spine-event-actions">${action}</div>
     </div>
@@ -416,7 +446,7 @@ function spineTodayNode(vehicle, { summary = "", upcoming = "", tone = "" } = {}
 
 function spineEventNode(item) {
   const isReport = item.kind === "work_order";
-  const title = item.service_name || (isReport ? "Reporte técnico" : "Cita D-TEK");
+  const title = item.service_name || (isReport ? "Trabajo realizado" : "Cita D-TEK");
   const badge = isReport ? (item.work_order_status || "open") : (item.appointment_status || item.status || "requested");
   const detail = item.diagnosis || item.symptom || item.recommendations || "";
   const meta = [
@@ -428,7 +458,7 @@ function spineEventNode(item) {
 
   return `<article class="spine-event" data-spine-event>
     <span class="spine-node" aria-hidden="true"></span>
-    <div class="spine-event-card${idServicio ? " abrible" : ""}"${idServicio ? ` data-open-expediente="${clientSafe(idServicio)}" role="button" tabindex="0" aria-label="Abrir expediente de ${clientSafe(title)}"` : ""}>
+    <div class="spine-event-card${idServicio ? " abrible" : ""}"${idServicio ? ` data-open-expediente="${clientSafe(idServicio)}" role="button" tabindex="0" aria-label="Abrir detalle de ${clientSafe(title)}"` : ""}>
       <div class="spine-event-top"><small>${clientSafe(formatDateShort(item.scheduled_start || item.created_at))}</small><span class="client-status-badge ${statusTone(badge)}">${clientSafe(statusLabel(badge))}</span></div>
       <strong>${clientSafe(title)}</strong>
       ${detail ? `<p>${clientSafe(detail)}</p>` : ""}
@@ -458,7 +488,7 @@ function buildOverviewServiceTimeline(vehicle, history = []) {
   const anchor = chooseMaintenanceAnchor(vehicle, history);
   if (!anchor) {
     updateGarageTimelineDock(vehicle, "Sin historial todavía", "empty");
-    paintSpine(mount, `${spineTodayNode(vehicle)}<article class="spine-event spine-origin" data-spine-event><span class="spine-node origin" aria-hidden="true"></span><div class="spine-event-card"><strong>Acá empieza tu línea.</strong><p>Tu primera cita abre el expediente de este carro.</p></div></article>`);
+    paintSpine(mount, `${spineTodayNode(vehicle)}<article class="spine-event spine-origin" data-spine-event><span class="spine-node origin" aria-hidden="true"></span><div class="spine-event-card"><strong>Aquí empezará el historial.</strong><p>El primer servicio guardará la fecha, el kilometraje y lo que se realizó.</p></div></article>`);
     return;
   }
 
@@ -490,11 +520,11 @@ function buildOverviewServiceTimeline(vehicle, history = []) {
   const upcoming = `${plan.label} sugerido para ${formatDateShort(nextDate)} · cada ${plan.kmInterval.toLocaleString("es-GT")} km o ${plan.monthInterval} meses.`;
   const todayNode = spineTodayNode(vehicle, { summary, upcoming, tone });
   const pastNodes = (history || []).length
-    ? history.map(spineEventNode).join("")
+    ? history.slice(0, 1).map(spineEventNode).join("")
     : spineEventNode(anchor);
-  const originNode = `<article class="spine-event spine-origin" data-spine-event>
+  const originNode = (history || []).length ? "" : `<article class="spine-event spine-origin" data-spine-event>
     <span class="spine-node origin" aria-hidden="true"></span>
-    <div class="spine-event-card"><strong>Acá empieza tu ${clientSafe(vehicleBaseTitle(vehicle))}.</strong><p>Todo lo que hagamos queda registrado en esta línea.</p></div>
+    <div class="spine-event-card"><strong>Aquí empieza el historial de tu ${clientSafe(vehicleBaseTitle(vehicle))}.</strong><p>Cada trabajo queda registrado con su fecha y kilometraje.</p></div>
   </article>`;
 
   paintSpine(mount, `${todayNode}${pastNodes}${originNode}`);
@@ -531,14 +561,14 @@ function vehicleOrders(vehicle) {
 function getVehicleInsight(vehicle) {
   const appointments = vehicleAppointments(vehicle);
   const orders = vehicleOrders(vehicle);
-  const active = appointments.find((item) => ["requested", "confirmed"].includes(item.status));
+  const active = appointments.find((item) => ["pending", "requested", "submitted", "scheduled", "confirmed", "in_progress"].includes(item.status));
   const lastOrder = orders[0] || null;
   const recommendation = orders.find((item) => item.recommendations)?.recommendations || "";
   return {
     active,
     lastOrder,
     recommendation,
-    status: active ? statusLabel(active.status) : lastOrder ? "Con historial" : "Listo para atender"
+    status: active ? statusLabel(active.status) : recommendation ? "Revisión pendiente" : "Sin alertas confirmadas"
   };
 }
 
@@ -555,6 +585,29 @@ function showAuthGate(show) {
   clientQs("#clientAuthGate")?.classList.toggle("hidden-field", !show);
   clientQs("#clientDashboard")?.classList.toggle("hidden-field", show);
   clientQs("#clientPublicHeader")?.classList.toggle("hidden-field", !show);
+}
+
+function openToolsDrawer() {
+  const drawer = clientQs("#clientToolsDrawer");
+  const backdrop = clientQs("#clientToolsBackdrop");
+  if (!drawer || !backdrop) return;
+  renderGarageToolsDrawer();
+  drawer.setAttribute("aria-hidden", "false");
+  backdrop.hidden = false;
+  document.body.classList.add("client-tools-open");
+  ["#clientToolsTrigger", "#clientActiveCarTrigger"].forEach((selector) => clientQs(selector)?.setAttribute("aria-expanded", "true"));
+  window.setTimeout(() => drawer.querySelector("[data-quick-vehicle], [data-open-vehicle-modal], button")?.focus(), 40);
+}
+
+function closeToolsDrawer({ restoreFocus = false } = {}) {
+  const drawer = clientQs("#clientToolsDrawer");
+  const backdrop = clientQs("#clientToolsBackdrop");
+  if (!drawer || !backdrop) return;
+  drawer.setAttribute("aria-hidden", "true");
+  backdrop.hidden = true;
+  document.body.classList.remove("client-tools-open");
+  ["#clientToolsTrigger", "#clientActiveCarTrigger"].forEach((selector) => clientQs(selector)?.setAttribute("aria-expanded", "false"));
+  if (restoreFocus) clientQs("#clientToolsTrigger")?.focus();
 }
 
 function setActiveSection(section) {
@@ -578,6 +631,7 @@ function setActiveSection(section) {
   const title = clientQs("#dashboardTitle");
   if (title) title.textContent = titles[normalized] || "Garage D-TEK";
   closeAccountMenu();
+  closeToolsDrawer();
   if (normalized === "vehicles" && clientPortalState.activeVehicleId) {
     openVehicleProfile(clientPortalState.activeVehicleId, { navigate: false, refreshHistory: true });
   }
@@ -610,7 +664,7 @@ function setHtml(selector, value) {
 }
 
 function renderRetry(message, action) {
-  return `<div class="client-inline-error"><p>${clientSafe(message)}</p><button class="client-text-link" type="button" data-retry-load="${clientSafe(action)}">Reintentar</button></div>`;
+  return `<div class="client-inline-error"><p>${clientSafe(message)} Revisá tu conexión e intentá de nuevo.</p><button class="client-text-link" type="button" data-retry-load="${clientSafe(action)}">Volver a intentar</button></div>`;
 }
 
 function renderAppointmentCard(appointment, { compact = false } = {}) {
@@ -633,7 +687,7 @@ function renderWorkOrder(order) {
     <div class="client-list-item-main">
       <div>
         <span class="client-status-badge ${statusTone(order.status)}">${clientSafe(statusLabel(order.status || "open"))}</span>
-        <h3>${clientSafe(order.service_name || "Reporte técnico")}</h3>
+        <h3>${clientSafe(order.service_name || "Trabajo realizado")}</h3>
         <p>${clientSafe(order.vehicle_summary || "Vehículo")}</p>
         <small>${clientSafe(fmtDate(order.scheduled_start || order.created_at))}</small>
       </div>
@@ -664,7 +718,7 @@ function renderVehiclePickerCard(vehicle) {
       <strong>${clientSafe(vehicleTitle(vehicle))}</strong>
       <small>${clientSafe(vehicle.plate || formatKm(vehicle.mileage))}</small>
     </span>
-    <span class="vehicle-picker-state ${statusTone(insight.active?.status)}">${clientSafe(insight.active ? statusLabel(insight.active.status) : "Abrir")}</span>
+    <span class="vehicle-picker-state ${statusTone(insight.active?.status)}">${clientSafe(insight.active ? statusLabel(insight.active.status) : "Ver")}</span>
   </button>`;
 }
 
@@ -673,12 +727,12 @@ function buildSmartRecommendations(vehicle, history = []) {
   const fromReports = orders
     .filter((order) => order.recommendations)
     .slice(0, 3)
-    .map((order) => ({ title: "Recomendación del último reporte", body: order.recommendations, priority: "Seguimiento", urgent: true }));
+    .map((order) => ({ title: "Recomendación del último trabajo", body: order.recommendations, priority: "Revisión pendiente", urgent: true }));
   if (fromReports.length) return fromReports;
 
   const recommendations = [];
   if (!vehicle.mileage) recommendations.push({ title: "Actualizá el kilometraje", body: "Nos ayuda a recomendar el próximo mantenimiento con más precisión.", priority: "Dato pendiente" });
-  if (!history.length) recommendations.push({ title: "Empezá el expediente del carro", body: "La primera cita deja una línea base de lo que está bien y lo que conviene revisar.", priority: "Primer paso" });
+  if (!history.length) recommendations.push({ title: "Empezá el historial del carro", body: "El primer servicio registra la fecha, el kilometraje y lo que revisamos.", priority: "Primer servicio" });
   if (vehicle.mileage && Number(vehicle.mileage) >= 70000) recommendations.push({ title: "Mantenimiento preventivo", body: "Conviene revisar candelas, fluidos, frenos y suspensión según el uso real del carro.", priority: "Preventivo" });
   if (!recommendations.length) recommendations.push({ title: "Sin recomendaciones pendientes", body: "Cuando un servicio deje algo por revisar, aparecerá acá.", priority: "Al día" });
   return recommendations.slice(0, 3);
@@ -694,19 +748,19 @@ function renderRecommendationCard(recommendation) {
 
 function renderTimeline(history = []) {
   if (!history.length) {
-    return `<div class="client-empty-copy"><strong>Este carro no tiene historial todavía.</strong><p>La primera cita empieza su expediente y activa su seguimiento.</p><button class="client-btn client-btn-primary" type="button" data-open-client-booking>Agendar primer servicio</button></div>`;
+    return `<div class="client-empty-copy"><strong>Todavía no hay servicios registrados.</strong><p>Cuando hagamos el primero, aquí aparecerán la fecha, el kilometraje y lo que se realizó.</p><button class="client-btn client-btn-primary" type="button" data-open-client-booking>Solicitar primer servicio</button></div>`;
   }
   return history.map((item) => {
     const isReport = item.kind === "work_order";
-    const title = item.service_name || (isReport ? "Reporte técnico" : "Cita D-TEK");
+    const title = item.service_name || (isReport ? "Trabajo realizado" : "Cita D-TEK");
     const badge = isReport ? (item.work_order_status || "open") : (item.appointment_status || "requested");
     const detail = item.diagnosis || item.symptom || item.recommendations || "Sin detalle adicional.";
-    const eventType = isReport ? "Reporte técnico" : "Cita";
+    const eventType = isReport ? "Trabajo realizado" : "Cita";
     const mileage = item.mileage ? `${Number(item.mileage).toLocaleString("es-GT")} km` : "Kilometraje no registrado";
     const idServicio = item.appointment_id || item.id || "";
     return `<article class="timeline-item ${isReport ? "report" : "appointment"}">
       <div class="timeline-dot"></div>
-      <div class="timeline-card${idServicio ? " abrible" : ""}"${idServicio ? ` data-open-expediente="${clientSafe(idServicio)}" role="button" tabindex="0" aria-label="Abrir expediente de ${clientSafe(title)}"` : ""}>
+      <div class="timeline-card${idServicio ? " abrible" : ""}"${idServicio ? ` data-open-expediente="${clientSafe(idServicio)}" role="button" tabindex="0" aria-label="Abrir detalle de ${clientSafe(title)}"` : ""}>
         <div class="timeline-head"><strong>${clientSafe(title)}</strong><span class="client-status-badge ${statusTone(badge)}">${clientSafe(statusLabel(badge))}</span></div>
         <small>${clientSafe(fmtDate(item.scheduled_start || item.created_at))}</small>
         <p>${clientSafe(detail)}</p>
@@ -746,10 +800,10 @@ function renderQuickFacts(vehicle, history = []) {
   const lines = [
     ["Marca y línea", vehicleBaseTitle(vehicle)],
     ["Motor", vehicle.engine || "Pendiente"],
-    ["Caja", vehicle.transmission || "Pendiente"],
+    ["Transmisión", vehicle.transmission || "Pendiente"],
     ["Uso", vehicle.use_type || "Pendiente"],
     ["Placa", vehicle.plate || "Pendiente"],
-    ["Movimientos", `${appointments.length} cita(s) · ${orders.length} reporte(s)`],
+    ["Registros", `${appointments.length} cita(s) · ${orders.length} trabajo(s)`],
     ["Última actividad", last ? fmtDate(last.scheduled_start || last.created_at) : "Sin historial"],
     ["Invertido en este carro", invertidoTexto(history)]
   ];
@@ -814,6 +868,7 @@ function renderOverview() {
     setGarageTimelineExpanded(false);
     setText("#emptyVehicleGreeting", `Hola, ${firstName}. Empecemos guardando tu carro.`);
     setGlobalServiceLinks(null);
+    renderGarageToolsDrawer();
     return;
   }
 
@@ -822,12 +877,13 @@ function renderOverview() {
   const activeVehicle = preferredVehicle();
   clientPortalState.activeVehicleId = activeVehicle.id;
   setGlobalServiceLinks(activeVehicle.id);
+  renderGarageToolsDrawer();
 
   setText("#clientGreeting", `Hola, ${firstName}.`);
   setText("#clientNextStep", `Así está tu ${vehicleBaseTitle(activeVehicle)} hoy.`);
 
   const vehicleInsight = getVehicleInsight(activeVehicle);
-  const allActiveAppointments = (clientPortalState.appointments || []).filter((item) => ["requested", "confirmed"].includes(item.status));
+  const allActiveAppointments = (clientPortalState.appointments || []).filter((item) => ["pending", "requested", "submitted", "scheduled", "confirmed", "in_progress"].includes(item.status));
   const appointment = vehicleInsight.active || allActiveAppointments[0] || null;
   const status = clientQs("#nextActionStatus");
   const nextCard = clientQs("#nextActionCard");
@@ -842,9 +898,9 @@ function renderOverview() {
     setHtml("#nextActionActions", `<button class="client-btn client-btn-primary" type="button" data-client-section="appointments">Ver mi cita</button><a class="client-text-link" href="https://wa.me/${clientSafe(window.DTEK_WHATSAPP_NUMBER || window.DTEK_CONFIG?.whatsappNumber || "50247082329")}" target="_blank" rel="noopener">Escribir por WhatsApp</a>`);
   } else if (vehicleInsight.recommendation) {
     status.className = "client-status-badge waiting";
-    status.textContent = "Seguimiento";
+    status.textContent = "Revisión pendiente";
     nextCard.dataset.state = "recommendation";
-    setText("#nextActionTitle", "Tenés una recomendación pendiente.");
+    setText("#nextActionTitle", "Hay algo que conviene revisar.");
     setText("#nextActionDescription", vehicleInsight.recommendation);
     setHtml("#nextActionActions", `<button class="client-btn client-btn-primary" type="button" data-open-client-booking data-vehicle-id="${clientSafe(activeVehicle.id)}">Solicitar servicio</button><button class="client-text-link" type="button" data-open-vehicle="${clientSafe(activeVehicle.id)}">Ver recomendación</button>`);
   } else {
@@ -885,7 +941,7 @@ function renderOverview() {
   const loyalty = clientPortalState.loyalty || {};
   const benefitContent = clientQs("#overviewBenefitContent");
   if (benefitContent) {
-    benefitContent.innerHTML = `<h3>${clientSafe(formatPoints(loyalty.points_balance || 0))}</h3><p>Canjear premios</p>`;
+    benefitContent.innerHTML = `<h3>${clientSafe(formatPoints(loyalty.points_balance || 0))}</h3><p>Usalos en premios D-TEK</p>`;
   }
 
   const others = vehicles.filter((vehicle) => String(vehicle.id) !== String(activeVehicle.id));
@@ -911,7 +967,7 @@ function renderVehicleWorkspace() {
     picker.classList.add("hidden-field");
     clientQs("#vehicleProfileView")?.classList.add("hidden-field");
     clientQs("#vehicleProfileEmpty")?.classList.remove("hidden-field");
-    clientQs("#vehicleProfileEmpty").innerHTML = `<span class="client-kicker">Tu primer carro</span><h2>Todavía no tenés vehículos guardados.</h2><p>Guardar un carro es opcional: sirve para su expediente y para no repetir datos. Para agendar hoy no hace falta.</p><button class="client-btn client-btn-primary" type="button" data-open-vehicle-modal>Agregar mi primer carro</button><a class="client-btn client-btn-secondary" href="agenda.html?from=garage">Agendar sin guardar carro</a>`;
+    clientQs("#vehicleProfileEmpty").innerHTML = `<span class="client-kicker">Tu primer carro</span><h2>Todavía no tenés carros guardados.</h2><p>Guardarlo es opcional. Sirve para conservar su historial y no repetir los datos al solicitar servicio.</p><button class="client-btn client-btn-primary" type="button" data-open-vehicle-modal>Agregar mi primer carro</button><a class="client-btn client-btn-secondary" href="agenda.html?from=garage">Solicitar sin guardar carro</a>`;
     return;
   }
 
@@ -920,6 +976,7 @@ function renderVehicleWorkspace() {
   picker.classList.toggle("hidden-field", vehicles.length === 1);
   holder.innerHTML = vehicles.map(renderVehiclePickerCard).join("");
   renderGarageVehicleQuickSwitch();
+  renderGarageToolsDrawer();
 }
 
 async function openVehicleProfile(vehicleId, options = {}) {
@@ -936,19 +993,22 @@ async function openVehicleProfile(vehicleId, options = {}) {
   clientQs("#vehicleProfileEmpty")?.classList.add("hidden-field");
   clientQs("#vehicleProfileView")?.classList.remove("hidden-field");
   setText("#vehicleProfileTitle", vehicleTitle(vehicle));
-  setText("#vehicleProfileEyebrow", vehicle.nickname ? vehicleBaseTitle(vehicle) : "Expediente del carro");
+  setText("#vehicleProfileEyebrow", vehicle.nickname ? vehicleBaseTitle(vehicle) : "Historial y próximos servicios");
   setText("#vehicleProfileSubtitle", `${vehicle.plate ? `Placa ${vehicle.plate} · ` : ""}${formatKm(vehicle.mileage)}`);
   const agenda = clientQs("#vehicleProfileAgenda");
   if (agenda) agenda.dataset.vehicleId = vehicle.id;
   const radarAgenda = clientQs(".garage-radar-cta");
   if (radarAgenda) radarAgenda.dataset.vehicleId = vehicle.id;
+  const mobileRadarAgenda = clientQs(".garage-radar-mobile [data-open-client-booking]");
+  if (mobileRadarAgenda) mobileRadarAgenda.dataset.vehicleId = vehicle.id;
 
   const insight = getVehicleInsight(vehicle);
-  setText("#vehicleStatusText", insight.status);
-  setText("#vehicleStatusDetail", insight.active ? `Cita ${statusLabel(insight.active.status).toLowerCase()} en agenda.` : insight.recommendation ? "Tiene seguimiento pendiente." : "Sin cita activa.");
-  setText("#vehicleMileageText", formatKm(vehicle.mileage));
-  setText("#vehicleNextActionText", insight.active ? statusLabel(insight.active.status) : insight.recommendation ? "Seguimiento" : "Agendar");
-  setText("#vehicleNextActionDetail", insight.active ? fmtDate(insight.active.scheduled_start) : insight.recommendation || "Solicitá servicio sin volver a llenar los datos del carro.");
+  setText("#vehicleStatusText", insight.recommendation ? "Revisión pendiente" : "Ninguna confirmada");
+  setText("#vehicleStatusDetail", insight.active ? `Tenés una cita: ${statusLabel(insight.active.status).toLowerCase()}.` : insight.recommendation ? "Hay una recomendación por revisar." : "No hay alertas confirmadas.");
+  setText("#vehicleMileageText", vehicle.mileage ? formatKm(vehicle.mileage) : "Falta agregarlo");
+  setText("#vehicleNextActionText", insight.active ? statusLabel(insight.active.status) : insight.recommendation ? "Ver recomendación" : "Por calcular");
+  setText("#vehicleNextActionDetail", insight.active ? fmtDate(insight.active.scheduled_start) : insight.recommendation || "El historial y el kilometraje nos ayudan a calcularlo.");
+  renderGarageToolsDrawer();
 
   const fieldValues = {
     "#vehicleCareId": vehicle.id,
@@ -967,7 +1027,7 @@ async function openVehicleProfile(vehicleId, options = {}) {
   let history = clientPortalState.activeVehicleHistory || [];
   if (refreshHistory || String(clientPortalState.activeVehicleId) !== String(vehicleId)) history = [];
   if (refreshHistory) {
-    setHtml("#vehicleTimeline", `<div class="client-loading-copy">Cargando tu expediente...</div>`);
+    setHtml("#vehicleTimeline", `<div class="client-loading-copy">Cargando el historial...</div>`);
     try {
       history = await DtekBackend.listMyVehicleHistory(vehicle.id);
     } catch (error) {
@@ -1016,7 +1076,7 @@ function renderSocialProfile() {
   setText("#profileHeroName", fullName);
   setText("#profileStatVehicles", vehicles.length);
   setText("#profileStatServices", completedServices);
-  setText("#profileStatReferrals", referrals.length || Number(clientPortalState.loyalty?.referrals_total || 0));
+  setText("#profileStatReferrals", Number(clientPortalState.loyalty?.points_balance || 0));
 
   const feed = clientQs("#profileActivityFeed");
   if (!feed) return;
@@ -1034,7 +1094,7 @@ function renderSocialProfile() {
     activities.push({
       date: item.scheduled_start || item.created_at,
       icon: "◆",
-      title: item.service_name || "Reporte técnico",
+      title: item.service_name || "Trabajo realizado",
       body: item.recommendations || item.diagnosis || item.vehicle_summary || "Actividad registrada por D-TEK"
     });
   });
@@ -1144,8 +1204,8 @@ async function loadClientAppointments() {
   try {
     const appointments = await DtekBackend.listMyAppointments();
     clientPortalState.appointments = appointments || [];
-    const upcoming = clientPortalState.appointments.filter((item) => ["requested", "confirmed"].includes(item.status));
-    const past = clientPortalState.appointments.filter((item) => ["completed", "cancelled"].includes(item.status));
+    const upcoming = clientPortalState.appointments.filter((item) => ["pending", "requested", "submitted", "scheduled", "confirmed", "in_progress"].includes(item.status));
+    const past = clientPortalState.appointments.filter((item) => ["completed", "cancelled", "canceled"].includes(item.status));
     if (upcomingHolder) upcomingHolder.innerHTML = upcoming.length
       ? upcoming.map((item) => renderAppointmentCard(item)).join("")
       : `<div class="client-empty-copy"><strong>No tenés ninguna cita agendada.</strong><p>Cuando querás, pedí servicio para uno de tus carros.</p><button class="client-btn client-btn-primary" type="button" data-open-client-booking data-vehicle-id="${clientSafe(clientPortalState.activeVehicleId || "")}">Solicitar servicio</button></div>`;
@@ -1171,7 +1231,7 @@ async function loadClientWorkOrders() {
     clientPortalState.workOrders = orders || [];
     if (holder) holder.innerHTML = orders.length
       ? orders.map(renderWorkOrder).join("")
-      : `<div class="client-empty-copy"><strong>Todavía no hay reportes técnicos.</strong><p>Cuando D-TEK complete un reporte, aparecerá aquí.</p></div>`;
+      : `<div class="client-empty-copy"><strong>Todavía no hay diagnósticos ni trabajos registrados.</strong><p>Cuando D-TEK complete el primero, aparecerá aquí.</p></div>`;
   } catch (error) {
     console.warn(error);
     if (holder) holder.innerHTML = renderRetry(friendlyError(), "work-orders");
@@ -1209,9 +1269,9 @@ function renderPointsActivity(items = []) {
   if (!holder) return;
   holder.innerHTML = items.length ? items.map((item) => `<article class="points-list-item">
     <span class="points-list-icon ${Number(item.points) > 0 ? "positive" : "negative"}">${Number(item.points) > 0 ? "+" : ""}${clientSafe(item.points)}</span>
-    <div><strong>${clientSafe(item.description || "Movimiento D-TEK")}</strong><small>${clientSafe(formatDateShort(item.created_at))}</small></div>
+    <div><strong>${clientSafe(item.description || "Puntos D-TEK")}</strong><small>${clientSafe(formatDateShort(item.created_at))}</small></div>
     <b>${clientSafe(formatPoints(item.points))}</b>
-  </article>`).join("") : `<div class="client-empty-copy"><strong>Sin movimientos</strong></div>`;
+  </article>`).join("") : `<div class="client-empty-copy"><strong>Todavía no hay puntos registrados.</strong><p>Ganás 1 punto por cada Q10 en servicios.</p></div>`;
 }
 
 function renderRedemptions(items = []) {
@@ -1222,7 +1282,7 @@ function renderRedemptions(items = []) {
     <span class="points-list-icon reward">◇</span>
     <div><strong>${clientSafe(item.reward_name || "Canje D-TEK")}</strong><small>${clientSafe(labels[item.status] || item.status)}</small></div>
     <b>-${clientSafe(item.points_cost)}</b>
-  </article>`).join("") : `<div class="client-empty-copy"><strong>Sin canjes</strong></div>`;
+  </article>`).join("") : `<div class="client-empty-copy"><strong>Todavía no usaste puntos.</strong><p>Los premios que solicités aparecerán aquí.</p></div>`;
 }
 
 function renderRewardCatalog(rewards = []) {
@@ -1235,7 +1295,7 @@ function renderRewardCatalog(rewards = []) {
       <span class="reward-icon">${clientSafe(reward.icon || "◇")}</span>
       <strong>${clientSafe(reward.name)}</strong>
       <b>${clientSafe(reward.points_cost)} pts</b>
-      <button type="button" data-redeem-reward="${clientSafe(reward.id)}" ${canRedeem ? "" : "disabled"}>${canRedeem ? "Canjear" : `${Math.max(0, Number(reward.points_cost) - balance)} más`}</button>
+      <button type="button" data-redeem-reward="${clientSafe(reward.id)}" ${canRedeem ? "" : "disabled"}>${canRedeem ? "Usar puntos" : `Te faltan ${Math.max(0, Number(reward.points_cost) - balance)}`}</button>
     </article>`;
   }).join("") : `<div class="client-empty-copy"><strong>Canjes no disponibles</strong></div>`;
 }
@@ -1254,11 +1314,12 @@ function renderLoyaltyState() {
     const target = Number(next.points_cost || 1);
     const progress = Math.min(100, Math.round((balance / target) * 100));
     const box = clientQs("#pointsNextReward");
-    if (box) box.innerHTML = `<span>Próximo canje</span><strong>${clientSafe(next.name)} · ${target} pts</strong><div class="points-progress"><i id="pointsProgressBar" style="width:${progress}%"></i></div>`;
+    if (box) box.innerHTML = `<span>Próximo premio</span><strong>Te faltan ${Math.max(0, target - balance)} puntos para ${clientSafe(next.name)}</strong><div class="points-progress"><i id="pointsProgressBar" style="width:${progress}%"></i></div>`;
   }
   renderRewardCatalog(rewards);
   renderPointsActivity(clientPortalState.pointsActivity || []);
   renderRedemptions(clientPortalState.redemptions || []);
+  renderGarageToolsDrawer();
 }
 
 async function loadClientLoyalty() {
@@ -1515,9 +1576,16 @@ function initClientPortal() {
     const menu = clientQs("#clientAccountMenu");
     if (menu?.hidden) openAccountMenu(); else closeAccountMenu();
   });
+  ["#clientToolsTrigger", "#clientActiveCarTrigger"].forEach((selector) => {
+    clientQs(selector)?.addEventListener("click", () => {
+      const open = clientQs("#clientToolsDrawer")?.getAttribute("aria-hidden") === "false";
+      if (open) closeToolsDrawer({ restoreFocus: true }); else openToolsDrawer();
+    });
+  });
   document.addEventListener("click", (event) => {
     if (!event.target.closest("#clientAccountMenu") && !event.target.closest("#clientAccountToggle")) closeAccountMenu();
     if (!event.target.closest("#garageTimelineDock")) setGarageTimelineExpanded(false);
+    if (event.target.closest("[data-close-tools-drawer]")) closeToolsDrawer({ restoreFocus: true });
   });
 
 document.addEventListener("click", async (event) => {
@@ -1540,6 +1608,18 @@ document.addEventListener("click", async (event) => {
     }
   }
 
+  const toolsAction = event.target.closest("[data-tools-action]");
+  if (toolsAction?.dataset.toolsAction === "mileage") {
+    closeToolsDrawer();
+    if (clientPortalState.activeVehicleId) {
+      await openVehicleProfile(clientPortalState.activeVehicleId, { navigate: true, refreshHistory: false });
+      clientQsa("[data-vehicle-tab]").forEach((button) => button.classList.toggle("active", button.dataset.vehicleTab === "technical"));
+      clientQsa("[data-vehicle-tab-panel]").forEach((panel) => panel.classList.toggle("active", panel.dataset.vehicleTabPanel === "technical"));
+      clientQs('[data-vehicle-tab-panel="technical"]')?.scrollIntoView({ behavior: "smooth", block: "start" });
+      window.setTimeout(() => clientQs("#vehicleCareMileage")?.focus(), 350);
+    }
+  }
+
   const healthJump = event.target.closest("[data-vehicle-tab-jump]");
   if (healthJump) {
     const target = healthJump.dataset.vehicleTabJump;
@@ -1548,7 +1628,10 @@ document.addEventListener("click", async (event) => {
     clientQs("#vehicleCareMileage")?.focus();
   }
     const modalOpen = event.target.closest("[data-open-vehicle-modal]");
-    if (modalOpen) openVehicleModal();
+    if (modalOpen) {
+      closeToolsDrawer();
+      openVehicleModal();
+    }
 
     if (event.target.closest("[data-close-vehicle-modal]")) closeVehicleModal();
 
@@ -1558,6 +1641,9 @@ document.addEventListener("click", async (event) => {
     const quickVehicle = event.target.closest("[data-quick-vehicle]");
     if (quickVehicle && String(quickVehicle.dataset.quickVehicle) !== String(clientPortalState.activeVehicleId)) {
       await openVehicleProfile(quickVehicle.dataset.quickVehicle, { navigate: false, refreshHistory: true });
+      closeToolsDrawer();
+    } else if (quickVehicle) {
+      closeToolsDrawer({ restoreFocus: true });
     }
 
     const overviewVehicle = event.target.closest("[data-select-overview-vehicle]");
@@ -1579,10 +1665,10 @@ document.addEventListener("click", async (event) => {
     if (rewardButton && !rewardButton.disabled) {
       const reward = (clientPortalState.rewards || []).find((item) => item.id === rewardButton.dataset.redeemReward);
       if (!reward) return;
-      if (!confirm(`¿Canjear ${reward.name} por ${reward.points_cost} puntos?`)) return;
+      if (!confirm(`¿Usar ${reward.points_cost} puntos para ${reward.name}?`)) return;
       try {
         rewardButton.disabled = true;
-        rewardButton.textContent = "Canjeando...";
+        rewardButton.textContent = "Solicitando...";
         await DtekBackend.redeemReward(reward.id);
         panelStatus("#pointsStatus", `${reward.name} solicitado.`, "ok");
         await loadClientLoyalty();
@@ -1614,6 +1700,7 @@ document.addEventListener("click", async (event) => {
     if (event.key === "Escape") {
       closeVehicleModal();
       closeAccountMenu();
+      closeToolsDrawer();
       setGarageTimelineExpanded(false);
     }
   });
