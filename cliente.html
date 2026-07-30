@@ -25,9 +25,9 @@
 <meta name="twitter:description" content="Entrá a tu Garage para ver el historial de cada vehículo, tus citas y tus puntos.">
 <meta name="twitter:image" content="https://dtekpro.vercel.app/assets/og-image.jpg">
 <title>Garage D-TEK</title>
-  <link rel="stylesheet" href="styles.css?v=6abc986a" /><link rel="stylesheet" href="styles-v30.css?v=33000001">
+  <link rel="stylesheet" href="styles-v30.css?v=33000001"><link rel="stylesheet" href="styles.css?v=36000001" />
 </head>
-<body class="page-client-v23" data-dtek-version="30.3">
+<body class="page-client-v23" data-dtek-version="36.0">
   <a class="skip-link" href="#clientMainContent">Ir al contenido</a>
 
   <header class="client-public-header" id="clientPublicHeader">
@@ -123,19 +123,16 @@
 
           <nav class="client-menu" aria-label="Menú principal del portal">
             <button type="button" class="active" data-client-section="overview" aria-label="Ver resumen">
-              <span class="client-nav-icon" aria-hidden="true">⌂</span><span>Resumen</span>
+              <span class="client-nav-icon" aria-hidden="true">⌂</span><span>Inicio</span>
             </button>
             <button type="button" data-client-section="vehicles" aria-label="Ver mis vehículos">
-              <span class="client-nav-icon" aria-hidden="true">◆</span><span>Mis vehículos</span>
+              <span class="client-nav-icon" aria-hidden="true">◆</span><span>Garage</span>
             </button>
             <button type="button" data-client-section="appointments" aria-label="Ver citas">
-              <span class="client-nav-icon" aria-hidden="true">□</span><span>Citas</span>
-            </button>
-            <button type="button" data-client-section="benefits" aria-label="Ver puntos">
-              <span class="client-nav-icon" aria-hidden="true">◇</span><span>Puntos</span>
+              <span class="client-nav-icon" aria-hidden="true">□</span><span>Agenda</span>
             </button>
             <button type="button" data-client-section="profile" aria-label="Ver perfil">
-              <span class="client-nav-icon" aria-hidden="true">◉</span><span>Perfil</span>
+              <span class="client-nav-icon" aria-hidden="true">◉</span><span>Cuenta</span>
             </button>
           </nav>
 
@@ -169,7 +166,7 @@
             </span>
             <span class="garage-timeline-chevron" id="garageTimelineChevron" aria-hidden="true">⌄</span>
           </button>
-          <button class="garage-timeline-change" type="button" data-client-section="vehicles">Cambiar carro</button>
+          <div class="garage-vehicle-quick-switch" id="garageVehicleQuickSwitch" aria-label="Cambiar carro en un toque"></div>
           <div class="garage-timeline-panel" id="garageTimelinePanel" hidden>
             <div class="garage-timeline-legacy-placeholder" aria-hidden="true"></div>
           </div>
@@ -352,7 +349,7 @@
                     </div>
                     <div id="vehicleCareSummary" class="vehicle-care-summary" aria-live="polite"></div>
                     <div id="vehicleCareSystems" class="vehicle-care-systems"></div>
-                    <p class="vehicle-care-disclaimer">El plan preventivo nace del manual aplicable. Los cálculos por tiempo/kilometraje son proyecciones; la condición de frenos, llantas, batería y suspensión solo cambia con evidencia de inspección.</p>
+                    <p class="vehicle-care-disclaimer">D-TEK parte de un programa preventivo general y lo adapta al tipo de vehículo, su uso y su historial. Tiempo y recorrido son proyecciones; la condición física solo cambia con evidencia de inspección.</p>
                   </section>
                   <div class="vehicle-content-grid">
                     <div class="client-card panel-card">
@@ -373,7 +370,7 @@
                       <input type="hidden" id="vehicleCareId" />
                       <label>Alias<input id="vehicleCareNickname" type="text" placeholder="Mi Focus" /></label>
                       <label>Kilometraje<input id="vehicleCareMileage" type="number" min="0" inputmode="numeric" placeholder="142000" /></label>
-                      <label>Uso<select id="vehicleCareUseType"><option value="">Elegir</option><option>Diario</option><option>Trabajo</option><option>Familiar</option><option>Fines de semana</option><option>Proyecto / poco uso</option></select></label>
+                      <label>Uso<select id="vehicleCareUseType"><option value="">Elegir</option><option>Diario</option><option>Trabajo</option><option>Familiar</option><option>Fines de semana</option><option>Tráfico pesado</option><option>Polvo / caminos malos</option><option>Montaña / carga</option><option>Proyecto / poco uso</option></select></label>
                       <label>Motor<input id="vehicleCareEngine" type="text" placeholder="2.0" /></label>
                       <label>Caja<input id="vehicleCareTransmission" type="text" placeholder="Automática" /></label>
                       <label class="full-span">Notas importantes<textarea id="vehicleCareNotes" rows="3" placeholder="Detalles que D-TEK debe recordar..."></textarea></label>
@@ -560,11 +557,10 @@
 
       <button class="mobile-service-cta" id="mobileServiceCta" type="button" data-open-client-booking>＋ Solicitar servicio</button>
       <nav class="client-mobile-nav" aria-label="Navegación móvil">
-        <button type="button" class="active" data-client-section="overview"><span aria-hidden="true">⌂</span><small>Resumen</small></button>
-        <button type="button" data-client-section="vehicles"><span aria-hidden="true">◆</span><small>Vehículos</small></button>
-        <button type="button" data-client-section="appointments"><span aria-hidden="true">□</span><small>Citas</small></button>
-        <button type="button" data-client-section="benefits"><span aria-hidden="true">◇</span><small>Puntos</small></button>
-        <button type="button" data-client-section="profile"><span aria-hidden="true">◉</span><small>Perfil</small></button>
+        <button type="button" class="active" data-client-section="overview"><span aria-hidden="true">⌂</span><small>Inicio</small></button>
+        <button type="button" data-client-section="vehicles"><span aria-hidden="true">◆</span><small>Garage</small></button>
+        <button type="button" data-client-section="appointments"><span aria-hidden="true">□</span><small>Agenda</small></button>
+        <button type="button" data-client-section="profile"><span aria-hidden="true">◉</span><small>Cuenta</small></button>
       </nav>
     </section>
   </main>
@@ -644,7 +640,7 @@
         <fieldset class="vehicle-form-step" data-vehicle-form-step="2">
           <legend class="sr-only">Detalles opcionales del vehículo</legend>
           <div class="client-form-grid">
-            <label>Uso principal<select id="vehicleUseTypeClient"><option value="">Elegir</option><option>Diario</option><option>Trabajo</option><option>Familiar</option><option>Fines de semana</option><option>Proyecto / poco uso</option></select></label>
+            <label>Uso principal<select id="vehicleUseTypeClient"><option value="">Elegir</option><option>Diario</option><option>Trabajo</option><option>Familiar</option><option>Fines de semana</option><option>Tráfico pesado</option><option>Polvo / caminos malos</option><option>Montaña / carga</option><option>Proyecto / poco uso</option></select></label>
             <label data-client-cascade="engine" class="client-cascade-hidden">Motor<select id="vehicleEngineClient"><option value="">Elegir motor</option></select></label>
             <label>Caja<input id="vehicleTransmissionClient" type="text" placeholder="Automática, mecánica, CVT..." /></label>
             <label>VIN<input id="vehicleVinClient" type="text" placeholder="Opcional" /></label>
@@ -664,8 +660,8 @@
   <script src="supabase-config.js?v=81e95d5d"></script>
   <script src="supabase-client.js?v=33000001"></script>
   <script src="services-data.js?v=d5da499d"></script>
-  <script src="vehicle-health.js?v=35100001"></script>
-  <script src="portal-cliente.js?v=33000001"></script>
+  <script src="vehicle-health.js?v=36000001"></script>
+  <script src="portal-cliente.js?v=36000001"></script>
   <script src="client-booking.js?v=1f0da49a"></script>
 <script src="dtek-v30.js?v=0a32edec"></script>
 <script src="garage-motion.js?v=3f7b9fc0"></script><script src="expediente.js?v=a4fb4159"></script><a class="dtek-wa-float" href="https://wa.me/50247082329?text=Hola%20D-TEK%2C%20necesito%20ayuda%20con%20mi%20Garage." target="_blank" rel="noopener" aria-label="Escribir a D-TEK por WhatsApp"><svg viewBox="0 0 24 24" width="21" height="21" aria-hidden="true" focusable="false"><path fill="currentColor" d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a12.8 12.8 0 0 0-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413Z"/></svg><b>WhatsApp</b></a>

@@ -5628,3 +5628,122 @@ body.agenda-service-selected .agenda-start-compact-v2741 {
   .page-client-v23 .care-row-title{align-items:flex-start}.page-client-v23 .care-row-title small{text-align:right}.page-client-v23 .care-row-foot{align-items:flex-start;flex-direction:column}.page-client-v23 .care-row-foot em{text-align:left}
   .page-client-v23 .care-axis{grid-template-columns:68px minmax(0,1fr)}
 }
+
+/* =========================================================
+   D-TEK v36 — Garage compacto, selector inmediato y contraste
+   ========================================================= */
+.page-client-v23{
+  --garage-dark:#111318;
+  --garage-panel:#191c22;
+  --garage-panel-2:#20242b;
+  --garage-line:#303640;
+  background:var(--garage-dark);
+}
+.page-client-v23 .client-dashboard{background:
+  radial-gradient(circle at 12% 4%,rgba(217,39,28,.12),transparent 28rem),
+  linear-gradient(180deg,#111318,#171a20 58%,#111318);
+}
+.page-client-v23 .client-portal-header{
+  border-color:rgba(255,255,255,.09);
+  background:rgba(15,17,22,.94);
+}
+.page-client-v23 .client-portal-header .client-brand strong,
+.page-client-v23 .client-menu button.active{color:#fff}
+.page-client-v23 .client-portal-header .client-brand span,
+.page-client-v23 .client-menu button{color:#9da5b1}
+.page-client-v23 .client-menu{gap:8px}
+.page-client-v23 .client-menu button{padding-inline:18px}
+.page-client-v23 .client-section-heading h1,
+.page-client-v23 .client-section-heading .garage-section-kicker{color:#fff}
+.page-client-v23 .garage-timeline-dock{
+  background:rgba(17,19,24,.96);
+  border-color:rgba(255,255,255,.09);
+}
+.page-client-v23 .garage-timeline-dock-inner{grid-template-columns:minmax(220px,1fr) minmax(220px,auto)}
+.page-client-v23 .garage-vehicle-quick-switch{
+  min-width:0;
+  display:flex;
+  justify-content:flex-end;
+  gap:7px;
+  overflow-x:auto;
+  scrollbar-width:none;
+}
+.page-client-v23 .garage-vehicle-quick-switch::-webkit-scrollbar{display:none}
+.page-client-v23 .garage-quick-car{
+  flex:0 0 auto;
+  min-height:34px;
+  padding:7px 11px;
+  border:1px solid rgba(255,255,255,.14);
+  border-radius:999px;
+  color:#aeb5c0;
+  background:#20242b;
+  font-size:10px;
+  font-weight:800;
+  cursor:pointer;
+}
+.page-client-v23 .garage-quick-car.active{
+  color:#fff;
+  border-color:rgba(239,51,56,.7);
+  background:rgba(239,51,56,.18);
+  box-shadow:inset 0 0 0 1px rgba(239,51,56,.18);
+}
+.page-client-v23 .vehicle-care-board{
+  color:#f5f7fa;
+  border-color:var(--garage-line);
+  background:linear-gradient(145deg,#171a20,#111318);
+  box-shadow:0 24px 70px rgba(0,0,0,.24);
+}
+.page-client-v23 .vehicle-care-board .panel-head h2,
+.page-client-v23 .vehicle-care-board .care-row-title strong,
+.page-client-v23 .vehicle-care-board .care-system>summary strong,
+.page-client-v23 .vehicle-care-board .care-system>summary>b,
+.page-client-v23 .vehicle-care-board .care-row-state b{color:#f7f8fa}
+.page-client-v23 .vehicle-care-board .panel-head p,
+.page-client-v23 .vehicle-care-disclaimer{color:#a2aab6}
+.page-client-v23 .vehicle-care-board .care-system{
+  border-color:var(--garage-line);
+  background:var(--garage-panel);
+}
+.page-client-v23 .vehicle-care-board .care-system-body{border-color:var(--garage-line)}
+.page-client-v23 .vehicle-care-board .care-row{
+  border-color:var(--garage-line);
+  background:var(--garage-panel-2);
+}
+.page-client-v23 .vehicle-care-board .care-row-icon{color:#fff;background:#303640}
+.page-client-v23 .vehicle-care-board .care-dual-tracks{background:#171a20}
+.page-client-v23 .vehicle-care-board .care-track{background:#3b424d}
+.page-client-v23 .vehicle-care-board .care-system-ring i{color:#fff;background:#1b1f25}
+.page-client-v23 .vehicle-care-board .care-mileage-route,
+.page-client-v23 .vehicle-care-board .care-mileage-empty,
+.page-client-v23 .vehicle-care-board .care-plan-strip{
+  color:#fff;
+  border-color:var(--garage-line);
+  background:var(--garage-panel);
+}
+.page-client-v23 .vehicle-care-board .care-route-line{border-color:#444b57}
+.page-client-v23 .vehicle-care-board .care-route-line button{color:#fff}
+.page-client-v23 .vehicle-care-board .care-plan-strip em{color:#aeb5c0;font-size:11px}
+.page-client-v23 .vehicle-care-board .care-unit-toggle{
+  border-color:#3b424d;
+  background:#1e2229;
+}
+.page-client-v23 .vehicle-care-board .care-unit-toggle button{color:#9ea6b2}
+.page-client-v23 .vehicle-care-board .client-btn-secondary{
+  color:#fff;
+  border-color:#3b424d;
+  background:#252a32;
+}
+.page-client-v23 .vehicle-care-disclaimer{
+  margin:18px 2px 2px;
+  font-size:11px;
+  line-height:1.55;
+}
+@media(max-width:767px){
+  .page-client-v23 .client-mobile-nav{grid-template-columns:repeat(4,1fr);background:rgba(17,19,24,.98);border-color:#303640}
+  .page-client-v23 .client-mobile-nav button,
+  .page-client-v23 .client-mobile-nav button.active{color:#9da5b1}
+  .page-client-v23 .client-mobile-nav button.active small{color:#fff}
+  .page-client-v23 .garage-timeline-dock-inner{grid-template-columns:1fr}
+  .page-client-v23 .garage-vehicle-quick-switch{justify-content:flex-start;padding:0 8px 7px}
+  .page-client-v23 .garage-timeline-toggle{min-width:0}
+}

@@ -1,6 +1,6 @@
 /*
-  D-TEK GT v35 — Pasaporte vivo del vehículo
-  Convierte el plan del fabricante + historial + inspecciones en un mapa visual.
+  D-TEK GT v36 — Pasaporte vivo del vehículo
+  Convierte catálogo aplicable + uso + historial + inspecciones en un mapa visual.
 */
 (() => {
   const DAY = 86400000;
@@ -19,28 +19,40 @@
   const fmtDate = value => value ? new Date(value).toLocaleDateString("es-GT", { day:"numeric", month:"short", year:"numeric" }) : "";
 
   const COMPONENTS = [
-    { key:"engine_oil", group:"Motor", icon:"◉", name:"Aceite y filtro", mode:"interval", months:6, km:8000, words:["aceite","servicio menor","mantenimiento express"] },
-    { key:"engine_air_filter", group:"Motor", icon:"≋", name:"Filtro de aire del motor", mode:"interval", months:12, km:15000, words:["filtro de aire","servicio menor plus"] },
+    { key:"engine_oil", group:"Motor", icon:"◉", name:"Aceite y filtro", mode:"interval", months:6, km:8000, excludes:["electric"], words:["aceite","servicio menor","mantenimiento express"] },
+    { key:"engine_air_filter", group:"Motor", icon:"≋", name:"Filtro de aire del motor", mode:"interval", months:12, km:15000, excludes:["electric"], words:["filtro de aire","servicio menor plus"] },
     { key:"cabin_air_filter", group:"Filtros", icon:"▦", name:"Filtro de cabina", mode:"interval", months:12, km:20000, words:["filtro de cabina","filtro de polen"] },
-    { key:"spark_plugs", group:"Motor", icon:"ϟ", name:"Candelas / bujías", mode:"interval", months:36, km:50000, words:["candela","bujia"] },
+    { key:"spark_plugs", group:"Motor", icon:"ϟ", name:"Candelas / bujías", mode:"interval", months:36, km:50000, requires:["gasoline"], words:["candela","bujia"] },
+    { key:"fuel_filter", group:"Filtros", icon:"◈", name:"Filtro de combustible", mode:"interval", months:24, km:40000, excludes:["electric"], words:["filtro de combustible","filtro diesel","filtro de diesel"] },
     { key:"coolant", group:"Fluidos", icon:"◒", name:"Refrigerante", mode:"interval", months:36, km:50000, words:["refrigerante","coolant"] },
     { key:"brake_fluid", group:"Fluidos", icon:"●", name:"Líquido de frenos", mode:"inspection", words:["liquido de freno"] },
-    { key:"transmission_fluid", group:"Fluidos", icon:"◇", name:"Aceite de transmisión", mode:"interval", months:36, km:50000, words:["aceite de transmision","atf","cvt"] },
+    { key:"transmission_fluid", group:"Fluidos", icon:"◇", name:"Aceite de transmisión", mode:"interval", months:36, km:50000, excludes:["electric","manual"], words:["aceite de transmision","atf","cvt"] },
+    { key:"manual_gear_oil", group:"Fluidos", icon:"◇", name:"Aceite de caja mecánica", mode:"inspection", requires:["manual"], words:["aceite de caja","aceite caja mecanica"] },
+    { key:"differential_fluid", group:"Fluidos", icon:"⌘", name:"Aceite de diferencial", mode:"inspection", requires:["awd"], words:["diferencial","aceite de diferencial"] },
+    { key:"transfer_case_fluid", group:"Fluidos", icon:"⌘", name:"Transfer / PTU", mode:"inspection", requires:["awd"], words:["transfer","ptu","caja de transferencia"] },
     { key:"tire_rotation", group:"Seguridad", icon:"↻", name:"Rotación de llantas", mode:"interval", months:6, km:8000, words:["rotacion de llantas","rotación de llantas"] },
-    { key:"accessory_belt", group:"Motor", icon:"∞", name:"Banda de accesorios", mode:"inspection", words:["banda de accesorios","faja de accesorios"] },
+    { key:"accessory_belt", group:"Motor", icon:"∞", name:"Banda de accesorios", mode:"inspection", excludes:["electric"], words:["banda de accesorios","faja de accesorios"] },
+    { key:"timing_drive", group:"Motor", icon:"⟲", name:"Distribución (banda/cadena)", mode:"inspection", excludes:["electric"], words:["banda de tiempo","cadena de tiempo","distribucion"] },
+    { key:"pcv_intake", group:"Motor", icon:"≈", name:"PCV y admisión", mode:"inspection", excludes:["electric"], words:["pcv","admision","cuerpo de aceleracion"] },
+    { key:"fuel_system", group:"Motor", icon:"⌁", name:"Sistema de combustible", mode:"inspection", excludes:["electric"], words:["inyector","combustible","bomba de combustible"] },
     { key:"front_brakes", group:"Seguridad", icon:"◫", name:"Frenos delanteros", mode:"inspection", words:["balatas delanteras","pastillas delanteras","frenos delanteros","discos de freno"] },
     { key:"rear_brakes", group:"Seguridad", icon:"◫", name:"Frenos traseros", mode:"inspection", words:["balatas traseras","pastillas traseras","frenos traseros"] },
+    { key:"brake_hoses", group:"Seguridad", icon:"∿", name:"Mangueras y líneas de freno", mode:"inspection", words:["manguera de freno","linea de freno"] },
     { key:"tires", group:"Seguridad", icon:"◎", name:"Llantas", mode:"inspection", words:["llanta","neumatico","tpms"] },
+    { key:"alignment", group:"Seguridad", icon:"↔", name:"Alineación y desgaste", mode:"inspection", words:["alineacion","desgaste irregular"] },
     { key:"battery", group:"Eléctrico", icon:"ϟ", name:"Batería y carga", mode:"inspection", words:["bateria","alternador","sistema de carga"] },
+    { key:"lights", group:"Eléctrico", icon:"◌", name:"Luces y señalización", mode:"inspection", words:["bombillo","faro","luces"] },
     { key:"suspension", group:"Chasis", icon:"⌁", name:"Suspensión", mode:"inspection", words:["suspension","amortiguador","buje","rotula"] },
     { key:"steering", group:"Chasis", icon:"⊕", name:"Dirección", mode:"inspection", words:["direccion","terminal","cremallera"] },
+    { key:"wheel_bearings", group:"Chasis", icon:"⊙", name:"Rodamientos de rueda", mode:"inspection", words:["rodamiento","cojinete de rueda"] },
+    { key:"cooling_hoses", group:"Fluidos", icon:"∿", name:"Mangueras y sistema de enfriamiento", mode:"inspection", words:["manguera","sistema de enfriamiento","radiador","termostato"] },
+    { key:"wipers", group:"Confort", icon:"⌇", name:"Plumillas y lavaparabrisas", mode:"inspection", words:["plumilla","limpiaparabrisas"] },
     { key:"ac", group:"Confort", icon:"❄", name:"Aire acondicionado", mode:"inspection", words:["aire acondicionado","a/c"] }
   ];
 
   const FORD_ESCAPE_2013_2019 = {
     title:"Ford Escape 2013–2019",
-    source:"Manual oficial Ford · Mantenimiento normal",
-    url:"https://www.fordservicecontent.com/Ford_Content/vdirsnet/OwnerManual/Home/Content?ProcUid=G1614707&Uid=G1614704&buildtype=web&countryCode=USA&div=f&languageCode=en&moidRef=G1612532&userMarket=usa&vFilteringEnabled=False&variantid=2929",
+    source:"Programa D-TEK para Ford Escape · ajustable al uso real",
     values:{
       engine_oil:{ months:12, km:16000, note:"Seguir Intelligent Oil-Life Monitor; máximo 1 año o 16,000 km. Uso severo: 8,000–12,000 km." },
       tire_rotation:{ months:12, km:16000, note:"Realizar junto con cada cambio de aceite." },
@@ -53,25 +65,54 @@
     }
   };
 
+  function vehicleTraits(vehicle = {}) {
+    const text = plain([vehicle.brand, vehicle.line, vehicle.model, vehicle.engine, vehicle.transmission, vehicle.notes].join(" "));
+    const electric = /\b(ev|electrico|electrica|electric)\b/.test(text) && !/hibrid/.test(text);
+    const diesel = /\b(diesel|tdi|crdi|d4d|duratorq)\b/.test(text);
+    const manual = /\b(manual|mecanica|mt)\b/.test(text);
+    const awd = /\b(awd|4wd|4x4|quattro|xdrive)\b/.test(text);
+    return { electric, diesel, gasoline:!electric && !diesel, manual, awd };
+  }
+
+  function componentApplies(component, traits) {
+    if ((component.excludes || []).some(flag => traits[flag])) return false;
+    if ((component.requires || []).length && !component.requires.some(flag => traits[flag])) return false;
+    return true;
+  }
+
+  function usageProfile(vehicle = {}) {
+    const text = plain([vehicle.use_type, vehicle.notes].join(" "));
+    const severe = /(trabajo|trafico|polvo|montana|carga|remolque|trayecto corto|uso severo)/.test(text);
+    return {
+      severe,
+      multiplier:severe ? .75 : 1,
+      label:severe ? "Uso exigente detectado" : "Uso normal"
+    };
+  }
+
   function planForVehicle(vehicle = {}, records = []) {
     const brand = plain(vehicle.brand);
     const line = plain(vehicle.line || vehicle.model);
     const year = Number(vehicle.year || 0);
     const profile = brand.includes("ford") && line.includes("escape") && year >= 2013 && year <= 2019
       ? FORD_ESCAPE_2013_2019
-      : { title:"Plan base D-TEK", source:"Provisional · pendiente de validar con manual específico", url:"", values:{} };
+      : { title:"Plan preventivo D-TEK", source:"Base general · se personaliza con el historial", values:{} };
     const recordMap = Object.fromEntries((records || []).map(item => [item.component_key, item]));
-    return COMPONENTS.map(base => {
+    const traits = vehicleTraits(vehicle);
+    const usage = usageProfile(vehicle);
+    return COMPONENTS.filter(base => componentApplies(base, traits)).map(base => {
       const modelValue = profile.values[base.key] || {};
       const saved = recordMap[base.key] || {};
+      const defaultMonths = Number(modelValue.months || base.months || 0);
+      const defaultKm = Number(modelValue.km || base.km || 0);
       return {
         ...base, ...modelValue,
-        months:Number(saved.interval_months || modelValue.months || base.months || 0) || null,
-        km:Number(saved.interval_km || modelValue.km || base.km || 0) || null,
+        months:Number(saved.interval_months || (defaultMonths ? Math.max(1, Math.round(defaultMonths * usage.multiplier)) : 0)) || null,
+        km:Number(saved.interval_km || (defaultKm ? Math.max(1000, Math.round(defaultKm * usage.multiplier / 500) * 500) : 0)) || null,
         planTitle:saved.plan_title || profile.title,
-        planSource:saved.plan_source || profile.source,
-        planUrl:saved.plan_url || profile.url,
-        note:saved.plan_note || modelValue.note || ""
+        planSource:saved.plan_source || `${profile.source} · ${usage.label}`,
+        note:saved.plan_note || modelValue.note || "",
+        usageLabel:usage.label
       };
     });
   }
@@ -162,7 +203,7 @@
           : component.mode === "interval" ? dualTracks
           : `<div class="care-track" role="progressbar" aria-label="${esc(component.name)}" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${pct}"><i style="width:${pct}%"></i><b style="left:${pct}%"></b></div>`}
         <div class="care-row-foot"><span>${esc(state.detail)}</span><em>${esc(sourceLabel(state.source))}${state.date ? ` · ${esc(fmtDate(state.date))}` : ""}</em></div>
-        ${component.note ? `<details class="care-note"><summary>Nota del fabricante</summary><p>${esc(component.note)}</p></details>` : ""}
+        ${component.note ? `<details class="care-note"><summary>¿Por qué se recomienda?</summary><p>${esc(component.note)}</p></details>` : ""}
       </div>
       <div class="care-row-state"><b>${esc(state.label)}</b>${state.progress == null ? `<span>—</span>` : `<span>${pct}%</span>`}</div>
     </article>`;
@@ -239,7 +280,7 @@
       <div class="care-coverage" style="--coverage:${coverage * 3.6}deg"><div><strong>${coverage}%</strong><span>expediente<br>con evidencia</span></div></div>
     </section>
     ${timeline(plan, vehicle, results)}
-    <div class="care-plan-strip"><span><b>Plan aplicado</b><strong>${esc(meta.planTitle)}</strong><small>${esc(meta.planSource)}</small></span>${meta.planUrl ? `<a href="${esc(meta.planUrl)}" target="_blank" rel="noopener">Abrir manual ↗</a>` : `<em>Validación pendiente</em>`}</div>`;
+    <div class="care-plan-strip"><span><b>Criterio aplicado</b><strong>${esc(meta.planTitle)}</strong><small>${esc(meta.planSource)}</small></span><em>Se afina con cada servicio</em></div>`;
 
     const groups = [...new Set(plan.map(x => x.group))];
     systems.innerHTML = `<div class="care-system-grid">${groups.map(group => systemMeter(group, results.filter(x => x.component.group === group))).join("")}</div>`;

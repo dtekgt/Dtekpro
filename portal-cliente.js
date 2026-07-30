@@ -1,6 +1,6 @@
 /*
   D-TEK GT Web OS v30.3 — Portal cliente
-  Arquitectura: Resumen · Mis vehículos · Citas · Beneficios
+  Arquitectura: Inicio · Garage · Agenda · Cuenta
   Propiedad de D-TEK GT / Dominic Morales.
 */
 
@@ -352,6 +352,23 @@ function updateGarageTimelineDock(vehicle, compactSummary, tone = "neutral") {
   dock.dataset.tone = tone;
   setText("#garageTimelineVehicle", vehicle.nickname || vehicleBaseTitle(vehicle));
   setText("#garageTimelineSummary", compactSummary || "Historial de servicio");
+  renderGarageVehicleQuickSwitch();
+}
+
+function renderGarageVehicleQuickSwitch() {
+  const holder = clientQs("#garageVehicleQuickSwitch");
+  if (!holder) return;
+  const vehicles = clientPortalState.vehicles || [];
+  if (vehicles.length < 2) {
+    holder.innerHTML = `<button type="button" class="garage-quick-car add" data-open-vehicle-modal>＋ Carro</button>`;
+    return;
+  }
+  holder.innerHTML = vehicles.map((vehicle) => {
+    const active = String(vehicle.id) === String(clientPortalState.activeVehicleId);
+    return `<button type="button" class="garage-quick-car ${active ? "active" : ""}" data-quick-vehicle="${clientSafe(vehicle.id)}" aria-pressed="${active}">
+      ${clientSafe(vehicle.nickname || vehicleBaseTitle(vehicle))}
+    </button>`;
+  }).join("");
 }
 
 function renderSpineCars(activeVehicle) {
@@ -545,16 +562,17 @@ function setActiveSection(section) {
   clientPortalState.activeSection = normalized;
   document.body.dataset.clientSectionActive = normalized;
   const titles = {
-    overview: "Resumen",
-    vehicles: "Mis vehículos",
-    appointments: "Citas",
+    overview: "Inicio",
+    vehicles: "Garage",
+    appointments: "Agenda",
     benefits: "Puntos",
-    profile: "Mi perfil"
+    profile: "Cuenta"
   };
+  const navigationSection = normalized === "benefits" ? "profile" : normalized;
 
   clientQsa("[data-client-section]").forEach((button) => {
-    button.classList.toggle("active", button.dataset.clientSection === normalized);
-    if (button.tagName === "BUTTON") button.setAttribute("aria-current", button.dataset.clientSection === normalized ? "page" : "false");
+    button.classList.toggle("active", button.dataset.clientSection === navigationSection);
+    if (button.tagName === "BUTTON") button.setAttribute("aria-current", button.dataset.clientSection === navigationSection ? "page" : "false");
   });
   clientQsa("[data-section-panel]").forEach((panel) => panel.classList.toggle("active", panel.dataset.sectionPanel === normalized));
   const title = clientQs("#dashboardTitle");
@@ -901,6 +919,7 @@ function renderVehicleWorkspace() {
   workspace.classList.toggle("single-vehicle", vehicles.length === 1);
   picker.classList.toggle("hidden-field", vehicles.length === 1);
   holder.innerHTML = vehicles.map(renderVehiclePickerCard).join("");
+  renderGarageVehicleQuickSwitch();
 }
 
 async function openVehicleProfile(vehicleId, options = {}) {
@@ -1514,6 +1533,11 @@ document.addEventListener("click", async (event) => {
 
     const vehicleButton = event.target.closest("[data-open-vehicle]");
     if (vehicleButton) await openVehicleProfile(vehicleButton.dataset.openVehicle);
+
+    const quickVehicle = event.target.closest("[data-quick-vehicle]");
+    if (quickVehicle && String(quickVehicle.dataset.quickVehicle) !== String(clientPortalState.activeVehicleId)) {
+      await openVehicleProfile(quickVehicle.dataset.quickVehicle, { navigate: false, refreshHistory: true });
+    }
 
     const overviewVehicle = event.target.closest("[data-select-overview-vehicle]");
     if (overviewVehicle) {
