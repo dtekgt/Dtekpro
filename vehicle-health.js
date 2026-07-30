@@ -7,6 +7,7 @@
   const KM_PER_MILE = 1.609344;
   let distanceUnit = localStorage.getItem("dtek-distance-unit") === "mi" ? "mi" : "km";
   let lastRenderArgs = null;
+  let lastLifeEvents = [];
   const esc = (value = "") => String(value).replace(/[&<>'"]/g, c => ({
     "&": "&amp;", "<": "&lt;", ">": "&gt;", "'": "&#39;", '"': "&quot;"
   }[c]));
@@ -153,13 +154,16 @@
       : kmLeft <= 0 ? `Pasó por ${fmtKm(Math.abs(kmLeft))} km` : `Faltan aprox. ${fmtKm(kmLeft)} km`;
     const timeRemaining = component.months ? Math.max(0, Math.round((1 - byTime) * 100)) : null;
     const distanceRemaining = component.km && startKm && currentKm ? Math.max(0, Math.round((1 - byKm) * 100)) : null;
+    const dueDate = component.months && !Number.isNaN(doneAt.getTime())
+      ? new Date(doneAt.getFullYear(), doneAt.getMonth() + component.months, doneAt.getDate()).toISOString()
+      : null;
     const detailLocalized = kmLeft == null
       ? `Cada ${component.months} meses`
       : kmLeft <= 0 ? `Pasó por ${fmtDistance(Math.abs(kmLeft))}` : `Faltan aprox. ${fmtDistance(kmLeft)}`;
     return {
       tone, label, detail:detailLocalized, source:evidence.source || "estimated",
       progress:remaining, timeProgress:timeRemaining, distanceProgress:distanceRemaining,
-      date:dateValue(evidence), dueKm:nextKm
+      date:dateValue(evidence), dueKm:nextKm, dueDate
     };
   }
 
@@ -194,7 +198,7 @@
           </div>
         </div>`
       : "";
-    return `<article class="care-row ${state.tone}" data-care-tone="${state.tone}">
+    return `<article class="care-row ${state.tone}" data-care-tone="${state.tone}" data-care-component="${esc(component.key)}">
       <div class="care-row-icon" aria-hidden="true">${esc(component.icon)}</div>
       <div class="care-row-main">
         <div class="care-row-title"><strong>${esc(component.name)}</strong><small>${esc(interval)}</small></div>
@@ -241,6 +245,123 @@
     </div>`;
   }
 
+  function lifePosition(value, min, max) {
+    if (value == null || !Number.isFinite(Number(value)) || max <= min) return null;
+    return Math.max(3, Math.min(97, ((Number(value) - min) / (max - min)) * 100));
+  }
+
+  function lifeEventButton(event, axis, position, index) {
+    if (position == null) return "";
+    const value = axis === "date" ? fmtDate(event.date) : fmtDistance(event.km);
+    return `<button type="button" class="garage-life-event ${event.kind}" style="left:${position.toFixed(2)}%" data-life-event="${index}" aria-label="${esc(event.name)} · ${esc(value)}" title="${esc(event.name)} · ${esc(value)}"><i></i></button>`;
+  }
+
+  function renderLifeRibbon(vehicle, history, results) {
+    const holder = document.querySelector("#garageLifeAxes");
+    const detail = document.querySelector("#garageLifeDetail");
+    if (!holder) return;
+    const completed = [...(history || [])]
+      .filter(row => ["completed","approved","completado","realizado","finalizado"].includes(plain(row.work_order_status || row.appointment_status || row.status)))
+      .sort((a,b) => new Date(dateValue(a) || 0) - new Date(dateValue(b) || 0))
+      .filter((row, index, rows) => {
+        const key = String(row.appointment_id || row.id || `${dateValue(row)}-${row.service_name}`);
+        return rows.findIndex(candidate => String(candidate.appointment_id || candidate.id || `${dateValue(candidate)}-${candidate.service_name}`) === key) === index;
+      })
+      .slice(-7)
+      .map(row => ({
+        name:row.service_name || "Servicio D-TEK",
+        date:dateValue(row),
+        km:kmValue(row),
+        kind:"done",
+        meta:sourceLabel(row.source || "automatic")
+      }));
+    const nextResult = [...results]
+      .filter(item => item.state.dueKm || item.state.dueDate)
+      .sort((a,b) => {
+        const rank = { due:0, soon:1, good:2, unknown:3 };
+        return (rank[a.state.tone] ?? 4) - (rank[b.state.tone] ?? 4);
+      })[0];
+    if (nextResult) {
+      completed.push({
+        name:nextResult.component.name,
+        date:nextResult.state.dueDate,
+        km:nextResult.state.dueKm,
+        kind:"next",
+        meta:"Próximo vencimiento estimado"
+      });
+    }
+    lastLifeEvents = completed;
+
+    if (!completed.length) {
+      holder.innerHTML = `<div class="garage-life-empty"><strong>La línea se activa con el primer servicio.</strong><span>Fecha y recorrido se registrarán en paralelo.</span></div>`;
+      if (detail) detail.textContent = "Todavía no hay servicios ubicables.";
+      return;
+    }
+
+    const now = Date.now();
+    const dated = completed.map(item => item.date ? new Date(item.date).getTime() : null).filter(Number.isFinite);
+    const kmValues = completed.map(item => item.km).filter(Number.isFinite);
+    const currentKm = Number(vehicle.mileage || 0) || null;
+    const dateMin = Math.min(...dated, now - DAY * 180);
+    const dateMax = Math.max(...dated, now + DAY * 180);
+    const kmMin = Math.max(0, Math.min(...kmValues, currentKm || Infinity, (currentKm || 25000) - 25000));
+    const kmMax = Math.max(...kmValues, currentKm || 0, (currentKm || 0) + 25000);
+    const todayDate = lifePosition(now, dateMin, dateMax);
+    const todayKm = currentKm ? lifePosition(currentKm, kmMin, kmMax) : null;
+
+    holder.innerHTML = `
+      <div class="garage-life-axis">
+        <span class="garage-life-axis-label"><b>Fecha</b><small>${fmtDate(new Date())}</small></span>
+        <div class="garage-life-track">
+          <span class="garage-life-progress" style="width:${todayDate || 0}%"></span>
+          ${todayDate == null ? "" : `<i class="garage-life-today" style="left:${todayDate}%"><small>Hoy</small></i>`}
+          ${completed.map((item,index) => lifeEventButton(item, "date", item.date ? lifePosition(new Date(item.date).getTime(), dateMin, dateMax) : null, index)).join("")}
+        </div>
+      </div>
+      <div class="garage-life-axis">
+        <span class="garage-life-axis-label"><b>${distanceUnit === "mi" ? "Millas" : "Kilómetros"}</b><small>${currentKm ? fmtDistance(currentKm) : "Sin dato"}</small></span>
+        <div class="garage-life-track">
+          <span class="garage-life-progress" style="width:${todayKm || 0}%"></span>
+          ${todayKm == null ? "" : `<i class="garage-life-today" style="left:${todayKm}%"><small>Hoy</small></i>`}
+          ${completed.map((item,index) => lifeEventButton(item, "km", item.km ? lifePosition(item.km, kmMin, kmMax) : null, index)).join("")}
+        </div>
+      </div>`;
+
+    const initial = completed.find(item => item.kind === "next") || completed[completed.length - 1];
+    if (detail && initial) {
+      detail.innerHTML = `<strong>${esc(initial.name)}</strong><span>${esc([initial.date ? fmtDate(initial.date) : "", initial.km ? fmtDistance(initial.km) : "", initial.meta].filter(Boolean).join(" · "))}</span>`;
+    }
+  }
+
+  function renderRadar(vehicle, history, results) {
+    const holder = document.querySelector("#garageRadarList");
+    if (!holder) return;
+    const rank = { due:0, soon:1, unknown:2, recorded:3, good:4 };
+    const radar = [...results]
+      .sort((a,b) => (rank[a.state.tone] ?? 5) - (rank[b.state.tone] ?? 5))
+      .slice(0,4);
+    holder.innerHTML = radar.map(({ component, state }) => `
+      <button type="button" class="garage-radar-item ${state.tone}" data-radar-component="${esc(component.key)}">
+        <span class="garage-radar-icon" aria-hidden="true">${esc(component.icon)}</span>
+        <span class="garage-radar-copy"><strong>${esc(component.name)}</strong><small>${esc(state.detail)}</small></span>
+        <span class="garage-radar-state">${state.progress == null ? "—" : `${state.progress}%`}</span>
+        ${component.mode === "interval" ? `<span class="garage-radar-mini" aria-hidden="true"><i style="width:${state.timeProgress || 0}%"></i><i style="width:${state.distanceProgress || 0}%"></i></span>` : ""}
+      </button>`).join("");
+    const attention = results.filter(item => ["due","soon"].includes(item.state.tone)).length;
+    const count = document.querySelector("#garageRadarCount");
+    if (count) count.textContent = String(attention);
+
+    const orderedHistory = [...(history || [])].sort((a,b) => new Date(dateValue(b) || 0) - new Date(dateValue(a) || 0));
+    const last = orderedHistory.find(row => ["completed","approved","completado","realizado","finalizado"].includes(plain(row.work_order_status || row.appointment_status || row.status)));
+    const appointment = orderedHistory
+      .filter(row => new Date(dateValue(row) || 0).getTime() >= Date.now() && !["cancelled","canceled","completed"].includes(plain(row.status || row.appointment_status)))
+      .sort((a,b) => new Date(dateValue(a)) - new Date(dateValue(b)))[0];
+    const lastHolder = document.querySelector("#garageRadarLast");
+    const appointmentHolder = document.querySelector("#garageRadarAppointment");
+    if (lastHolder) lastHolder.textContent = last ? `${last.service_name || "Servicio"} · ${fmtDate(dateValue(last))}` : "Sin historial";
+    if (appointmentHolder) appointmentHolder.textContent = appointment ? `${appointment.service_name || "Servicio"} · ${fmtDate(dateValue(appointment))}` : "Sin cita";
+  }
+
   function render(vehicle = {}, history = [], records = []) {
     lastRenderArgs = [vehicle, history, records];
     const systems = document.querySelector("#vehicleCareSystems");
@@ -284,6 +405,8 @@
 
     const groups = [...new Set(plan.map(x => x.group))];
     systems.innerHTML = `<div class="care-system-grid">${groups.map(group => systemMeter(group, results.filter(x => x.component.group === group))).join("")}</div>`;
+    renderLifeRibbon(vehicle, history, results);
+    renderRadar(vehicle, history, results);
     document.querySelectorAll("[data-care-unit]").forEach(button => {
       button.setAttribute("aria-pressed", String(button.dataset.careUnit === distanceUnit));
     });
@@ -291,6 +414,13 @@
 
   window.DtekVehicleHealth = { render, components:COMPONENTS, planForVehicle };
   document.addEventListener("click", event => {
+    const lifeButton = event.target.closest("[data-life-event]");
+    if (lifeButton) {
+      const item = lastLifeEvents[Number(lifeButton.dataset.lifeEvent)];
+      const detail = document.querySelector("#garageLifeDetail");
+      document.querySelectorAll("[data-life-event]").forEach(button => button.classList.toggle("active", button.dataset.lifeEvent === lifeButton.dataset.lifeEvent));
+      if (item && detail) detail.innerHTML = `<strong>${esc(item.name)}</strong><span>${esc([item.date ? fmtDate(item.date) : "", item.km ? fmtDistance(item.km) : "", item.meta].filter(Boolean).join(" · "))}</span>`;
+    }
     const button = event.target.closest("[data-care-unit]");
     if (!button) return;
     distanceUnit = button.dataset.careUnit === "mi" ? "mi" : "km";

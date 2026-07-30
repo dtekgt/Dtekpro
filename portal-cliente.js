@@ -940,6 +940,8 @@ async function openVehicleProfile(vehicleId, options = {}) {
   setText("#vehicleProfileSubtitle", `${vehicle.plate ? `Placa ${vehicle.plate} · ` : ""}${formatKm(vehicle.mileage)}`);
   const agenda = clientQs("#vehicleProfileAgenda");
   if (agenda) agenda.dataset.vehicleId = vehicle.id;
+  const radarAgenda = clientQs(".garage-radar-cta");
+  if (radarAgenda) radarAgenda.dataset.vehicleId = vehicle.id;
 
   const insight = getVehicleInsight(vehicle);
   setText("#vehicleStatusText", insight.status);
@@ -1519,6 +1521,25 @@ function initClientPortal() {
   });
 
 document.addEventListener("click", async (event) => {
+  const directTab = event.target.closest("[data-vehicle-tab-open]");
+  if (directTab) {
+    const target = directTab.dataset.vehicleTabOpen;
+    clientQsa("[data-vehicle-tab]").forEach((button) => button.classList.toggle("active", button.dataset.vehicleTab === target));
+    clientQsa("[data-vehicle-tab-panel]").forEach((panel) => panel.classList.toggle("active", panel.dataset.vehicleTabPanel === target));
+    clientQs(`[data-vehicle-tab-panel="${target}"]`)?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+
+  const radarItem = event.target.closest("[data-radar-component]");
+  if (radarItem) {
+    const system = [...clientQsa(".care-system")].find((item) => item.querySelector(`[data-care-component="${radarItem.dataset.radarComponent}"]`));
+    if (system) {
+      system.open = true;
+      system.scrollIntoView({ behavior: "smooth", block: "center" });
+    } else {
+      clientQs("#vehicleCareSystems")?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  }
+
   const healthJump = event.target.closest("[data-vehicle-tab-jump]");
   if (healthJump) {
     const target = healthJump.dataset.vehicleTabJump;
@@ -1754,4 +1775,11 @@ document.addEventListener("click", async (event) => {
   });
 }
 
-document.addEventListener("DOMContentLoaded", initClientPortal);
+document.addEventListener("DOMContentLoaded", () => {
+  initClientPortal();
+  const updateCompactNavigation = () => {
+    document.body.classList.toggle("client-nav-condensed", window.scrollY > 96);
+  };
+  updateCompactNavigation();
+  window.addEventListener("scroll", updateCompactNavigation, { passive: true });
+});

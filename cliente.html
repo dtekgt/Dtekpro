@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <meta name="author" content="D-TEK GT / Dominic Morales" />
   <meta name="application-name" content="Garage D-TEK" />
-  <meta name="theme-color" content="#f3f4f6" />
+<meta name="theme-color" content="#090b0e" />
   <link rel="icon" href="assets/favicon-32.png" sizes="32x32" type="image/png">
 <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
 <link rel="manifest" href="site.webmanifest">
@@ -25,9 +25,9 @@
 <meta name="twitter:description" content="Entrá a tu Garage para ver el historial de cada vehículo, tus citas y tus puntos.">
 <meta name="twitter:image" content="https://dtekpro.vercel.app/assets/og-image.jpg">
 <title>Garage D-TEK</title>
-  <link rel="stylesheet" href="styles-v30.css?v=33000001"><link rel="stylesheet" href="styles.css?v=36000001" />
+  <link rel="stylesheet" href="styles-v30.css?v=33000001"><link rel="stylesheet" href="styles.css?v=37000001" />
 </head>
-<body class="page-client-v23" data-dtek-version="36.0">
+<body class="page-client-v23" data-dtek-version="37.0">
   <a class="skip-link" href="#clientMainContent">Ir al contenido</a>
 
   <header class="client-public-header" id="clientPublicHeader">
@@ -312,6 +312,25 @@
                   </div>
                 </section>
 
+                <section class="garage-life-ribbon" id="garageLifeRibbon" aria-labelledby="garageLifeTitle">
+                  <div class="garage-life-head">
+                    <div>
+                      <span class="card-label">Pasaporte vivo</span>
+                      <strong id="garageLifeTitle">Línea de vida</strong>
+                    </div>
+                    <div class="care-unit-toggle garage-life-units" role="group" aria-label="Unidad de la línea de vida">
+                      <button type="button" data-care-unit="km" aria-pressed="true">km</button>
+                      <button type="button" data-care-unit="mi" aria-pressed="false">millas</button>
+                    </div>
+                  </div>
+                  <div id="garageLifeAxes" class="garage-life-axes" aria-live="polite">
+                    <div class="garage-life-empty">El historial aparecerá aquí con fecha y recorrido.</div>
+                  </div>
+                  <div class="garage-life-detail" id="garageLifeDetail">
+                    <span>Seleccioná un servicio para ver su posición real.</span>
+                  </div>
+                </section>
+
                 <div class="vehicle-health-grid">
                   <article class="client-card vehicle-health-card">
                     <span>Estado</span><strong id="vehicleStatusText">Listo</strong><small id="vehicleStatusDetail">Sin alertas activas.</small>
@@ -389,6 +408,22 @@
                 </div>
               </div>
             </div>
+
+            <aside class="garage-radar-panel" id="garageRadarPanel" aria-labelledby="garageRadarTitle">
+              <div class="garage-radar-head">
+                <div><span class="card-label">Siempre visible</span><h3 id="garageRadarTitle">En el radar</h3></div>
+                <span class="garage-radar-count" id="garageRadarCount">0</span>
+              </div>
+              <div class="garage-radar-list" id="garageRadarList">
+                <p class="garage-radar-empty">Elegí un carro para ver lo próximo.</p>
+              </div>
+              <div class="garage-radar-continuity">
+                <div><span>Último trabajo</span><strong id="garageRadarLast">Sin historial</strong></div>
+                <div><span>Próxima cita</span><strong id="garageRadarAppointment">Sin cita</strong></div>
+              </div>
+              <button class="client-btn client-btn-primary garage-radar-cta" type="button" data-open-client-booking>Solicitar servicio</button>
+              <button class="client-text-link garage-radar-history" type="button" data-vehicle-tab-open="timeline">Ver línea de tiempo completa</button>
+            </aside>
           </div>
         </section>
 
@@ -660,7 +695,7 @@
   <script src="supabase-config.js?v=81e95d5d"></script>
   <script src="supabase-client.js?v=33000001"></script>
   <script src="services-data.js?v=d5da499d"></script>
-  <script src="vehicle-health.js?v=36000001"></script>
+  <script src="vehicle-health.js?v=37000001"></script>
   <script src="portal-cliente.js?v=36000001"></script>
   <script src="client-booking.js?v=1f0da49a"></script>
 <script src="dtek-v30.js?v=0a32edec"></script>
