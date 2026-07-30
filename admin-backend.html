@@ -9,7 +9,7 @@
   <meta name="theme-color" content="#05080d" />
   <title>Admin Backend · D-TEK GT</title>
   <link rel="stylesheet" href="styles.css?v=6abc986a" />
-  <link rel="stylesheet" href="styles-v30.css?v=400d998e" />
+  <link rel="stylesheet" href="styles-v30.css?v=074cef86" />
 </head>
 <body class="page-admin-v31">
   <div class="dtek-bg"><span class="orb orb-red"></span><span class="orb orb-cyan"></span></div>
@@ -186,30 +186,43 @@
       <label>Repuestos / materiales / notas
         <textarea id="workOrderPartsNotes" rows="2" placeholder="Piezas usadas, marcas, notas..."></textarea>
       </label>
-      <div class="two-column-grid compact-grid">
-        <label>Mano de obra (Q)<input id="workOrderLaborTotal" type="number" min="0" step="0.01" placeholder="0.00"></label>
-        <label>Repuestos (Q)<input id="workOrderPartsTotal" type="number" min="0" step="0.01" placeholder="0.00"></label>
-      </div>
-      <label>Estado de la orden
-        <select id="workOrderStatus">
-          <option value="open">Abierta</option>
-          <option value="quoted">Cotizada</option>
-          <option value="approved">Aprobada</option>
-          <option value="completed" selected>Completada</option>
-          <option value="cancelled">Cancelada</option>
-        </select>
+      <label>Kilometraje de hoy
+        <input id="workOrderMileage" type="number" min="0" step="1" inputmode="numeric" placeholder="130000">
+        <small>Queda como registro del carro y pone al día su kilometraje.</small>
       </label>
+
+      <div class="lineas-v320">
+        <div class="lineas-head-v320">
+          <span>Detalle del recibo</span>
+          <button type="button" class="btn btn-ghost" id="workOrderAddItem">＋ Agregar línea</button>
+        </div>
+        <div id="workOrderItems" class="lineas-cuerpo-v320"></div>
+        <p class="lineas-vacio-v320" id="workOrderItemsEmpty">Sin líneas todavía. Agregá una por cada repuesto y una por la mano de obra.</p>
+        <div class="lineas-total-v320">
+          <div><span>Repuestos</span><b id="workOrderPartsSum">Q0.00</b></div>
+          <div><span>Mano de obra</span><b id="workOrderLaborSum">Q0.00</b></div>
+          <div class="gran-total"><span>Total</span><strong id="workOrderGrandSum">Q0.00</strong></div>
+        </div>
+      </div>
+
+      <label class="cerrar-cita-v320">
+        <input id="workOrderCloseAppointment" type="checkbox" checked>
+        <span><b>Marcar la cita como realizada</b><small>Antes el reporte se guardaba y la cita quedaba abierta.</small></span>
+      </label>
+
       <div id="workOrderStatusBox" class="status-box"></div>
       <div class="admin-modal-actions">
         <button type="button" class="btn btn-cyan" id="workOrderModalCancel">Cancelar</button>
-        <button type="submit" class="btn btn-primary">Guardar reporte</button>
+        <button type="submit" class="btn btn-ghost" id="workOrderSaveOnly">Guardar</button>
+        <button type="button" class="btn btn-primary" id="workOrderSaveAndShare">Guardar y compartir recibo</button>
       </div>
     </form>
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="supabase-config.js?v=81e95d5d"></script>
-  <script src="supabase-client.js?v=e6eb922a"></script>
-  <script src="backend-admin.js?v=c376bf55"></script>
+  <script src="services-data.js?v=d5da499d"></script>
+  <script src="supabase-client.js?v=a9af0f54"></script>
+  <script src="backend-admin.js?v=06417b4c"></script>
 </body>
 </html>

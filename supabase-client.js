@@ -826,6 +826,33 @@ const DtekBackend = (() => {
     return Array.isArray(data) ? data[0] : data;
   }
 
+  // Cierra el trabajo completo: reporte, lineas del recibo, kilometraje del dia
+  // y la cita, todo en una transaccion. Reemplaza a saveWorkOrderReport, que
+  // guardaba el reporte y dejaba la cita abierta.
+  async function cerrarTrabajo(payload) {
+    const sb = client();
+    if (!sb) throw new Error("Supabase no está configurado todavía.");
+    const { data, error } = await sb.rpc("dtek_admin_cerrar_trabajo", {
+      p_appointment_id: payload.appointment_id,
+      p_diagnosis: payload.diagnosis || null,
+      p_recommendations: payload.recommendations || null,
+      p_parts_notes: payload.parts_notes || null,
+      p_mileage: payload.mileage != null && payload.mileage !== "" ? Number(payload.mileage) : null,
+      p_items: payload.items || [],
+      p_cerrar_cita: payload.cerrar_cita !== false
+    });
+    if (error) throw error;
+    return Array.isArray(data) ? data[0] : data;
+  }
+
+  async function obtenerRecibo(appointmentId) {
+    const sb = client();
+    if (!sb) throw new Error("Supabase no está configurado todavía.");
+    const { data, error } = await sb.rpc("dtek_recibo", { p_appointment_id: appointmentId });
+    if (error) throw error;
+    return data;
+  }
+
   async function listMyAppointments() {
     const sb = client();
     const session = await getSession();
@@ -898,6 +925,8 @@ const DtekBackend = (() => {
     listMyVehicleHistory,
     createAppointmentForVehicle,
     saveWorkOrderReport,
+    cerrarTrabajo,
+    obtenerRecibo,
     listMyWorkOrders
   };
 })();

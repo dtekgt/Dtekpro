@@ -3324,3 +3324,122 @@ h2.cinema-how-kicker{margin:0 0 18px;font-size:11px;line-height:1.4}
 .pendientes-v318.al-dia{border-color:rgba(111,227,184,.28);background:rgba(111,227,184,.06)}
 .pendientes-v318.al-dia>strong{color:var(--f1-green,#6fe3b8)}
 .pendientes-v318.al-dia>span{color:rgba(255,255,255,.7);font-size:13.5px}
+
+/* ======================================================================
+   Pantalla de cierre del trabajo (admin-backend.html)
+   Antes el modal pedia dos montos globales y no habia donde escribir el
+   detalle del recibo. Ahora es una tabla de lineas con total en vivo.
+   ====================================================================== */
+.lineas-v320{
+  margin:4px 0 2px;
+  padding:16px;
+  border:1px solid rgba(255,255,255,.12);
+  border-radius:16px;
+  background:rgba(255,255,255,.02);
+}
+.lineas-head-v320{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  margin-bottom:12px;
+}
+.lineas-head-v320>span{
+  color:rgba(255,255,255,.6);
+  font-size:10px;
+  font-weight:650;
+  letter-spacing:.14em;
+  text-transform:uppercase;
+}
+.lineas-cuerpo-v320{display:flex;flex-direction:column;gap:8px}
+.linea-v320{
+  display:grid;
+  grid-template-columns:1fr 118px 64px 88px 90px 28px;
+  gap:8px;
+  align-items:center;
+}
+.linea-v320 input,.linea-v320 select{
+  min-height:38px;
+  padding:0 10px;
+  border:1px solid rgba(255,255,255,.14);
+  border-radius:10px;
+  background:rgba(255,255,255,.04);
+  color:#fff;
+  font-size:13px;
+}
+.linea-v320 input:focus,.linea-v320 select:focus{
+  outline:none;
+  border-color:rgba(0,229,255,.45);
+  box-shadow:0 0 0 3px rgba(0,229,255,.1);
+}
+.linea-v320 .linea-cant,.linea-v320 .linea-precio{text-align:right;font-variant-numeric:tabular-nums}
+.linea-v320 .linea-sub{
+  text-align:right;
+  color:#fff;
+  font-size:13px;
+  font-variant-numeric:tabular-nums;
+  white-space:nowrap;
+}
+.linea-v320 .linea-quitar{
+  display:grid;
+  place-items:center;
+  width:28px;
+  height:28px;
+  border:0;
+  border-radius:50%;
+  background:rgba(255,108,112,.12);
+  color:#ff8a8a;
+  font-size:15px;
+  cursor:pointer;
+  min-height:0;
+  padding:0;
+}
+.linea-v320 .linea-quitar:hover{background:rgba(255,108,112,.22)}
+.lineas-vacio-v320{margin:6px 0;color:rgba(255,255,255,.5);font-size:13px}
+
+.lineas-total-v320{
+  display:flex;
+  flex-wrap:wrap;
+  justify-content:flex-end;
+  gap:18px;
+  margin-top:14px;
+  padding-top:12px;
+  border-top:1px solid rgba(255,255,255,.1);
+}
+.lineas-total-v320>div{display:flex;align-items:baseline;gap:8px}
+.lineas-total-v320 span{color:rgba(255,255,255,.55);font-size:12px}
+.lineas-total-v320 b{color:#fff;font-size:14px;font-variant-numeric:tabular-nums}
+.lineas-total-v320 .gran-total strong{
+  color:var(--f1-red-hot,#ff3b3f);
+  font-size:20px;
+  font-weight:700;
+  font-variant-numeric:tabular-nums;
+}
+
+.cerrar-cita-v320{
+  display:flex;
+  align-items:flex-start;
+  gap:11px;
+  margin:14px 0 2px;
+  padding:13px 15px;
+  border:1px solid rgba(255,255,255,.1);
+  border-radius:14px;
+  background:rgba(255,255,255,.02);
+  cursor:pointer;
+}
+.cerrar-cita-v320 input{margin-top:3px;width:17px;height:17px;flex:0 0 auto}
+.cerrar-cita-v320 b{display:block;color:#fff;font-size:14px;font-weight:550}
+.cerrar-cita-v320 small{display:block;margin-top:2px;color:rgba(255,255,255,.5);font-size:12px}
+
+@media (max-width:640px){
+  .linea-v320{
+    grid-template-columns:1fr 28px;
+    grid-template-areas:"desc quitar" "kind kind" "cant precio" "sub sub";
+  }
+  .linea-v320 .linea-desc{grid-area:desc}
+  .linea-v320 .linea-quitar{grid-area:quitar}
+  .linea-v320 .linea-kind{grid-area:kind}
+  .linea-v320 .linea-cant{grid-area:cant;text-align:left}
+  .linea-v320 .linea-precio{grid-area:precio}
+  .linea-v320 .linea-sub{grid-area:sub;text-align:left;padding-top:2px}
+}

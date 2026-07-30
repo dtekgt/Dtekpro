@@ -439,10 +439,122 @@ function openWorkOrderModal(appointmentId) {
       : "";
   }
   form.reset();
-  adminQs("#workOrderStatus").value = "completed";
   adminQs("#workOrderStatusBox").innerHTML = "";
+  adminQs("#workOrderCloseAppointment").checked = true;
+  adminQs("#workOrderMileage").value = "";
+
+  // Arranca con una linea del servicio agendado, para no empezar en blanco.
+  dtekLineas = [];
+  const precio = dtekPrecioDeCatalogo(appointment?.service_id);
+  agregarLinea({
+    description: appointment?.service_name || appointment?.service_id || "Servicio",
+    kind: "service",
+    quantity: 1,
+    unit_price: precio || 0,
+    service_id: appointment?.service_id || ""
+  });
+
   modal.classList.remove("hidden-field");
   adminQs("#workOrderDiagnosis")?.focus();
+}
+
+/* ---------- Lineas del recibo ----------
+   El recibo detalla descripcion, cantidad y precio. Antes solo habia dos
+   montos globales, asi que no habia donde escribir el detalle. */
+
+let dtekLineas = [];
+
+function dtekPrecioDeCatalogo(serviceId) {
+  const s = (window.DTEK_SERVICES || []).find((x) => x.id === serviceId);
+  if (!s) return 0;
+  const m = String(s.price || "").replace(/,/g, "").match(/(\d+(?:\.\d+)?)/);
+  return m ? Number(m[1]) : 0;
+}
+
+function agregarLinea(datos = {}) {
+  dtekLineas.push({
+    description: datos.description || "",
+    kind: datos.kind || "part",
+    quantity: Number(datos.quantity) || 1,
+    unit_price: Number(datos.unit_price) || 0,
+    service_id: datos.service_id || ""
+  });
+  pintarLineas();
+}
+
+function pintarLineas() {
+  const holder = adminQs("#workOrderItems");
+  const vacio = adminQs("#workOrderItemsEmpty");
+  if (!holder) return;
+
+  holder.innerHTML = dtekLineas.map((l, i) => `
+    <div class="linea-v320" data-linea="${i}">
+      <input class="linea-desc" type="text" value="${adminSafe(l.description)}" placeholder="Descripción" aria-label="Descripción de la línea ${i + 1}">
+      <select class="linea-kind" aria-label="Tipo de la línea ${i + 1}">
+        <option value="part"${l.kind === "part" ? " selected" : ""}>Repuesto</option>
+        <option value="labor"${l.kind === "labor" ? " selected" : ""}>Mano de obra</option>
+        <option value="service"${l.kind === "service" ? " selected" : ""}>Servicio</option>
+      </select>
+      <input class="linea-cant" type="number" min="0.01" step="0.01" value="${l.quantity}" aria-label="Cantidad de la línea ${i + 1}">
+      <input class="linea-precio" type="number" min="0" step="0.01" value="${l.unit_price}" aria-label="Precio unitario de la línea ${i + 1}">
+      <b class="linea-sub">${adminSafe(dtekMoneda(l.quantity * l.unit_price))}</b>
+      <button type="button" class="linea-quitar" aria-label="Quitar la línea ${i + 1}">×</button>
+    </div>`).join("");
+
+  if (vacio) vacio.style.display = dtekLineas.length ? "none" : "block";
+  sumarLineas();
+}
+
+function dtekMoneda(n) {
+  return "Q" + Number(n || 0).toLocaleString("es-GT", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+
+function sumarLineas() {
+  const mano = dtekLineas.filter((l) => l.kind === "labor").reduce((a, l) => a + l.quantity * l.unit_price, 0);
+  const resto = dtekLineas.filter((l) => l.kind !== "labor").reduce((a, l) => a + l.quantity * l.unit_price, 0);
+  const set = (sel, v) => { const e = adminQs(sel); if (e) e.textContent = dtekMoneda(v); };
+  set("#workOrderPartsSum", resto);
+  set("#workOrderLaborSum", mano);
+  set("#workOrderGrandSum", mano + resto);
+  return { mano, resto, total: mano + resto };
+}
+
+function bindLineas() {
+  const holder = adminQs("#workOrderItems");
+  if (!holder) return;
+
+  holder.addEventListener("input", (ev) => {
+    const fila = ev.target.closest("[data-linea]");
+    if (!fila) return;
+    const i = Number(fila.dataset.linea);
+    const l = dtekLineas[i];
+    if (!l) return;
+    if (ev.target.classList.contains("linea-desc")) l.description = ev.target.value;
+    if (ev.target.classList.contains("linea-cant")) l.quantity = Number(ev.target.value) || 0;
+    if (ev.target.classList.contains("linea-precio")) l.unit_price = Number(ev.target.value) || 0;
+    const sub = fila.querySelector(".linea-sub");
+    if (sub) sub.textContent = dtekMoneda(l.quantity * l.unit_price);
+    sumarLineas();
+  });
+
+  holder.addEventListener("change", (ev) => {
+    const fila = ev.target.closest("[data-linea]");
+    if (!fila || !ev.target.classList.contains("linea-kind")) return;
+    const l = dtekLineas[Number(fila.dataset.linea)];
+    if (l) { l.kind = ev.target.value; sumarLineas(); }
+  });
+
+  holder.addEventListener("click", (ev) => {
+    const btn = ev.target.closest(".linea-quitar");
+    if (!btn) return;
+    dtekLineas.splice(Number(btn.closest("[data-linea]").dataset.linea), 1);
+    pintarLineas();
+  });
+
+  adminQs("#workOrderAddItem")?.addEventListener("click", () => {
+    agregarLinea({ kind: "part" });
+    adminQs("#workOrderItems .linea-v320:last-child .linea-desc")?.focus();
+  });
 }
 
 function closeWorkOrderModal() {
@@ -450,32 +562,92 @@ function closeWorkOrderModal() {
   dtekWorkOrderAppointmentId = null;
 }
 
-async function submitWorkOrderReport(event) {
-  event.preventDefault();
+// El recibo en el molde que Dominic ya usa, con la marca D-TEK GT y en km.
+function armarRecibo({ appointment, lineas, totales, hallazgos, recomendaciones, km }) {
+  const hoy = new Date().toLocaleDateString("es-GT", { day: "2-digit", month: "2-digit", year: "numeric" });
+  const vehiculo = [appointment?.vehicle_brand, appointment?.vehicle_line, appointment?.vehicle_year]
+    .filter(Boolean).join(" ") || "—";
+
+  const partes = [
+    "D-TEK GT · Mecánica a domicilio",
+    `RECIBO — Fecha: ${hoy}`,
+    "",
+    `Cliente: ${appointment?.client_name || "—"}`,
+    `Vehículo: ${vehiculo}`,
+    km ? `Kilometraje: ${Number(km).toLocaleString("es-GT")} km` : null,
+    ""
+  ];
+
+  if (hallazgos) partes.push("Hallazgos:", ...hallazgos.split("\n").filter(Boolean).map((l) => `- ${l.trim()}`), "");
+  if (recomendaciones) partes.push("Recomendaciones:", ...recomendaciones.split("\n").filter(Boolean).map((l) => `- ${l.trim()}`), "");
+
+  partes.push("Trabajo realizado:");
+  lineas.forEach((l) => {
+    const cant = l.quantity === 1 ? "" : `${l.quantity} × `;
+    partes.push(`- ${l.description}: ${cant}${dtekMoneda(l.unit_price)} = ${dtekMoneda(l.quantity * l.unit_price)}`);
+  });
+
+  partes.push("", `Total pagado: ${dtekMoneda(totales.total)}`, "",
+    "Garantía de 90 días sobre mano de obra y repuestos.");
+
+  return partes.filter((l) => l !== null).join("\n");
+}
+
+async function submitWorkOrderReport(event, { compartir = false } = {}) {
+  if (event) event.preventDefault();
   const appointmentId = dtekWorkOrderAppointmentId;
   const statusBox = adminQs("#workOrderStatusBox");
   if (!appointmentId) {
     if (statusBox) statusBox.innerHTML = `<p class="status-error">No hay una cita seleccionada.</p>`;
     return;
   }
+
+  const lineas = dtekLineas.filter((l) => String(l.description || "").trim());
+  if (!lineas.length) {
+    if (statusBox) statusBox.innerHTML = `<p class="status-error">Agregá al menos una línea con descripción antes de cerrar.</p>`;
+    return;
+  }
+
+  // La ventana se abre en blanco dentro del clic (antes del await), porque
+  // despues el navegador ya no deja abrir ventanas nuevas por script.
+  const waWindow = compartir ? window.open("", "_blank") : null;
+  if (waWindow) { try { waWindow.opener = null; } catch (e) {} }
+
   try {
-    if (statusBox) statusBox.innerHTML = `<p class="status-info">Guardando reporte...</p>`;
+    if (statusBox) statusBox.innerHTML = `<p class="status-info">Cerrando el trabajo...</p>`;
     const appointment = dtekAdminAppointmentsCache.find(item => String(item.id) === String(appointmentId));
+    const totales = sumarLineas();
+    const km = adminQs("#workOrderMileage").value;
+    const hallazgos = adminQs("#workOrderDiagnosis").value.trim();
+    const recomendaciones = adminQs("#workOrderRecommendations").value.trim();
+
     const payload = {
       appointment_id: appointmentId,
-      diagnosis: adminQs("#workOrderDiagnosis").value.trim(),
-      recommendations: adminQs("#workOrderRecommendations").value.trim(),
+      diagnosis: hallazgos,
+      recommendations: recomendaciones,
       parts_notes: adminQs("#workOrderPartsNotes").value.trim(),
-      labor_total: adminQs("#workOrderLaborTotal").value,
-      parts_total: adminQs("#workOrderPartsTotal").value,
-      status: adminQs("#workOrderStatus").value
+      mileage: km ? Number(km) : null,
+      items: lineas.map((l, i) => ({ ...l, position: i })),
+      cerrar_cita: adminQs("#workOrderCloseAppointment").checked
     };
-    const saved = await withTimeout(DtekBackend.saveWorkOrderReport(payload), 10000, "guardar reporte técnico");
+
+    const saved = await withTimeout(DtekBackend.cerrarTrabajo(payload), 12000, "cerrar el trabajo");
     await dtekSendZapierEvent("work_order_updated", { appointmentId, appointment, workOrder: saved });
-    if (statusBox) statusBox.innerHTML = `<p class="status-ok">Reporte guardado. El cliente lo verá en el historial de su vehículo.</p>`;
+
+    if (compartir) {
+      const texto = armarRecibo({ appointment, lineas, totales, hallazgos, recomendaciones, km });
+      const tel = String(appointment?.client_phone || "").replace(/\D/g, "");
+      const url = `https://wa.me/${tel}?text=${encodeURIComponent(texto)}`;
+      if (waWindow) { waWindow.location.href = url; } else { window.open(url, "_blank", "noopener"); }
+    }
+
+    if (statusBox) {
+      statusBox.innerHTML = `<p class="status-ok">Trabajo cerrado por ${adminSafe(dtekMoneda(totales.total))}.${compartir ? " Abrimos WhatsApp con el recibo." : ""} El cliente ya lo ve en su Garage.</p>`;
+    }
     await refreshAllAdminData();
-    setTimeout(closeWorkOrderModal, 900);
+    setTimeout(closeWorkOrderModal, 1200);
   } catch (error) {
+    if (waWindow) { try { waWindow.close(); } catch (e) {} }
     if (statusBox) statusBox.innerHTML = `<p class="status-error">${adminSafe(error.message)}</p>`;
   }
 }
@@ -484,7 +656,9 @@ async function initBackendAdmin() {
   renderBackendSystemStatus();
   await refreshAllAdminData();
 
-  adminQs("#workOrderForm")?.addEventListener("submit", submitWorkOrderReport);
+  adminQs("#workOrderForm")?.addEventListener("submit", (ev) => submitWorkOrderReport(ev, { compartir: false }));
+  adminQs("#workOrderSaveAndShare")?.addEventListener("click", (ev) => submitWorkOrderReport(ev, { compartir: true }));
+  bindLineas();
   adminQs("#workOrderModalClose")?.addEventListener("click", closeWorkOrderModal);
   adminQs("#workOrderModalCancel")?.addEventListener("click", closeWorkOrderModal);
   adminQs("#workOrderModal")?.addEventListener("click", (event) => {
