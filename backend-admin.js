@@ -427,21 +427,31 @@ async function refreshAllAdminData() {
 let dtekWorkOrderAppointmentId = null;
 let dtekInspecciones = {};
 
-function renderWorkOrderInspections() {
+function renderWorkOrderInspections(appointment = {}) {
   const holder = adminQs("#workOrderInspections");
   if (!holder) return;
-  const allowed = (window.DtekVehicleHealth?.components || []).filter(item => item.mode === "inspection");
+  const vehicle = {
+    brand: appointment.vehicle_brand,
+    line: appointment.vehicle_line,
+    year: appointment.vehicle_year
+  };
+  const allowed = window.DtekVehicleHealth?.planForVehicle?.(vehicle, []) || window.DtekVehicleHealth?.components || [];
   holder.innerHTML = allowed.map(item => `
-    <label class="inspection-row-v33">
-      <span><strong>${adminSafe(item.name)}</strong><small>Resultado de inspección</small></span>
-      <select data-inspection-key="${adminSafe(item.key)}">
+    <div class="inspection-row-v33" data-maintenance-row="${adminSafe(item.key)}">
+      <span><strong>${adminSafe(item.name)}</strong><small>${item.mode === "interval" ? `${Number(item.months || 0)} meses · ${Number(item.km || 0).toLocaleString("es-GT")} km` : "Requiere revisión física"}</small></span>
+      <select data-inspection-key="${adminSafe(item.key)}" aria-label="Estado de ${adminSafe(item.name)}">
         <option value="">No revisado</option>
-        <option value="ok">Bien</option>
+        ${item.mode === "interval" ? `<option value="serviced">Servicio realizado hoy</option>` : ""}
+        ${item.mode === "inspection" ? `<option value="ok">Bien</option>
         <option value="monitor">Vigilar</option>
-        <option value="attention">Requiere atención</option>
+        <option value="attention">Requiere atención</option>` : ""}
       </select>
       <input type="text" data-inspection-note="${adminSafe(item.key)}" placeholder="Medición o nota opcional">
-    </label>`).join("");
+      ${item.mode === "interval" ? `<div class="maintenance-interval-edit">
+        <label>Intervalo meses<input type="number" min="1" step="1" value="${adminSafe(item.months || "")}" data-interval-months="${adminSafe(item.key)}"></label>
+        <label>Intervalo km<input type="number" min="1" step="1" value="${adminSafe(item.km || "")}" data-interval-km="${adminSafe(item.key)}"></label>
+      </div>` : ""}
+    </div>`).join("");
 }
 
 function collectWorkOrderInspections() {
@@ -452,7 +462,9 @@ function collectWorkOrderInspections() {
       return {
         component_key: key,
         status: select.value,
-        notes: adminQs(`[data-inspection-note="${key}"]`)?.value.trim() || null
+        notes: adminQs(`[data-inspection-note="${key}"]`)?.value.trim() || null,
+        interval_months: Number(adminQs(`[data-interval-months="${key}"]`)?.value || 0) || null,
+        interval_km: Number(adminQs(`[data-interval-km="${key}"]`)?.value || 0) || null
       };
     });
 }
@@ -474,7 +486,7 @@ function openWorkOrderModal(appointmentId) {
   adminQs("#workOrderCloseAppointment").checked = true;
   adminQs("#workOrderMileage").value = "";
   dtekInspecciones = {};
-  renderWorkOrderInspections();
+  renderWorkOrderInspections(appointment);
 
   // Arranca con una linea del servicio agendado, para no empezar en blanco.
   dtekLineas = [];
