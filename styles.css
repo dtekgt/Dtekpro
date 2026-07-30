@@ -6160,3 +6160,196 @@ body.agenda-service-selected .agenda-start-compact-v2741 {
     box-shadow:0 -10px 30px rgba(0,0,0,.36);
   }
 }
+
+/* =========================================================
+   D-TEK v37.1 — Blindaje visual oscuro para móvil
+   Evita que reglas heredadas del portal claro reaparezcan.
+   ========================================================= */
+@media(max-width:767px){
+  html{
+    min-height:100%;
+    background:#090b0e;
+  }
+  body.page-client-v23{
+    min-height:100%;
+    color-scheme:dark;
+    background:#090b0e!important;
+  }
+  .page-client-v23 .client-app-shell,
+  .page-client-v23 .client-dashboard,
+  .page-client-v23 .client-portal-content,
+  .page-client-v23 .client-section{
+    background-color:#090b0e;
+  }
+  .page-client-v23 .client-dashboard{
+    background:
+      radial-gradient(circle at 12% 0,rgba(229,35,47,.13),transparent 22rem),
+      linear-gradient(180deg,#090b0e 0%,#11151a 48%,#090b0e 100%)!important;
+  }
+
+  /* Superficies sólidas: Safari/iOS no depende de transparencia para el contraste. */
+  .page-client-v23 .client-portal-header,
+  .page-client-v23.client-nav-condensed .client-portal-header{
+    background:#0d1014!important;
+    -webkit-backdrop-filter:none;
+    backdrop-filter:none;
+  }
+  .page-client-v23 .client-card,
+  .page-client-v23 .panel-card,
+  .page-client-v23 .form-card,
+  .page-client-v23 .client-empty-state,
+  .page-client-v23 .vehicle-picker-panel,
+  .page-client-v23 .vehicle-detail-panel,
+  .page-client-v23 .vehicle-profile-view,
+  .page-client-v23 .vehicle-health-card,
+  .page-client-v23 .vehicle-inner-tabs,
+  .page-client-v23 .appointment-tabs,
+  .page-client-v23 .profile-layout>section,
+  .page-client-v23 .benefits-layout>section,
+  .page-client-v23 .client-account-menu,
+  .page-client-v23 .client-modal-panel{
+    color:var(--client-ink);
+    border-color:var(--client-line);
+    background:#181d23!important;
+  }
+  .page-client-v23 #section-overview .overview-primary-column{
+    border-color:var(--client-line);
+    background:#181d23!important;
+    box-shadow:0 16px 44px rgba(0,0,0,.24);
+  }
+  .page-client-v23 #section-overview .active-vehicle-card,
+  .page-client-v23 #section-overview .next-action-card{
+    background:#181d23!important;
+  }
+  .page-client-v23 #section-overview .next-action-card{
+    border-top-color:#303640;
+  }
+  .page-client-v23 .client-empty-illustration,
+  .page-client-v23 .summary-block,
+  .page-client-v23 .claim-appointments-box,
+  .page-client-v23 .reward-card,
+  .page-client-v23 .points-list-tabs,
+  .page-client-v23 .timeline-card,
+  .page-client-v23 .vehicle-quick-facts>div{
+    color:var(--client-ink);
+    border-color:var(--client-line);
+    background:#20252d!important;
+  }
+
+  /* Garage: todos los módulos conservan el mismo grafito del escritorio. */
+  .page-client-v23 #section-vehicles .vehicle-picker-panel{
+    background:#11151a!important;
+    box-shadow:0 10px 28px rgba(0,0,0,.34);
+  }
+  .page-client-v23 .vehicle-picker-card{
+    color:var(--client-ink-soft);
+    background:#20252d!important;
+  }
+  .page-client-v23 .vehicle-picker-card.active{
+    color:#fff;
+    background:#3a1b21!important;
+  }
+  .page-client-v23 .vehicle-profile-hero{
+    background:
+      linear-gradient(120deg,rgba(229,35,47,.16),transparent 48%),
+      #181d23!important;
+  }
+  .page-client-v23 .garage-life-ribbon,
+  .page-client-v23:not(.client-nav-condensed) .garage-life-ribbon{
+    color:#f5f7fa;
+    border-color:#303640;
+    background:#11151a!important;
+    box-shadow:0 12px 28px rgba(0,0,0,.38);
+    -webkit-backdrop-filter:none;
+    backdrop-filter:none;
+  }
+  .page-client-v23 .garage-radar-panel{
+    color:var(--client-ink);
+    border-color:#303640;
+    background:#181d23!important;
+    box-shadow:0 16px 38px rgba(0,0,0,.3);
+    -webkit-backdrop-filter:none;
+    backdrop-filter:none;
+  }
+  .page-client-v23 .garage-radar-item{
+    color:#f2f4f7;
+    border-color:#303640;
+    background:#20252d!important;
+  }
+  .page-client-v23 .vehicle-care-board{
+    color:#f5f7fa;
+    border-color:#303640;
+    background:linear-gradient(145deg,#171a20,#111318)!important;
+  }
+  .page-client-v23 .vehicle-care-board .care-system,
+  .page-client-v23 .vehicle-care-board .care-mileage-route,
+  .page-client-v23 .vehicle-care-board .care-mileage-empty,
+  .page-client-v23 .vehicle-care-board .care-plan-strip{
+    color:#f5f7fa;
+    border-color:#303640;
+    background:#191c22!important;
+  }
+  .page-client-v23 .vehicle-care-board .care-row,
+  .page-client-v23 .vehicle-care-board .care-dual-tracks{
+    color:#f5f7fa;
+    border-color:#303640;
+    background:#20242b!important;
+  }
+  .page-client-v23 .vehicle-care-board .care-system-ring i{
+    color:#fff;
+    background:#1b1f25!important;
+  }
+  .page-client-v23 .care-unit-toggle{
+    border-color:#3b424d;
+    background:#1e2229!important;
+  }
+
+  /* Formularios, menús y navegación: nada blanco ni translúcido. */
+  .page-client-v23 .client-form input,
+  .page-client-v23 .client-form select,
+  .page-client-v23 .client-form textarea{
+    color:#f3f5f7;
+    border-color:#3a424d;
+    background:#11151a!important;
+  }
+  .page-client-v23 .client-btn-secondary,
+  .page-client-v23 .client-icon-button{
+    color:#e9edf2;
+    border-color:#3a424d;
+    background:#20252d!important;
+  }
+  .page-client-v23 .client-mobile-nav{
+    border-color:#303640!important;
+    background:#0d1014!important;
+    box-shadow:0 -10px 30px rgba(0,0,0,.48)!important;
+    -webkit-backdrop-filter:none;
+    backdrop-filter:none;
+  }
+  .page-client-v23 .client-mobile-nav button{
+    color:#929aa5;
+    background:transparent!important;
+  }
+  .page-client-v23 .client-mobile-nav button.active{
+    color:#fff;
+    background:#181d23!important;
+  }
+  .page-client-v23 .client-mobile-nav button.active span{
+    color:var(--client-red);
+  }
+
+  /* Acceso y modales también respetan el tema oscuro en teléfonos. */
+  .page-client-v23 .client-auth-gate{
+    border-color:#2a3038;
+    background:#181d23!important;
+  }
+  .page-client-v23 .auth-card{
+    color:var(--client-ink);
+    background:#181d23!important;
+  }
+  .page-client-v23 .auth-card-head h2{color:#f7f8fa}
+  .page-client-v23 .client-btn-google{
+    color:#f3f5f7;
+    border-color:#3a424d;
+    background:#20252d!important;
+  }
+}
