@@ -30,6 +30,7 @@ let clientPortalState = {
   activeVehicleId: null,
   activeVehicleHistory: [],
   vehicleHistoryMap: {},
+  vehicleHealthMap: {},
   loadingHistoryMap: {},
   loading: true
 };
@@ -960,6 +961,16 @@ async function openVehicleProfile(vehicleId, options = {}) {
 
   renderOverview();
   setHtml("#vehicleTimeline", renderTimeline(history));
+  let healthRecords = clientPortalState.vehicleHealthMap?.[vehicle.id] || [];
+  try {
+    healthRecords = await DtekBackend.listMyVehicleHealth(vehicle.id);
+    clientPortalState.vehicleHealthMap[vehicle.id] = healthRecords;
+  } catch (error) {
+    // La migración 20 puede no estar aplicada todavía. El tablero sigue
+    // funcionando con el historial, pero etiqueta esos cálculos como estimados.
+    console.warn("Estado persistente del vehículo no disponible:", error);
+  }
+  window.DtekVehicleHealth?.render?.(vehicle, history, healthRecords);
   setHtml("#vehicleRecommendations", buildSmartRecommendations(vehicle, history).map(renderRecommendationCard).join(""));
   setHtml("#vehicleQuickFacts", renderQuickFacts(vehicle, history));
 }
@@ -1488,7 +1499,14 @@ function initClientPortal() {
     if (!event.target.closest("#garageTimelineDock")) setGarageTimelineExpanded(false);
   });
 
-  document.addEventListener("click", async (event) => {
+document.addEventListener("click", async (event) => {
+  const healthJump = event.target.closest("[data-vehicle-tab-jump]");
+  if (healthJump) {
+    const target = healthJump.dataset.vehicleTabJump;
+    clientQsa("[data-vehicle-tab]").forEach((button) => button.classList.toggle("active", button.dataset.vehicleTab === target));
+    clientQsa("[data-vehicle-tab-panel]").forEach((panel) => panel.classList.toggle("active", panel.dataset.vehicleTabPanel === target));
+    clientQs("#vehicleCareMileage")?.focus();
+  }
     const modalOpen = event.target.closest("[data-open-vehicle-modal]");
     if (modalOpen) openVehicleModal();
 

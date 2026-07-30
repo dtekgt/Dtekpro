@@ -425,6 +425,37 @@ async function refreshAllAdminData() {
 }
 
 let dtekWorkOrderAppointmentId = null;
+let dtekInspecciones = {};
+
+function renderWorkOrderInspections() {
+  const holder = adminQs("#workOrderInspections");
+  if (!holder) return;
+  const allowed = (window.DtekVehicleHealth?.components || []).filter(item => item.mode === "inspection");
+  holder.innerHTML = allowed.map(item => `
+    <label class="inspection-row-v33">
+      <span><strong>${adminSafe(item.name)}</strong><small>Resultado de inspección</small></span>
+      <select data-inspection-key="${adminSafe(item.key)}">
+        <option value="">No revisado</option>
+        <option value="ok">Bien</option>
+        <option value="monitor">Vigilar</option>
+        <option value="attention">Requiere atención</option>
+      </select>
+      <input type="text" data-inspection-note="${adminSafe(item.key)}" placeholder="Medición o nota opcional">
+    </label>`).join("");
+}
+
+function collectWorkOrderInspections() {
+  return [...document.querySelectorAll("[data-inspection-key]")]
+    .filter(select => select.value)
+    .map(select => {
+      const key = select.dataset.inspectionKey;
+      return {
+        component_key: key,
+        status: select.value,
+        notes: adminQs(`[data-inspection-note="${key}"]`)?.value.trim() || null
+      };
+    });
+}
 
 function openWorkOrderModal(appointmentId) {
   const modal = adminQs("#workOrderModal");
@@ -442,6 +473,8 @@ function openWorkOrderModal(appointmentId) {
   adminQs("#workOrderStatusBox").innerHTML = "";
   adminQs("#workOrderCloseAppointment").checked = true;
   adminQs("#workOrderMileage").value = "";
+  dtekInspecciones = {};
+  renderWorkOrderInspections();
 
   // Arranca con una linea del servicio agendado, para no empezar en blanco.
   dtekLineas = [];
@@ -632,6 +665,10 @@ async function submitWorkOrderReport(event, { compartir = false } = {}) {
     };
 
     const saved = await withTimeout(DtekBackend.cerrarTrabajo(payload), 12000, "cerrar el trabajo");
+    const inspections = collectWorkOrderInspections();
+    if (inspections.length) {
+      await withTimeout(DtekBackend.saveVehicleInspections(appointmentId, inspections), 12000, "guardar las revisiones");
+    }
     await dtekSendZapierEvent("work_order_updated", { appointmentId, appointment, workOrder: saved });
 
     if (compartir) {

@@ -787,6 +787,28 @@ const DtekBackend = (() => {
     return data || [];
   }
 
+  async function listMyVehicleHealth(vehicleId) {
+    const sb = client();
+    if (!sb) throw new Error("Supabase no está configurado todavía.");
+    const { data, error } = await sb.rpc("dtek_client_list_vehicle_health", {
+      p_vehicle_id: vehicleId
+    });
+    if (error) throw error;
+    return data || [];
+  }
+
+  async function saveVehicleInspections(appointmentId, inspections = []) {
+    const sb = client();
+    if (!sb) throw new Error("Supabase no está configurado todavía.");
+    if (!inspections.length) return [];
+    const { data, error } = await sb.rpc("dtek_admin_save_vehicle_inspections", {
+      p_appointment_id: appointmentId,
+      p_inspections: inspections
+    });
+    if (error) throw error;
+    return data || [];
+  }
+
   async function createAppointmentForVehicle(payload) {
     const sb = client();
     if (!sb) throw new Error("Supabase no está configurado todavía.");
@@ -923,6 +945,8 @@ const DtekBackend = (() => {
     updateMyVehicleCare,
     getMyVehicle,
     listMyVehicleHistory,
+    listMyVehicleHealth,
+    saveVehicleInspections,
     createAppointmentForVehicle,
     saveWorkOrderReport,
     cerrarTrabajo,

@@ -9,7 +9,7 @@
   <meta name="theme-color" content="#05080d" />
   <title>Admin Backend · D-TEK GT</title>
   <link rel="stylesheet" href="styles.css?v=6abc986a" />
-  <link rel="stylesheet" href="styles-v30.css?v=c23a1278" />
+  <link rel="stylesheet" href="styles-v30.css?v=33000001" />
 </head>
 <body class="page-admin-v31">
   <div class="dtek-bg"><span class="orb orb-red"></span><span class="orb orb-cyan"></span></div>
@@ -205,6 +205,14 @@
         </div>
       </div>
 
+      <section class="inspection-capture-v33" aria-labelledby="inspectionCaptureTitle">
+        <div class="lineas-head-v320">
+          <span id="inspectionCaptureTitle">Estado revisado hoy</span>
+          <small>Solo marcá lo que realmente inspeccionaste.</small>
+        </div>
+        <div id="workOrderInspections" class="inspection-grid-v33"></div>
+      </section>
+
       <label class="cerrar-cita-v320">
         <input id="workOrderCloseAppointment" type="checkbox" checked>
         <span><b>Marcar la cita como realizada</b><small>Antes el reporte se guardaba y la cita quedaba abierta.</small></span>
@@ -222,7 +230,8 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="supabase-config.js?v=81e95d5d"></script>
   <script src="services-data.js?v=d5da499d"></script>
-  <script src="supabase-client.js?v=a9af0f54"></script>
-  <script src="backend-admin.js?v=06417b4c"></script>
+  <script src="vehicle-health.js?v=20000001"></script>
+  <script src="supabase-client.js?v=33000001"></script>
+  <script src="backend-admin.js?v=33000001"></script>
 </body>
 </html>

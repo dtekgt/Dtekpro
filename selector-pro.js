@@ -211,6 +211,14 @@
       // no las dos tarjetas grandes.
       $('#agendaStart')?.classList.add('path-chosen');
     }));
+    const requestedFlow = new URLSearchParams(window.location.search).get("flow");
+    if (["symptoms", "sintomas"].includes(requestedFlow)) {
+      $$('[data-agenda-list-mode]').forEach(item => item.classList.toggle('active', item.dataset.agendaListMode === "symptoms"));
+      $('#agendaServicesListPanel')?.classList.remove('active');
+      $('#agendaSymptomsListPanel')?.classList.add('active');
+      $('#agendaStart')?.classList.add('path-chosen');
+      document.body.dataset.agendaPreferredMode = "symptoms";
+    }
   }
 
   function setBookingStep(step, options = {}) {
@@ -248,10 +256,14 @@
     document.dispatchEvent(new CustomEvent("dtek:booking-step", { detail: { step: normalized } }));
     if (shouldScroll) {
       window.requestAnimationFrame(() => {
-        const target = $("#bookingFlow") || $("#wizardProgress");
+        const target = $(`[data-booking-step="${normalized}"] .booking-step-head-v25`)
+          || $(`[data-booking-step="${normalized}"]`)
+          || $("#bookingFlow");
         if (!target) return;
-        const top = Math.max(0, target.getBoundingClientRect().top + window.scrollY - 82);
+        const top = Math.max(0, target.getBoundingClientRect().top + window.scrollY - 96);
         window.scrollTo({ top, behavior: "smooth" });
+        target.setAttribute("tabindex", "-1");
+        window.setTimeout(() => target.focus({ preventScroll: true }), 260);
       });
     }
   }
