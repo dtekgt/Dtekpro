@@ -1,5 +1,5 @@
 /*
-  D-TEK GT Web OS v38 — Portal cliente
+  D-TEK GT Web OS v39 — Portal cliente
   Arquitectura: Inicio · Garage · Agenda · Cuenta
   Propiedad de D-TEK GT / Dominic Morales.
 */
@@ -382,7 +382,9 @@ function renderGarageToolsDrawer() {
   const active = preferredVehicle();
   const activeName = active ? (active.nickname || vehicleBaseTitle(active)) : "Sin carro seleccionado";
   setText("#clientActiveCarName", activeName);
+  setText("#clientRailVehicleName", activeName);
   setText("#clientToolsVehicleName", activeName);
+  setText("#clientMaintenanceVehicleName", activeName);
   setText("#clientToolsVehicleMeta", active
     ? [active.plate ? `Placa ${active.plate}` : "", active.mileage ? formatKm(active.mileage) : "Falta agregar kilometraje"].filter(Boolean).join(" · ")
     : "Agregá un carro para ver su información");
@@ -587,15 +589,28 @@ function showAuthGate(show) {
   clientQs("#clientPublicHeader")?.classList.toggle("hidden-field", !show);
 }
 
-function openToolsDrawer() {
+let sidePanelReturnFocus = null;
+
+function syncSidePanelState() {
+  const toolsOpen = clientQs("#clientToolsDrawer")?.getAttribute("aria-hidden") === "false";
+  const maintenanceOpen = clientQs("#clientMaintenanceDrawer")?.getAttribute("aria-hidden") === "false";
+  document.body.classList.toggle("client-tools-open", toolsOpen);
+  document.body.classList.toggle("client-maintenance-open", maintenanceOpen);
+  document.body.classList.toggle("client-side-panel-open", Boolean(toolsOpen || maintenanceOpen));
+}
+
+function openToolsDrawer(trigger = document.activeElement) {
   const drawer = clientQs("#clientToolsDrawer");
   const backdrop = clientQs("#clientToolsBackdrop");
   if (!drawer || !backdrop) return;
+  closeMaintenanceDrawer();
+  sidePanelReturnFocus = trigger instanceof HTMLElement ? trigger : null;
   renderGarageToolsDrawer();
   drawer.setAttribute("aria-hidden", "false");
+  drawer.removeAttribute("inert");
   backdrop.hidden = false;
-  document.body.classList.add("client-tools-open");
-  ["#clientToolsTrigger", "#clientActiveCarTrigger"].forEach((selector) => clientQs(selector)?.setAttribute("aria-expanded", "true"));
+  syncSidePanelState();
+  ["#clientToolsTrigger", "#clientActiveCarTrigger", "#clientCarsRailTrigger"].forEach((selector) => clientQs(selector)?.setAttribute("aria-expanded", "true"));
   window.setTimeout(() => drawer.querySelector("[data-quick-vehicle], [data-open-vehicle-modal], button")?.focus(), 40);
 }
 
@@ -604,10 +619,58 @@ function closeToolsDrawer({ restoreFocus = false } = {}) {
   const backdrop = clientQs("#clientToolsBackdrop");
   if (!drawer || !backdrop) return;
   drawer.setAttribute("aria-hidden", "true");
+  drawer.setAttribute("inert", "");
   backdrop.hidden = true;
-  document.body.classList.remove("client-tools-open");
-  ["#clientToolsTrigger", "#clientActiveCarTrigger"].forEach((selector) => clientQs(selector)?.setAttribute("aria-expanded", "false"));
-  if (restoreFocus) clientQs("#clientToolsTrigger")?.focus();
+  ["#clientToolsTrigger", "#clientActiveCarTrigger", "#clientCarsRailTrigger"].forEach((selector) => clientQs(selector)?.setAttribute("aria-expanded", "false"));
+  syncSidePanelState();
+  if (restoreFocus) (sidePanelReturnFocus || clientQs("#clientToolsTrigger"))?.focus();
+}
+
+function openMaintenanceDrawer(trigger = document.activeElement) {
+  const drawer = clientQs("#clientMaintenanceDrawer");
+  const backdrop = clientQs("#clientMaintenanceBackdrop");
+  if (!drawer || !backdrop) return;
+  closeToolsDrawer();
+  sidePanelReturnFocus = trigger instanceof HTMLElement ? trigger : null;
+  renderGarageToolsDrawer();
+  drawer.setAttribute("aria-hidden", "false");
+  drawer.removeAttribute("inert");
+  backdrop.hidden = false;
+  clientQsa("[data-open-maintenance-drawer], #clientMaintenanceTrigger").forEach((button) => button.setAttribute("aria-expanded", "true"));
+  syncSidePanelState();
+  window.setTimeout(() => drawer.querySelector("[data-radar-component], [data-open-client-booking], button")?.focus(), 40);
+}
+
+function closeMaintenanceDrawer({ restoreFocus = false } = {}) {
+  const drawer = clientQs("#clientMaintenanceDrawer");
+  const backdrop = clientQs("#clientMaintenanceBackdrop");
+  if (!drawer || !backdrop) return;
+  drawer.setAttribute("aria-hidden", "true");
+  drawer.setAttribute("inert", "");
+  backdrop.hidden = true;
+  clientQsa("[data-open-maintenance-drawer], #clientMaintenanceTrigger").forEach((button) => button.setAttribute("aria-expanded", "false"));
+  syncSidePanelState();
+  if (restoreFocus) (sidePanelReturnFocus || clientQs("#clientMaintenanceTrigger"))?.focus();
+}
+
+function installSideDrawerGestures() {
+  [
+    { drawer: clientQs("#clientToolsDrawer"), close: closeToolsDrawer, direction: "left" },
+    { drawer: clientQs("#clientMaintenanceDrawer"), close: closeMaintenanceDrawer, direction: "right" }
+  ].forEach(({ drawer, close, direction }) => {
+    if (!drawer) return;
+    let startX = null;
+    drawer.addEventListener("touchstart", (event) => {
+      startX = event.touches[0]?.clientX ?? null;
+    }, { passive: true });
+    drawer.addEventListener("touchend", (event) => {
+      if (startX == null) return;
+      const endX = event.changedTouches[0]?.clientX ?? startX;
+      const delta = endX - startX;
+      if ((direction === "left" && delta < -58) || (direction === "right" && delta > 58)) close();
+      startX = null;
+    }, { passive: true });
+  });
 }
 
 function setActiveSection(section) {
@@ -632,6 +695,7 @@ function setActiveSection(section) {
   if (title) title.textContent = titles[normalized] || "Garage D-TEK";
   closeAccountMenu();
   closeToolsDrawer();
+  closeMaintenanceDrawer();
   if (normalized === "vehicles" && clientPortalState.activeVehicleId) {
     openVehicleProfile(clientPortalState.activeVehicleId, { navigate: false, refreshHistory: true });
   }
@@ -1576,16 +1640,31 @@ function initClientPortal() {
     const menu = clientQs("#clientAccountMenu");
     if (menu?.hidden) openAccountMenu(); else closeAccountMenu();
   });
-  ["#clientToolsTrigger", "#clientActiveCarTrigger"].forEach((selector) => {
-    clientQs(selector)?.addEventListener("click", () => {
+  ["#clientToolsTrigger", "#clientActiveCarTrigger", "#clientCarsRailTrigger"].forEach((selector) => {
+    clientQs(selector)?.addEventListener("click", (event) => {
       const open = clientQs("#clientToolsDrawer")?.getAttribute("aria-hidden") === "false";
-      if (open) closeToolsDrawer({ restoreFocus: true }); else openToolsDrawer();
+      if (open) closeToolsDrawer({ restoreFocus: true }); else openToolsDrawer(event.currentTarget);
     });
   });
+  clientQsa("[data-open-maintenance-drawer], #clientMaintenanceTrigger").forEach((trigger) => {
+    trigger.addEventListener("click", (event) => {
+      const open = clientQs("#clientMaintenanceDrawer")?.getAttribute("aria-hidden") === "false";
+      if (open) closeMaintenanceDrawer({ restoreFocus: true }); else openMaintenanceDrawer(event.currentTarget);
+    });
+  });
+  installSideDrawerGestures();
   document.addEventListener("click", (event) => {
     if (!event.target.closest("#clientAccountMenu") && !event.target.closest("#clientAccountToggle")) closeAccountMenu();
     if (!event.target.closest("#garageTimelineDock")) setGarageTimelineExpanded(false);
     if (event.target.closest("[data-close-tools-drawer]")) closeToolsDrawer({ restoreFocus: true });
+    if (event.target.closest("[data-close-maintenance-drawer]")) closeMaintenanceDrawer({ restoreFocus: true });
+    if (event.target.closest("#clientMaintenanceDrawer [data-open-client-booking]")) closeMaintenanceDrawer();
+    if (event.target.closest("[data-close-maintenance-after-action]")) closeMaintenanceDrawer();
+  });
+  document.addEventListener("keydown", (event) => {
+    if (event.key !== "Escape") return;
+    if (clientQs("#clientMaintenanceDrawer")?.getAttribute("aria-hidden") === "false") closeMaintenanceDrawer({ restoreFocus: true });
+    else if (clientQs("#clientToolsDrawer")?.getAttribute("aria-hidden") === "false") closeToolsDrawer({ restoreFocus: true });
   });
 
 document.addEventListener("click", async (event) => {
@@ -1599,6 +1678,7 @@ document.addEventListener("click", async (event) => {
 
   const radarItem = event.target.closest("[data-radar-component]");
   if (radarItem) {
+    closeMaintenanceDrawer();
     const system = [...clientQsa(".care-system")].find((item) => item.querySelector(`[data-care-component="${radarItem.dataset.radarComponent}"]`));
     if (system) {
       system.open = true;

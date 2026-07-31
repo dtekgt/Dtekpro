@@ -1,5 +1,5 @@
 /*
-  D-TEK GT v38 — Estado e historial claro del carro
+  D-TEK GT v39 — Estado e historial claro del carro
   Convierte catálogo aplicable + uso + historial + inspecciones en próximos pasos.
 */
 (() => {
@@ -354,8 +354,10 @@
     const attention = results.filter(item => ["due","soon"].includes(item.state.tone)).length;
     const count = document.querySelector("#garageRadarCount");
     if (count) count.textContent = String(attention);
-    const mobileCount = document.querySelector("#garageRadarMobileCount");
-    if (mobileCount) mobileCount.textContent = String(attention);
+    ["#garageRadarMobileCount", "#garageMobileGlanceCount", "#garageRadarRailCount"].forEach((selector) => {
+      const mobileCount = document.querySelector(selector);
+      if (mobileCount) mobileCount.textContent = String(attention);
+    });
 
     const orderedHistory = [...(history || [])].sort((a,b) => new Date(dateValue(b) || 0) - new Date(dateValue(a) || 0));
     const last = orderedHistory.find(row => ["completed","approved","completado","realizado","finalizado"].includes(plain(row.work_order_status || row.appointment_status || row.status)));
