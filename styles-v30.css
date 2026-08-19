@@ -3741,3 +3741,15 @@ h2.cinema-how-kicker{margin:0 0 18px;font-size:11px;line-height:1.4}
     background:#15382c!important;
   }
 }
+
+/* ======================================================================
+   D-TEK GT · Recibo del cliente — tabla de líneas en el Garage
+   El panel de admin (v32.0) ya arma el recibo por líneas; esto lo muestra
+   también en el historial del cliente, no solo por WhatsApp.
+   ====================================================================== */
+.page-client-v23 .report-lineas{width:100%;border-collapse:collapse;margin-top:8px;font-size:12.5px}
+.page-client-v23 .report-lineas th{text-align:left;color:var(--client-muted);font-weight:600;padding:4px 6px 4px 0;border-bottom:1px solid var(--client-line)}
+.page-client-v23 .report-lineas td{padding:5px 6px 5px 0;border-bottom:1px solid var(--client-line);color:var(--client-ink-soft)}
+.page-client-v23 .report-lineas th:nth-child(n+2),
+.page-client-v23 .report-lineas td:nth-child(n+2){text-align:right}
+.page-client-v23 .report-lineas tr:last-child td{border-bottom:0}

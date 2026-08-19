@@ -746,6 +746,21 @@ function renderAppointmentCard(appointment, { compact = false } = {}) {
   </article>`;
 }
 
+function renderWorkOrderLineas(lineas) {
+  if (!Array.isArray(lineas) || !lineas.length) return "";
+  const filas = lineas.map((linea) => `
+    <tr>
+      <td>${clientSafe(linea.descripcion || "")}</td>
+      <td>${clientSafe(linea.cantidad ?? "")}</td>
+      <td>${clientSafe(formatMoney(linea.precio))}</td>
+      <td>${clientSafe(formatMoney(linea.subtotal))}</td>
+    </tr>`).join("");
+  return `<table class="report-lineas">
+    <thead><tr><th>Descripción</th><th>Cant.</th><th>P. unit.</th><th>Subtotal</th></tr></thead>
+    <tbody>${filas}</tbody>
+  </table>`;
+}
+
 function renderWorkOrder(order) {
   return `<article class="client-list-item report-item">
     <div class="client-list-item-main">
@@ -753,12 +768,13 @@ function renderWorkOrder(order) {
         <span class="client-status-badge ${statusTone(order.status)}">${clientSafe(statusLabel(order.status || "open"))}</span>
         <h3>${clientSafe(order.service_name || "Trabajo realizado")}</h3>
         <p>${clientSafe(order.vehicle_summary || "Vehículo")}</p>
-        <small>${clientSafe(fmtDate(order.scheduled_start || order.created_at))}</small>
+        <small>${clientSafe(fmtDate(order.service_date || order.scheduled_start || order.created_at))}${order.mileage_at_service ? ` · ${clientSafe(formatKm(order.mileage_at_service))}` : ""}</small>
       </div>
     </div>
     <div class="report-summary">
       ${order.diagnosis ? `<p><strong>Diagnóstico:</strong> ${clientSafe(order.diagnosis)}</p>` : ""}
       ${order.recommendations ? `<p><strong>Recomendación:</strong> ${clientSafe(order.recommendations)}</p>` : ""}
+      ${renderWorkOrderLineas(order.lineas)}
       ${order.grand_total ? `<p><strong>Total:</strong> ${clientSafe(formatMoney(order.grand_total))}</p>` : ""}
     </div>
   </article>`;
