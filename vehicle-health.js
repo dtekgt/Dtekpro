@@ -328,10 +328,36 @@
         </div>
       </div>`;
 
-    const initial = completed.find(item => item.kind === "next") || completed[completed.length - 1];
-    if (detail && initial) {
-      detail.innerHTML = `<strong>${esc(initial.name)}</strong><span>${esc([initial.date ? fmtDate(initial.date) : "", initial.km ? fmtDistance(initial.km) : "", initial.meta].filter(Boolean).join(" · "))}</span>`;
+    if (detail) {
+      if (completed.length <= 3) {
+        renderLifeDetail(completed, detail);
+        setActiveLifeEvents(completed.map((_, index) => index));
+      } else {
+        const initial = completed.find(item => item.kind === "next") || completed[completed.length - 1];
+        const initialIndex = completed.indexOf(initial);
+        renderLifeDetail([initial], detail, true);
+        setActiveLifeEvents([initialIndex]);
+      }
     }
+  }
+
+  function lifeDetailRow(item) {
+    return `<div class="garage-life-detail-row ${item.kind}">
+      <b>${item.kind === "next" ? "Estimado" : "Realizado"}</b>
+      <strong>${esc(item.name)}</strong>
+      <span>${esc([item.date ? fmtDate(item.date) : "", item.km ? fmtDistance(item.km) : "", item.meta].filter(Boolean).join(" · "))}</span>
+    </div>`;
+  }
+
+  function renderLifeDetail(items, detail, withHint) {
+    const hint = withHint ? `<span class="garage-life-detail-hint">Tocá otro punto para ver ese servicio</span>` : "";
+    detail.innerHTML = items.map(lifeDetailRow).join("") + hint;
+  }
+
+  function setActiveLifeEvents(indexes) {
+    document.querySelectorAll("[data-life-event]").forEach(button => {
+      button.classList.toggle("active", indexes.includes(Number(button.dataset.lifeEvent)));
+    });
   }
 
   function renderRadar(vehicle, history, results) {
@@ -427,10 +453,11 @@
   document.addEventListener("click", event => {
     const lifeButton = event.target.closest("[data-life-event]");
     if (lifeButton) {
-      const item = lastLifeEvents[Number(lifeButton.dataset.lifeEvent)];
+      const index = Number(lifeButton.dataset.lifeEvent);
+      const item = lastLifeEvents[index];
       const detail = document.querySelector("#garageLifeDetail");
-      document.querySelectorAll("[data-life-event]").forEach(button => button.classList.toggle("active", button.dataset.lifeEvent === lifeButton.dataset.lifeEvent));
-      if (item && detail) detail.innerHTML = `<strong>${esc(item.name)}</strong><span>${esc([item.date ? fmtDate(item.date) : "", item.km ? fmtDistance(item.km) : "", item.meta].filter(Boolean).join(" · "))}</span>`;
+      setActiveLifeEvents([index]);
+      if (item && detail) renderLifeDetail([item], detail, lastLifeEvents.length > 1);
     }
     const button = event.target.closest("[data-care-unit]");
     if (!button) return;
