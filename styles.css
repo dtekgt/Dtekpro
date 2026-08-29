@@ -6011,11 +6011,26 @@ body.agenda-service-selected .agenda-start-compact-v2741 {
 .page-client-v23 .garage-life-event.next{background:#d68a12;box-shadow:0 0 0 2px rgba(214,138,18,.22)}
 .page-client-v23 .garage-life-event.active{box-shadow:0 0 0 4px rgba(229,35,47,.25)}
 .page-client-v23 .garage-life-detail{
+  display:grid;
+  gap:4px;
   min-height:18px;
   padding-top:5px;
   border-top:1px solid rgba(255,255,255,.07);
   font-size:9px;
 }
+.page-client-v23 .garage-life-detail-row{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.page-client-v23 .garage-life-detail-row b{
+  flex:0 0 auto;
+  padding:1px 6px;
+  border-radius:999px;
+  font-size:7px;
+  font-weight:600;
+  letter-spacing:.02em;
+  color:#0c0e11;
+  background:#f4f6f8;
+}
+.page-client-v23 .garage-life-detail-row.next b{background:#d68a12}
+.page-client-v23 .garage-life-detail-hint{color:#78818d;font-size:8px}
 .page-client-v23 .garage-life-detail span{color:#8f98a4;text-align:right}
 .page-client-v23 .garage-life-empty{display:grid;gap:2px;color:#aab1ba;font-size:10px}
 
@@ -6967,7 +6982,8 @@ body.agenda-service-selected .agenda-start-compact-v2741 {
   .page-client-v23 .garage-life-head .card-label{display:none}
   .page-client-v23 .garage-life-axis{grid-template-columns:62px minmax(0,1fr)}
   .page-client-v23 .garage-life-axis-label{font-size:8px}
-  .page-client-v23 .garage-life-detail{display:none}
+  .page-client-v23 .garage-life-detail{font-size:8px;gap:3px}
+  .page-client-v23 .garage-life-detail-row b{padding:1px 5px;font-size:6px}
   .page-client-v23 .vehicle-health-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
   .page-client-v23 .vehicle-health-card{min-width:0;padding:9px!important;border-radius:14px}
   .page-client-v23 .vehicle-health-card span{font-size:8px}
