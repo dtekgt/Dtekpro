@@ -1339,8 +1339,14 @@ function loadManualVehicleFromUrl() {
 
   const nombre = params.get("nombre");
   const telefono = params.get("telefono");
+  const correo = params.get("correo");
+  const zona = params.get("zona");
+  const direccion = params.get("direccion");
   if (nombre) setFieldValue("#clientName", nombre);
   if (telefono) setFieldValue("#clientPhone", telefono);
+  if (correo) setFieldValue("#clientEmail", correo);
+  if (zona) setFieldValue("#clientCity", zona);
+  if (direccion) setFieldValue("#clientAddress", direccion);
 
   window.DtekSelectorPro?.updateVehicleCascade?.();
   updateAgendaSummary();
@@ -1609,6 +1615,7 @@ function updateAgendaSummary() {
     <div class="summary-optional">
       <span>Adicionales</span><strong>${data.addOns?.length ? `${data.addOns.length} agregados` : "Ninguno"}</strong>
     </div>
+    ${service?.id === "custom-quote" ? `<div class="summary-quote-note"><i>⚠</i><span>Este precio es un estimado, no cerrado — se confirma según lo que encontremos al revisar el carro.</span></div>` : ""}
   `;
 }
 

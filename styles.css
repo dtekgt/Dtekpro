@@ -4115,6 +4115,21 @@ code {
 .booking-summary-v25 .summary-optional strong {
   color: var(--v25-ink);
 }
+.booking-summary-v25 .summary-quote-note {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 186, 86, .3);
+  background: rgba(255, 186, 86, .08);
+  color: #ffba56;
+  font-size: 10.5px;
+  line-height: 1.5;
+}
+.booking-summary-v25 .summary-quote-note i {
+  flex: none;
+}
 
 /* Garage: mismo lenguaje visual en la agenda interna */
 .page-client-v23 .client-booking-progress span {
@@ -5189,6 +5204,32 @@ body.agenda-service-selected .agenda-start-compact-v2741 {
 .page-home-cinema .cinema-btn-primary i{color:#111;background:#fff}
 .page-home-cinema .cinema-btn-secondary{color:#fff;border-color:rgba(255,255,255,.3);background:rgba(255,255,255,.05);backdrop-filter:blur(10px)}
 .page-home-cinema .cinema-btn-secondary i{background:rgba(255,255,255,.11)}
+
+.page-home-cinema .cinema-capsule{display:flex;align-items:stretch;border-radius:999px;overflow:hidden;border:1px solid rgba(255,255,255,.14)}
+.page-home-cinema .cinema-capsule-half{display:inline-flex;align-items:center;gap:9px;min-height:48px;padding:5px 20px;border:0;font-size:13px;font-weight:500;font-family:inherit;cursor:pointer;transition:transform .28s var(--cinema-ease),background .28s var(--cinema-ease)}
+.page-home-cinema .cinema-capsule-half:hover{transform:translateY(-2px) scale(1.01)}
+.page-home-cinema .cinema-capsule-half.agendar{color:#fff;background:var(--cinema-red)}
+.page-home-cinema .cinema-capsule-half.wa{color:#fff;background:rgba(255,255,255,.05);border-left:1px solid rgba(255,255,255,.14);backdrop-filter:blur(10px)}
+.page-home-cinema .cinema-capsule-half.wa[aria-expanded="true"]{background:rgba(255,255,255,.11)}
+
+.page-home-cinema .cinema-wa-expand{
+  display:none;flex-direction:column;gap:12px;max-width:420px;margin-top:14px;
+  border:1px solid rgba(37,211,102,.35);border-radius:16px;background:rgba(37,211,102,.08);
+  padding:16px 18px;animation:cinemaRise .35s var(--cinema-ease) both;
+}
+.page-home-cinema .cinema-wa-expand.open{display:flex}
+.page-home-cinema .cinema-wa-expand>span{font-size:12px;color:rgba(255,255,255,.72)}
+.page-home-cinema .cinema-wa-expand>span em{font-style:normal;color:rgba(255,255,255,.42)}
+.page-home-cinema .cinema-wa-chips{display:flex;flex-wrap:wrap;gap:8px}
+.page-home-cinema .cinema-wa-chips button{border:1px solid rgba(255,255,255,.18);border-radius:999px;background:rgba(255,255,255,.04);color:#fff;padding:8px 14px;font-size:12px;font-family:inherit;cursor:pointer;transition:background .2s,border-color .2s}
+.page-home-cinema .cinema-wa-chips button.active{background:#25d366;border-color:#25d366;color:#04160c;font-weight:700}
+.page-home-cinema .cinema-wa-send{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:44px;border-radius:999px;background:#25d366;color:#04160c;font-size:12.5px;font-weight:700;text-decoration:none}
+.page-home-cinema .cinema-wa-send:hover{background:#2fe374}
+@media (max-width:700px){
+  .page-home-cinema .cinema-capsule{width:100%}
+  .page-home-cinema .cinema-capsule-half{flex:1;justify-content:center;padding:5px 12px}
+  .page-home-cinema .cinema-wa-expand{max-width:none}
+}
 
 .page-home-cinema .cinema-paths{display:grid;border-top:1px solid rgba(255,255,255,.2);animation:cinemaRise .9s var(--cinema-ease) 1.08s both}
 .page-home-cinema .cinema-paths a{min-height:88px;display:grid;grid-template-columns:32px minmax(0,1fr) 30px;align-items:center;gap:11px;border-bottom:1px solid rgba(255,255,255,.16);transition:padding .3s var(--cinema-ease),background .3s var(--cinema-ease)}

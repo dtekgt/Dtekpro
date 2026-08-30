@@ -961,12 +961,20 @@ adminQs("#quickScheduleForm")?.addEventListener("submit", (event) => {
   const serviceId = adminQs("#quickService")?.value || "";
   const clientName = adminQs("#quickClientName")?.value.trim() || "";
   const clientPhone = adminQs("#quickClientPhone")?.value.trim() || "";
+  const clientEmail = adminQs("#quickClientEmail")?.value.trim() || "";
+  const clientCity = adminQs("#quickClientCity")?.value.trim() || "";
+  const clientAddress = adminQs("#quickClientAddress")?.value.trim() || "";
   const customDesc = adminQs("#quickCustomDesc")?.value.trim() || "";
   const customPrice = adminQs("#quickCustomPrice")?.value || "";
   const customDuration = adminQs("#quickCustomDuration")?.value || "";
 
   if (!serviceId && !customDesc) {
     provisionStatus("Elegí un servicio del catálogo o escribí una descripción para cotizar aparte.", "error");
+    return;
+  }
+  const phoneDigits = clientPhone.replace(/\D/g, "");
+  if (clientPhone && (phoneDigits.length < 8 || phoneDigits.length > 12)) {
+    provisionStatus("Ese teléfono no parece completo — revisalo antes de generar el link (el botón de WhatsApp abre a ese número).", "error");
     return;
   }
 
@@ -978,6 +986,9 @@ adminQs("#quickScheduleForm")?.addEventListener("submit", (event) => {
   if (moves) qp.set("arranca", moves);
   if (clientName) qp.set("nombre", clientName);
   if (clientPhone) qp.set("telefono", clientPhone);
+  if (clientEmail) qp.set("correo", clientEmail);
+  if (clientCity) qp.set("zona", clientCity);
+  if (clientAddress) qp.set("direccion", clientAddress);
 
   let serviceName;
   let precioTexto;

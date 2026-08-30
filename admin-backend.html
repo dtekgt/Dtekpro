@@ -115,9 +115,12 @@
               <option value="no_seguro">No estoy seguro</option>
             </select>
           </label>
-          <label>Servicio del catálogo<select id="quickService"><option value="">— No es del catálogo —</option></select></label>
+          <label>Servicio del catálogo<select id="quickService"><option value="">Otro trabajo (no está en la lista)</option></select></label>
           <label>Nombre del cliente<input id="quickClientName" type="text" placeholder="Opcional" /></label>
-          <label>Teléfono del cliente<input id="quickClientPhone" type="tel" placeholder="502XXXXXXXX — para el botón de WhatsApp" /></label>
+          <label>Teléfono del cliente<input id="quickClientPhone" type="tel" inputmode="tel" placeholder="502XXXXXXXX — para el botón de WhatsApp" /></label>
+          <label>Correo del cliente<input id="quickClientEmail" type="email" placeholder="Opcional" /></label>
+          <label>Zona / municipio<input id="quickClientCity" type="text" placeholder="Zona 10, Mixco..." /></label>
+          <label class="full-span">Dirección / referencia<input id="quickClientAddress" type="text" placeholder="Opcional" /></label>
         </div>
         <div class="section-head"><div><span class="eyebrow">Si no es del catálogo</span><h3>Cotización personalizada <span class="muted">reemplaza al servicio de arriba si la llenás</span></h3></div></div>
         <div class="two-column-grid compact-grid">
