@@ -220,6 +220,7 @@ ${PIE}
 ${NAV_MOVIL}
 <a class="dtek-wa-float" href="https://wa.me/${WA}?text=${encodeURIComponent(`Hola D-TEK, quiero consultar por ${servicio.name}.`)}" target="_blank" rel="noopener" aria-label="Escribir a D-TEK por WhatsApp">${WA_SVG}<b>WhatsApp</b></a>
 <script src="../services-data.js?v=${v("services-data.js")}"></script><script src="../app.js?v=${v("app.js")}"></script><script src="../dtek-v30.js?v=${v("dtek-v30.js")}"></script>
+<script defer src="/_vercel/insights/script.js"></script>
 </body></html>`;
 }
 
