@@ -1361,6 +1361,88 @@ function loadManualVehicleFromUrl() {
   }
 }
 
+let phoneLookupBusy = false;
+let phoneLookupLastKey = "";
+
+function normalizePhoneDigits(value) {
+  return String(value || "").replace(/\D/g, "").slice(-8);
+}
+
+// Si alguien ya agendó antes (Garage, invitado, o un link armado desde el
+// panel), su teléfono alcanza para traer carro y datos de contacto sin que
+// los vuelva a escribir. No aplica cuando el carro ya vino resuelto por URL
+// (loadManualVehicleFromUrl / loadLinkedVehicleFromUrl ya se encargaron).
+function wirePhoneLookup() {
+  const input = qs("#phoneLookupInput");
+  if (!input) return;
+  const wrap = input.closest(".phone-lookup-v31");
+  if (params.get("marca") || params.get("vehicle_id")) {
+    wrap?.classList.add("hidden-field");
+    return;
+  }
+  let timer = null;
+  input.addEventListener("input", () => {
+    clearTimeout(timer);
+    input.classList.remove("phone-lookup-found");
+    timer = setTimeout(() => runPhoneLookup(input.value), 600);
+  });
+  input.addEventListener("blur", () => runPhoneLookup(input.value));
+}
+
+async function runPhoneLookup(rawPhone) {
+  const input = qs("#phoneLookupInput");
+  const key = normalizePhoneDigits(rawPhone);
+  if (key.length < 8 || key === phoneLookupLastKey || phoneLookupBusy) return;
+  if (!dtekBackendActive() || !window.DtekBackend?.lookupByPhone) return;
+
+  phoneLookupBusy = true;
+  phoneLookupLastKey = key;
+  input?.classList.add("phone-lookup-checking");
+  try {
+    const result = await window.DtekBackend.lookupByPhone(rawPhone);
+    if (result?.found) applyPhoneLookupResult(result, rawPhone);
+  } catch (error) {
+    console.warn("No se pudo buscar por teléfono", error);
+  } finally {
+    phoneLookupBusy = false;
+    input?.classList.remove("phone-lookup-checking");
+  }
+}
+
+function applyPhoneLookupResult(result, rawPhone) {
+  const vehicle = (result.vehicles || [])[0];
+  if (vehicle && (vehicle.brand || vehicle.line)) {
+    linkedAgendaVehicle = null;
+    linkedAgendaVehicleId = "";
+    applyVehicleToAgendaFields(vehicle);
+    window.DtekSelectorPro?.updateVehicleCascade?.();
+  }
+
+  const holder = qs("#linkedVehicleBanner");
+  if (holder) {
+    const carSummary = vehicle ? [vehicle.brand, vehicle.line, vehicle.year].filter(Boolean).join(" ") : "";
+    holder.classList.remove("hidden-field");
+    holder.innerHTML = `<div class="linked-vehicle-card dtek-glass">
+      <span class="eyebrow">✓ Hola de nuevo</span>
+      <strong>${safeText(result.name || "")}</strong>
+      <small>${safeText(carSummary || "Ya tenemos tus datos guardados.")}</small>
+      <button class="linked-vehicle-switch-v31" type="button" data-manual-vehicle>Es otro carro, quiero escribirlo</button>
+    </div>`;
+  }
+
+  qs("#phoneLookupInput")?.classList.add("phone-lookup-found");
+
+  if (result.name) setFieldValue("#clientName", result.name);
+  setFieldValue("#clientPhone", rawPhone);
+  if (result.email) setFieldValue("#clientEmail", result.email);
+  if (result.city) setFieldValue("#clientCity", result.city);
+  if (result.location) setFieldValue("#clientAddress", result.location);
+
+  compactSmartAgendaFields?.();
+  updateAgendaSummary();
+  setAgendaStepMessage(`Encontramos tus datos${result.name ? `, ${result.name.split(" ")[0]}` : ""} — revisá el carro y seguí.`);
+}
+
 function serviceMiniCard(service) {
   return `<button type="button" class="service-mini-card dtek-glass" data-agenda-service="${safeText(service.id)}">
     <span>${safeText(service.category)}</span>
@@ -2397,6 +2479,7 @@ function init() {
   renderAgendaPage();
   loadLinkedVehicleFromUrl();
   loadManualVehicleFromUrl();
+  wirePhoneLookup();
   renderAdminPage();
   renderFaqs();
   setupEvents();

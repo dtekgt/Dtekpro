@@ -2802,6 +2802,11 @@ code {
 .booking-step-head-v25 > span { color:var(--v25-red); font-size:11px; font-weight:850; text-transform:uppercase; }
 .booking-step-head-v25 h2 { margin:6px 0 7px; font-size:30px; letter-spacing:-.04em; }
 .booking-step-head-v25 p { margin:0; color:var(--v25-muted); }
+.phone-lookup-v31 { margin-bottom:20px; }
+.phone-lookup-v31 label { display:grid; gap:7px; color:var(--v25-muted); font-size:11px; font-weight:800; text-transform:uppercase; }
+.phone-lookup-v31 input { width:100%; min-height:48px; padding:11px 12px; border:1px solid var(--v25-line-dark); border-radius:5px; color:var(--v25-ink); background:rgba(255,255,255,.05); font-family:inherit; font-size:16px; font-weight:500; line-height:1.3; }
+.phone-lookup-v31 input.phone-lookup-checking { border-color:var(--v25-muted); opacity:.7; }
+.phone-lookup-v31 input.phone-lookup-found { border-color:#3fbf82; }
 .vehicle-cascade-v25, .confirm-grid-v25 { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:14px; }
 .vehicle-cascade-v25 label, .confirm-grid-v25 label { display:grid; gap:7px; color:var(--v25-muted); font-size:11px; font-weight:800; text-transform:uppercase; }
 .vehicle-cascade-v25 label.full, .confirm-grid-v25 label.full { grid-column:1/-1; }

@@ -482,6 +482,14 @@ const DtekBackend = (() => {
     return data || [];
   }
 
+  async function lookupByPhone(phone) {
+    const sb = client();
+    if (!sb) return { found: false };
+    const { data, error } = await sb.rpc("dtek_lookup_by_phone", { p_phone: phone });
+    if (error) throw error;
+    return data || { found: false };
+  }
+
   async function createPublicAppointment(payload) {
     const sb = client();
     if (!sb) throw new Error("Supabase no está configurado todavía.");
@@ -921,6 +929,7 @@ const DtekBackend = (() => {
     deleteBlockedTime,
     listBlockedTimes,
     getBusyBlocks,
+    lookupByPhone,
     createPublicAppointment,
     createPublicReferral,
     createMyReferral,
