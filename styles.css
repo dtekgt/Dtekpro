@@ -2802,6 +2802,11 @@ code {
 .booking-step-head-v25 > span { color:var(--v25-red); font-size:11px; font-weight:850; text-transform:uppercase; }
 .booking-step-head-v25 h2 { margin:6px 0 7px; font-size:30px; letter-spacing:-.04em; }
 .booking-step-head-v25 p { margin:0; color:var(--v25-muted); }
+.agenda-quick-chips-v31 { margin:0 0 22px; padding:16px 18px; border:1px solid var(--v25-line); border-radius:14px; background:rgba(227,32,37,.04); }
+.agenda-quick-chips-v31 .eyebrow { display:block; margin-bottom:10px; color:var(--v25-red); font-size:11px; font-weight:800; text-transform:uppercase; letter-spacing:.04em; }
+.agenda-quick-chips-row-v31 { display:flex; flex-wrap:wrap; gap:9px; }
+.agenda-quick-chips-row-v31 button { border:1px solid var(--v25-line-dark); border-radius:999px; background:rgba(255,255,255,.04); color:var(--v25-ink); padding:10px 16px; font-size:13px; font-family:inherit; font-weight:600; cursor:pointer; transition:border-color .18s ease, background .18s ease, transform .18s ease; }
+.agenda-quick-chips-row-v31 button:hover { border-color:var(--v25-red); background:rgba(227,32,37,.08); transform:translateY(-1px); }
 .phone-lookup-v31 { margin-bottom:20px; }
 .phone-lookup-v31 label { display:grid; gap:7px; color:var(--v25-muted); font-size:11px; font-weight:800; text-transform:uppercase; }
 .phone-lookup-v31 input { width:100%; min-height:48px; padding:11px 12px; border:1px solid var(--v25-line-dark); border-radius:5px; color:var(--v25-ink); background:rgba(255,255,255,.05); font-family:inherit; font-size:16px; font-weight:500; line-height:1.3; }

@@ -2119,6 +2119,30 @@ function setupEvents() {
       return;
     }
 
+    const quickService = event.target.closest("[data-quick-service]");
+    if (quickService) {
+      chooseAgendaService(quickService.dataset.quickService);
+      qs("#selectedServiceBanner")?.scrollIntoView({ behavior: "smooth", block: "center" });
+      return;
+    }
+
+    const quickSymptom = event.target.closest("[data-quick-symptom]");
+    if (quickSymptom) {
+      const symptom = (typeof dtekSymptomGroups !== "undefined") ? dtekSymptomGroups.find(item => item.id === quickSymptom.dataset.quickSymptom) : null;
+      if (symptom) {
+        selectedSymptomLabel = symptom.label;
+        renderAgendaServiceOptions(symptom.recommended, `Recomendado para: ${symptom.label}`);
+        qs("#agendaServicePanel")?.scrollIntoView({ behavior: "smooth", block: "center" });
+      }
+      return;
+    }
+
+    const quickOther = event.target.closest("[data-quick-other]");
+    if (quickOther) {
+      qs("#agendaPathChoice")?.scrollIntoView({ behavior: "smooth", block: "center" });
+      return;
+    }
+
     const agendaMode = event.target.closest("[data-agenda-mode]");
     if (agendaMode) {
       if (agendaMode.dataset.agendaMode === "services") {
