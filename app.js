@@ -30,6 +30,35 @@ function findService(id) {
   return dtekServices.find(service => service.id === id);
 }
 
+// Para trabajos que no estan en el catalogo (repuesto que hay que conseguir,
+// falla que no se sabe que es hasta verla): el link que arma el panel admin
+// trae la descripcion y el estimado en la URL. Se registra como un servicio
+// mas antes de que arranque la agenda, asi todo lo demas (resumen, mensaje
+// de WhatsApp, calculo de horario) funciona igual que con uno del catalogo,
+// sin duplicar esa logica. No aparece en el catalogo publico porque ningun
+// grupo de categorias lo referencia - solo se llega por el link directo.
+function registerCustomQuoteService() {
+  const descripcion = params.get("descripcion");
+  if (!descripcion || findService("custom-quote")) return;
+  const estimado = Number(params.get("estimado")) || 0;
+  const durationMinutes = Number(params.get("duracion")) || 60;
+  dtekServices.push({
+    id: "custom-quote",
+    name: descripcion,
+    category: "Cotización personalizada",
+    partsIncluded: "",
+    price: estimado ? `Desde Q${estimado.toLocaleString("es-GT")}` : "Cotización a confirmar",
+    duration: `${durationMinutes} min`,
+    durationMinutes,
+    bufferBefore: 30,
+    bufferAfter: 30,
+    totalBlockMinutes: durationMinutes + 60,
+    directBooking: true,
+    short: descripcion,
+    description: `${descripcion} — cotización personalizada, sujeta a confirmación final según lo que se encuentre en la revisión.`
+  });
+}
+
 function estimateServicePoints(service) {
   const match = String(service?.price || "").replace(/,/g, "").match(/(\d+(?:\.\d+)?)/);
   const price = match ? Number(match[1]) : 0;
@@ -2353,6 +2382,7 @@ function markActiveNav() {
 }
 
 function init() {
+  registerCustomQuoteService();
   renderPreviewServices();
   renderFilters();
   renderServices();

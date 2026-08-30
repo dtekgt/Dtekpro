@@ -115,9 +115,15 @@
               <option value="no_seguro">No estoy seguro</option>
             </select>
           </label>
-          <label>Servicio *<select id="quickService" required><option value="">Elegir servicio</option></select></label>
+          <label>Servicio del catálogo<select id="quickService"><option value="">— No es del catálogo —</option></select></label>
           <label>Nombre del cliente<input id="quickClientName" type="text" placeholder="Opcional" /></label>
           <label>Teléfono del cliente<input id="quickClientPhone" type="tel" placeholder="502XXXXXXXX — para el botón de WhatsApp" /></label>
+        </div>
+        <div class="section-head"><div><span class="eyebrow">Si no es del catálogo</span><h3>Cotización personalizada <span class="muted">reemplaza al servicio de arriba si la llenás</span></h3></div></div>
+        <div class="two-column-grid compact-grid">
+          <label class="full-span">Descripción del trabajo<input id="quickCustomDesc" type="text" placeholder="Ej: soldar soporte de motor roto" /></label>
+          <label>Estimado en Q<input id="quickCustomPrice" type="number" min="0" placeholder="1200" /></label>
+          <label>Duración estimada (min)<input id="quickCustomDuration" type="number" min="15" step="15" placeholder="60" /></label>
         </div>
         <button class="btn btn-primary" type="submit">Generar link</button>
       </form>

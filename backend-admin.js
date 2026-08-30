@@ -961,6 +961,14 @@ adminQs("#quickScheduleForm")?.addEventListener("submit", (event) => {
   const serviceId = adminQs("#quickService")?.value || "";
   const clientName = adminQs("#quickClientName")?.value.trim() || "";
   const clientPhone = adminQs("#quickClientPhone")?.value.trim() || "";
+  const customDesc = adminQs("#quickCustomDesc")?.value.trim() || "";
+  const customPrice = adminQs("#quickCustomPrice")?.value || "";
+  const customDuration = adminQs("#quickCustomDuration")?.value || "";
+
+  if (!serviceId && !customDesc) {
+    provisionStatus("Elegí un servicio del catálogo o escribí una descripción para cotizar aparte.", "error");
+    return;
+  }
 
   const qp = new URLSearchParams();
   qp.set("marca", brand);
@@ -968,14 +976,27 @@ adminQs("#quickScheduleForm")?.addEventListener("submit", (event) => {
   if (year) qp.set("anio", year);
   if (engine) qp.set("motor", engine);
   if (moves) qp.set("arranca", moves);
-  qp.set("servicio", serviceId);
   if (clientName) qp.set("nombre", clientName);
   if (clientPhone) qp.set("telefono", clientPhone);
 
+  let serviceName;
+  let precioTexto;
+  if (customDesc) {
+    qp.set("servicio", "custom-quote");
+    qp.set("descripcion", customDesc);
+    if (customPrice) qp.set("estimado", customPrice);
+    if (customDuration) qp.set("duracion", customDuration);
+    serviceName = customDesc;
+    precioTexto = customPrice ? `, estimado desde Q${Number(customPrice).toLocaleString("es-GT")}` : "";
+  } else {
+    qp.set("servicio", serviceId);
+    serviceName = window.DTEK_SERVICES?.find(s => s.id === serviceId)?.name || "el servicio";
+    precioTexto = "";
+  }
+
   const link = `${window.location.origin}/agenda.html?${qp.toString()}`;
-  const serviceName = window.DTEK_SERVICES?.find(s => s.id === serviceId)?.name || "el servicio";
   const primerNombre = clientName.split(" ")[0] || "";
-  const mensaje = `Hola${primerNombre ? " " + primerNombre : ""}, quedó listo tu pedido de ${serviceName} para tu ${brand} ${line}. Elegí el día y la hora que mejor te quede aquí: ${link}`;
+  const mensaje = `Hola${primerNombre ? " " + primerNombre : ""}, quedó listo tu pedido de ${serviceName} para tu ${brand} ${line}${precioTexto}. Elegí el día y la hora que mejor te quede aquí: ${link}`;
 
   const resultBox = adminQs("#quickScheduleResult");
   if (resultBox) {
