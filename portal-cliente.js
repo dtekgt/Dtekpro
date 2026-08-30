@@ -234,7 +234,8 @@ function accessErrorMessage(error) {
   if (code === "USERNAME_LOGIN_NOT_READY") return "El acceso por usuario todavía necesita activar la actualización de base de datos.";
   if (message.includes("email rate limit")) return "Hay demasiados intentos seguidos. Probá nuevamente más tarde.";
   if (message.includes("invalid login credentials")) return "La contraseña no coincide con ese correo o usuario.";
-  return error?.message || "No pudimos completar el acceso.";
+  console.warn("Error de acceso sin mapear:", error);
+  return "No pudimos completar el acceso. Revisá tus datos e intentá de nuevo, o escribinos por WhatsApp.";
 }
 
 function referralStatusLabel(status) {
@@ -1106,6 +1107,7 @@ async function openVehicleProfile(vehicleId, options = {}) {
 
   let history = clientPortalState.activeVehicleHistory || [];
   if (refreshHistory || String(clientPortalState.activeVehicleId) !== String(vehicleId)) history = [];
+  let historyLoadFailed = false;
   if (refreshHistory) {
     setHtml("#vehicleTimeline", `<div class="client-loading-copy">Cargando el historial...</div>`);
     try {
@@ -1114,6 +1116,7 @@ async function openVehicleProfile(vehicleId, options = {}) {
       console.warn(error);
       setHtml("#vehicleTimeline", renderRetry(friendlyError(), "vehicle-history"));
       history = [];
+      historyLoadFailed = true;
     }
     clientPortalState.activeVehicleHistory = history;
     clientPortalState.vehicleHistoryMap = clientPortalState.vehicleHistoryMap || {};
@@ -1121,7 +1124,7 @@ async function openVehicleProfile(vehicleId, options = {}) {
   }
 
   renderOverview();
-  setHtml("#vehicleTimeline", renderTimeline(history));
+  if (!historyLoadFailed) setHtml("#vehicleTimeline", renderTimeline(history));
   let healthRecords = clientPortalState.vehicleHealthMap?.[vehicle.id] || [];
   try {
     healthRecords = await DtekBackend.listMyVehicleHealth(vehicle.id);
@@ -1377,7 +1380,7 @@ function renderRewardCatalog(rewards = []) {
       <b>${clientSafe(reward.points_cost)} pts</b>
       <button type="button" data-redeem-reward="${clientSafe(reward.id)}" ${canRedeem ? "" : "disabled"}>${canRedeem ? "Usar puntos" : `Te faltan ${Math.max(0, Number(reward.points_cost) - balance)}`}</button>
     </article>`;
-  }).join("") : `<div class="client-empty-copy"><strong>Canjes no disponibles</strong></div>`;
+  }).join("") : `<div class="client-empty-copy"><strong>Todavía no hay premios cargados.</strong><p>Seguí ganando puntos con tus servicios — cuando haya premios disponibles, van a aparecer acá.</p></div>`;
 }
 
 function renderLoyaltyState() {
@@ -1439,12 +1442,11 @@ async function loadClientLoyalty() {
         referrals_total: Number(legacy?.referrals_total || 0), referrals_converted: Number(legacy?.referrals_converted || 0), referrals_pending: Number(legacy?.referrals_pending || 0)
       };
       clientPortalState.rewards = DEFAULT_REWARDS;
-      panelStatus("#pointsStatus", "Puntos todavía no están activos.", "info");
     }
 
     if (referralsHolder) referralsHolder.innerHTML = clientPortalState.referrals.length
       ? clientPortalState.referrals.map(renderReferral).join("")
-      : `<div class="client-empty-copy"><strong>Sin referidos</strong></div>`;
+      : `<div class="client-empty-copy"><strong>Todavía no registraste ninguna recomendación.</strong><p>Cuando alguien complete su primer servicio con nosotros, va a aparecer acá y sumás 100 puntos.</p></div>`;
     renderLoyaltyState();
   } catch (error) {
     console.warn(error);
@@ -1570,7 +1572,7 @@ function initClientPortal() {
       clientStatus("Revisá tu correo. Ahí vas a poder crear una contraseña nueva.", "ok");
     } catch (error) {
       console.warn("Password recovery:", error);
-      clientStatus(error.message || "No se pudo enviar el enlace.", "error");
+      clientStatus("No pudimos enviar el enlace. Revisá que el correo esté bien escrito e intentá de nuevo.", "error");
     }
   });
 
@@ -1770,7 +1772,7 @@ document.addEventListener("click", async (event) => {
         await loadClientLoyalty();
       } catch (error) {
         console.warn(error);
-        panelStatus("#pointsStatus", error?.message || "No pudimos hacer el canje.", "error");
+        panelStatus("#pointsStatus", "No pudimos hacer el canje. Revisá tu conexión e intentá de nuevo.", "error");
       }
     }
 
@@ -1817,7 +1819,7 @@ document.addEventListener("click", async (event) => {
       renderOverview();
     } catch (error) {
       console.warn(error);
-      panelStatus("#profileFormStatus", "No pudimos guardar los cambios. Intentá de nuevo.", "error");
+      panelStatus("#profileFormStatus", "No pudimos guardar los cambios. Revisá los datos e intentá de nuevo.", "error");
     }
   });
 
@@ -1862,7 +1864,7 @@ document.addEventListener("click", async (event) => {
       await loadClientAppointments();
     } catch (error) {
       console.warn(error);
-      panelStatus("#claimStatus", "No pudimos vincular las citas en este momento.", "error");
+      panelStatus("#claimStatus", "No pudimos vincular tus citas anteriores. Escribinos por WhatsApp con tu número y las agregamos nosotros.", "error");
     }
   });
 
@@ -1883,7 +1885,7 @@ document.addEventListener("click", async (event) => {
       await loadClientLoyalty();
     } catch (error) {
       console.warn(error);
-      panelStatus("#clientReferralStatus", "No pudimos registrar la recomendación. Intentá de nuevo.", "error");
+      panelStatus("#clientReferralStatus", "No pudimos registrar la recomendación. Revisá los datos e intentá de nuevo.", "error");
     } finally {
       if (submit) { submit.disabled = false; submit.textContent = "Registrar"; }
     }

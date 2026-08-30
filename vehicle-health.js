@@ -205,7 +205,7 @@
       <div class="care-row-main">
         <div class="care-row-title"><strong>${esc(component.name)}</strong><small>${esc(interval)}</small></div>
         ${state.progress == null
-          ? `<div class="care-unverified-line"><i></i><i></i><i></i><span>${component.mode === "interval" ? "No sabemos cuándo fue el último servicio" : "Todavía no lo hemos revisado"}</span></div>`
+          ? `<div class="care-unverified-line"><i></i><i></i><i></i><span>${esc(state.tone === "recorded" ? "Hay un trabajo relacionado, pero falta confirmar el estado." : component.mode === "interval" ? "No sabemos cuándo se hizo por última vez." : "Todavía no lo hemos revisado.")}</span></div>`
           : component.mode === "interval" ? dualTracks
           : `<div class="care-track" role="progressbar" aria-label="${esc(component.name)}" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${pct}"><i style="width:${pct}%"></i><b style="left:${pct}%"></b></div>`}
         <div class="care-row-foot"><span>${esc(state.detail)}</span><em>${esc(sourceLabel(state.source))}${state.date ? ` · ${esc(fmtDate(state.date))}` : ""}</em></div>

@@ -46,7 +46,10 @@ function initPublicReferral() {
       referralStatus("¡Listo! Cuando complete su primer trabajo, ganás 100 puntos D-TEK.", "ok");
     } catch (error) {
       const message = String(error?.message || error || "No se pudo registrar.");
-      referralStatus(message.includes("dtek_public_create_referral") ? "Falta activar el SQL 12 de referidos en Supabase." : message, "error");
+      if (message.includes("dtek_public_create_referral")) console.warn("Falta activar el SQL 12 de referidos en Supabase.");
+      referralStatus(message.includes("dtek_public_create_referral")
+        ? "No pudimos registrar tu recomendación en este momento. Escribinos por WhatsApp y la registramos nosotros."
+        : message, "error");
     } finally {
       if (submit) { submit.disabled = false; submit.textContent = "Registrar recomendación"; }
     }

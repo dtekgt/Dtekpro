@@ -196,7 +196,12 @@
       window.clearInterval(reintento);
       reintento = window.setInterval(() => {
         intentos += 1;
-        if (abrir(m[1], { desdeRuta: true }) || intentos > 30) window.clearInterval(reintento);
+        if (abrir(m[1], { desdeRuta: true })) { window.clearInterval(reintento); return; }
+        if (intentos > 30) {
+          window.clearInterval(reintento);
+          window.history.pushState({}, "", window.location.pathname + window.location.search);
+          alert("No pudimos abrir ese servicio. Puede que el enlace esté vencido — buscalo en el historial de tu carro.");
+        }
       }, 500);
     }
   }

@@ -5045,6 +5045,12 @@ body.agenda-service-selected .agenda-start-compact-v2741 {
 .page-client-v23 .care-track{position:relative;height:8px;border-radius:999px;background:#dfe2e7;overflow:visible}.page-client-v23 .care-track>i{display:block;height:100%;border-radius:inherit;background:linear-gradient(90deg,#ef3338,#f4b342,#45b886)}.page-client-v23 .care-track>b{position:absolute;top:50%;width:12px;height:12px;transform:translate(-50%,-50%);border:2px solid #fff;border-radius:50%;background:#272c34;box-shadow:0 1px 4px rgba(0,0,0,.22)}.page-client-v23 .care-track.is-missing{background:repeating-linear-gradient(90deg,#d9dde3 0 7px,transparent 7px 12px)}.page-client-v23 .care-track.is-missing>b{display:none}
 .page-client-v23 .care-row-state{text-align:right}.page-client-v23 .care-row-state b,.page-client-v23 .care-row-state span{display:block}.page-client-v23 .care-row-state b{font-size:11px}.page-client-v23 .care-row-state span{margin-top:5px;color:var(--client-muted);font-size:18px;font-weight:900}
 .page-client-v23 .care-unverified-line{display:flex;align-items:center;gap:5px;margin-top:14px;color:var(--client-muted);font-size:10px}.page-client-v23 .care-unverified-line i{width:7px;height:7px;border-radius:50%;background:#d7dbe1}
+.page-client-v23 .care-row[data-care-tone="due"]{border-left:3px solid var(--client-red)}
+.page-client-v23 .care-row[data-care-tone="soon"]{border-left:3px solid #d68a12}
+.page-client-v23 .care-row[data-care-tone="due"] .care-row-state b{color:var(--client-red)}
+.page-client-v23 .care-row[data-care-tone="soon"] .care-row-state b{color:#d68a12}
+.page-client-v23 .care-command.due{background:linear-gradient(135deg,#3a1113,#272b33);border-color:rgba(239,51,56,.4)}
+.page-client-v23 .care-command.soon{background:linear-gradient(135deg,#3a2a10,#272b33);border-color:rgba(214,138,18,.4)}
 .page-client-v23 .care-note{margin-top:10px;color:var(--client-muted);font-size:10px}.page-client-v23 .care-note p{margin:6px 0 0;line-height:1.45}@media(max-width:720px){
   .page-client-v23 .vehicle-care-board-head{align-items:flex-start}.page-client-v23 .vehicle-care-tools{width:100%;justify-content:space-between}
   .page-client-v23 .care-command{grid-template-columns:1fr 92px;padding:20px;gap:12px}.page-client-v23 .care-coverage{width:88px}.page-client-v23 .care-coverage strong{font-size:19px}.page-client-v23 .care-command-stats{gap:12px}

@@ -211,7 +211,8 @@ function closeReservedWhatsAppWindow(reserved) {
 function deliverWhatsApp(message, reserved = null) {
   if (!whatsAppReady()) {
     closeReservedWhatsAppWindow(reserved);
-    alert("Falta configurar correctamente el WhatsApp oficial de D-TEK en services-data.js.");
+    console.error("WhatsApp de D-TEK mal configurado — revisar WA_NUMBER en services-data.js");
+    alert("No pudimos abrir WhatsApp en este momento. Escribinos directo al 4708-2329 y te ayudamos con tu solicitud.");
     return false;
   }
   const href = waLink(message);
@@ -2013,7 +2014,7 @@ async function saveAppointment() {
   }
 
   console.error("La agenda real no está configurada en esta carpeta.");
-  return { error: true, message: "La agenda real no está activa en esta carpeta. Revisá configuración antes de publicar." };
+  return { error: true, message: "No pudimos conectar con el sistema de citas en este momento." };
 }
 
 const DTEK_ADMIN_SESSION_KEY = "dtek_admin_unlocked";
@@ -2459,13 +2460,13 @@ function setupEvents() {
       }
       if (saved.error) {
         closeReservedWhatsAppWindow(waWindow);
-        setBookingStatus(`No se pudo guardar la solicitud: ${saved.message}.`, "error");
+        setBookingStatus("No pudimos guardar tu solicitud. Revisá tu conexión e intentá de nuevo, o escribinos por WhatsApp.", "error");
         console.error("DTEK_FORM_SAVE_ERROR:", saved);
         return;
       }
       if (!saved.supabase || !saved.id) {
         closeReservedWhatsAppWindow(waWindow);
-        setBookingStatus("La solicitud no quedó confirmada en el sistema. Revisá consola antes de publicar.", "error");
+        setBookingStatus("No pudimos confirmar tu solicitud en el sistema. Intentá de nuevo, o escribinos por WhatsApp para agendar directo.", "error");
         console.error("DTEK_FORM_SAVE_WITHOUT_SUPABASE_ID:", saved);
         return;
       }

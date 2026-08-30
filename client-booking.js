@@ -224,7 +224,7 @@
       return "No pudimos vincular ese carro con tu perfil. Actualizá la página y probá otra vez.";
     }
     if (message.includes("correo requerido") || message.includes("email")) {
-      return "La agenda todavía está pidiendo correo para este perfil. Ejecutá la actualización v30.3.3 en Supabase.";
+      return "Necesitamos un correo en tu perfil para poder agendar. Agregalo en Cuenta y volvé a intentar.";
     }
     return "No pudimos guardar la solicitud. Revisá tu conexión e intentá de nuevo.";
   }
