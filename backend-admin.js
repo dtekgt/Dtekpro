@@ -951,6 +951,35 @@ if (quickServiceSelect) {
     (window.DTEK_SERVICES || []).map(s => `<option value="${adminSafe(s.id)}">${adminSafe(s.name)} · ${adminSafe(s.price)}</option>`).join("");
 }
 
+let quickPhoneLookupBusy = false;
+let quickPhoneLookupLastKey = "";
+adminQs("#quickClientPhone")?.addEventListener("blur", async (event) => {
+  const raw = event.target.value.trim();
+  const key = raw.replace(/\D/g, "").slice(-8);
+  if (key.length < 8 || key === quickPhoneLookupLastKey || quickPhoneLookupBusy) return;
+  quickPhoneLookupBusy = true;
+  quickPhoneLookupLastKey = key;
+  try {
+    const result = await DtekBackend.lookupByPhone(raw);
+    if (!result?.found) return;
+    const vehicle = (result.vehicles || [])[0];
+    if (vehicle) {
+      if (vehicle.brand) adminQs("#quickBrand").value = vehicle.brand;
+      if (vehicle.line) adminQs("#quickLine").value = vehicle.line;
+      if (vehicle.year) adminQs("#quickYear").value = vehicle.year;
+      if (vehicle.engine) adminQs("#quickEngine").value = vehicle.engine;
+    }
+    if (result.name && !adminQs("#quickClientName").value.trim()) adminQs("#quickClientName").value = result.name;
+    if (result.email) adminQs("#quickClientEmail").value = result.email;
+    if (result.city) adminQs("#quickClientCity").value = result.city;
+    if (result.location) adminQs("#quickClientAddress").value = result.location;
+  } catch (error) {
+    console.warn("No se pudo buscar por teléfono", error);
+  } finally {
+    quickPhoneLookupBusy = false;
+  }
+});
+
 adminQs("#quickScheduleForm")?.addEventListener("submit", (event) => {
   event.preventDefault();
   const brand = adminQs("#quickBrand")?.value.trim() || "";
