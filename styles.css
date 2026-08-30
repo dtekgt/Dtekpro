@@ -2959,14 +2959,14 @@ code {
   .booking-summary-v25 { padding:14px; }
   .public-footer-v25 { display:grid; grid-template-columns:1fr; padding:28px 18px 88px; }
   .public-footer-v25 nav { flex-wrap:wrap; }
-  .public-mobile-nav-v25 { position:fixed; z-index:90; right:0; bottom:0; left:0; height:64px; display:grid; grid-template-columns:repeat(4,1fr); padding-bottom:env(safe-area-inset-bottom); border-top:1px solid var(--v25-line); background:rgba(8,10,15,.78); backdrop-filter:blur(20px) saturate(140%); -webkit-backdrop-filter:blur(20px) saturate(140%); }
-  .public-mobile-nav-v25 a { display:grid; place-items:center; align-content:center; gap:2px; color:#7d8390; text-decoration:none; transition:color .15s ease; }
+  .public-mobile-nav-v25 { position:fixed; z-index:90; right:0; bottom:0; left:0; height:64px; display:grid; grid-template-columns:repeat(5,1fr); padding-bottom:env(safe-area-inset-bottom); border-top:1px solid var(--v25-line); background:rgba(8,10,15,.78); backdrop-filter:blur(20px) saturate(140%); -webkit-backdrop-filter:blur(20px) saturate(140%); }
+  .public-mobile-nav-v25 a { display:grid; place-items:center; align-content:center; gap:2px; padding:0 2px; color:#7d8390; text-decoration:none; text-align:center; transition:color .15s ease; }
   .public-mobile-nav-v25 a.active { color:var(--v25-red); }
   .public-mobile-nav-v25 span { font-size:18px; }
   .public-mobile-nav-v25 .nav-icon-v25 { display:grid; place-items:center; }
-  .public-mobile-nav-v25 .nav-icon-v25 svg { width:21px; height:21px; }
+  .public-mobile-nav-v25 .nav-icon-v25 svg { width:20px; height:20px; }
   .public-mobile-nav-v25 a.active .nav-icon-v25 svg { stroke-width:2.1; }
-  .public-mobile-nav-v25 small { font-size:9px; font-weight:800; }
+  .public-mobile-nav-v25 small { font-size:8.5px; font-weight:800; line-height:1.15; }
   .page-client-v23 .client-booking-panel { width:100%; max-height:92vh; align-self:end; border-radius:16px 16px 0 0; }
   .page-client-v23 .client-booking-times { grid-template-columns:repeat(3,1fr); }
   .page-client-v23 .client-booking-progress span { font-size:9px; }
