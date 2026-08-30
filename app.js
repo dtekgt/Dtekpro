@@ -393,9 +393,11 @@ function renderCompactPicker(mode, id = "", previous = null) {
   updateCompactPickerState();
 }
 
+let lastFocusedBeforePicker = null;
 function openCompactPicker(mode, id = "", previous = null) {
   const dialog = qs("#servicePickerDialog");
   if (!dialog) return;
+  lastFocusedBeforePicker = document.activeElement;
   renderCompactPicker(mode, id, previous);
   dialog.classList.remove("hidden-field");
   document.body.classList.add("service-picker-open-v2741");
@@ -406,6 +408,8 @@ function closeCompactPicker() {
   const dialog = qs("#servicePickerDialog");
   dialog?.classList.add("hidden-field");
   document.body.classList.remove("service-picker-open-v2741");
+  lastFocusedBeforePicker?.focus?.();
+  lastFocusedBeforePicker = null;
 }
 
 function hideAutoField(selector, shouldHide) {
@@ -2075,10 +2079,10 @@ function renderAdminAppointments() {
 function renderFaqs() {
   const holder = qs("#faqList");
   if (!holder) return;
-  holder.innerHTML = dtekFaqs.map(([q, a]) => `
+  holder.innerHTML = dtekFaqs.map(([q, a], i) => `
     <article class="faq-item dtek-glass">
-      <button class="faq-question" type="button">${safeText(q)}<span>+</span></button>
-      <div class="faq-answer"><p>${safeText(a)}</p></div>
+      <button class="faq-question" type="button" aria-expanded="false" aria-controls="faqAnswer${i}">${safeText(q)}<span aria-hidden="true">+</span></button>
+      <div class="faq-answer" id="faqAnswer${i}"><p>${safeText(a)}</p></div>
     </article>
   `).join("");
 }
@@ -2359,7 +2363,8 @@ function setupEvents() {
 
     const faqButton = event.target.closest(".faq-question");
     if (faqButton) {
-      faqButton.closest(".faq-item").classList.toggle("open");
+      const open = faqButton.closest(".faq-item").classList.toggle("open");
+      faqButton.setAttribute("aria-expanded", String(open));
     }
   });
 

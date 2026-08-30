@@ -176,6 +176,13 @@ code{color:var(--cyan)}
   padding: 0 1rem;
   outline: none;
 }
+.stacked-form input:focus-visible,
+.stacked-form textarea:focus-visible,
+.stacked-form select:focus-visible {
+  outline: none;
+  border-color: rgba(227,32,37,.6);
+  box-shadow: 0 0 0 3px rgba(227,32,37,.28);
+}
 .status-box {
   display: grid;
   gap: 0.6rem;
@@ -2821,6 +2828,7 @@ code {
 .booking-step-footer-v25 > a { color:var(--v25-ink); font-size:12px; font-weight:800; }
 
 .booking-success-v25 { outline:none; }
+.booking-success-v25:focus-visible { box-shadow: var(--v25-glow-red); border-radius: 24px; }
 .booking-success-card-v25 { max-width:640px; margin:0 auto; padding:44px 36px; border:1px solid var(--v25-glass-border); background:var(--v25-glass-strong); backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px); text-align:center; animation:successRise .45s ease both; }
 @keyframes successRise { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
 .success-check-v25 { width:64px; height:64px; margin:0 auto 18px; display:grid; place-items:center; border-radius:50%; background:#27795b; color:#fff; font-size:30px; font-weight:900; animation:successPop .4s cubic-bezier(.2,1.4,.4,1) .1s both; }
@@ -3820,6 +3828,9 @@ html, body { max-width: 100%; overflow-x: hidden; }
   background: rgba(255,255,255,.05);
   outline: none;
 }
+.page-agenda-v25-pro .selector-service-pick.selected:focus-visible {
+  box-shadow: var(--v25-glow-red);
+}
 .page-agenda-v25-pro .service-picked-banner-v25 p {
   margin: 6px 0 0;
   color: var(--v25-muted);
@@ -4499,7 +4510,7 @@ body.agenda-service-selected .agenda-start-compact-v2741 {
   letter-spacing: .08em;
   text-transform: uppercase;
 }
-.additional-catalog-details-v2741 > summary strong { font-size: 18px; }
+.additional-catalog-details-v2741 > summary h2 { margin: 0; font-size: 18px; font-weight: 700; }
 .additional-catalog-details-v2741 > summary em { color: var(--v25-muted); font-size: 11px; font-style: normal; }
 .additional-catalog-details-v2741 > summary b {
   flex: 0 0 auto;
@@ -4513,7 +4524,7 @@ body.agenda-service-selected .agenda-start-compact-v2741 {
 .additional-catalog-details-v2741[open] > summary b::after { content: " menos"; }
 .additional-catalog-details-v2741 > .additional-catalog-grid-v274 { padding: 12px; }@media (max-width: 560px){
   .additional-catalog-details-v2741 > summary { padding: 13px; }
-  .additional-catalog-details-v2741 > summary strong { font-size: 16px; }
+  .additional-catalog-details-v2741 > summary h2 { font-size: 16px; }
   .additional-catalog-details-v2741 > summary em { font-size: 10px; }
 }
 
@@ -4631,7 +4642,7 @@ body.agenda-service-selected .agenda-start-compact-v2741 {
 }
 .page-home-cinema .cinema-wa-expand.open{display:flex}
 .page-home-cinema .cinema-wa-expand>span{font-size:12px;color:rgba(255,255,255,.72)}
-.page-home-cinema .cinema-wa-expand>span em{font-style:normal;color:rgba(255,255,255,.42)}
+.page-home-cinema .cinema-wa-expand>span em{font-style:normal;color:rgba(255,255,255,.64)}
 .page-home-cinema .cinema-wa-chips{display:flex;flex-wrap:wrap;gap:8px}
 .page-home-cinema .cinema-wa-chips button{border:1px solid rgba(255,255,255,.18);border-radius:999px;background:rgba(255,255,255,.04);color:#fff;padding:8px 14px;font-size:12px;font-family:inherit;cursor:pointer;transition:background .2s,border-color .2s}
 .page-home-cinema .cinema-wa-chips button.active{background:#25d366;border-color:#25d366;color:#04160c;font-weight:700}

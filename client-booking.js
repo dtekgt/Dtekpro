@@ -7,6 +7,7 @@
   const groups = window.DTEK_SERVICE_GROUPS || [];
   const symptoms = window.DTEK_SYMPTOM_GROUPS || [];
   let booking = { step: 1, vehicle: null, service: null, date: "", slot: null, busy: {} };
+  let lastFocusedBeforeBooking = null;
 
   function serviceById(id) { return services.find(service => service.id === id); }
   function estimatedPoints(service) {
@@ -149,9 +150,11 @@
     // donde el vehículo se escribe a mano y la cita se agenda igual.
     if (!booking.vehicle) { window.location.href = "agenda.html?from=garage"; return; }
     booking.service = null; booking.slot = null; booking.date = ""; booking.busy = {};
+    lastFocusedBeforeBooking = document.activeElement;
     const modal = $("#clientBookingModal");
     modal.setAttribute("aria-hidden", "false");
     document.body.classList.add("client-modal-open");
+    window.setTimeout(() => modal.querySelector("[data-close-client-booking]")?.focus(), 60);
     $("#clientBookingVehicleLabel").textContent = booking.vehicle.nickname || `${booking.vehicle.brand} ${booking.vehicle.line} ${booking.vehicle.year || ""}`;
     const useSymptoms = trigger?.dataset.bookingSymptoms === "true";
     const symptomsChoice = $("[data-booking-symptoms]:not([data-open-client-booking])");
@@ -167,6 +170,8 @@
     $("#clientBookingModal")?.setAttribute("aria-hidden", "true");
     document.body.classList.remove("client-modal-open");
     $("#clientBookingStatus").textContent = "";
+    lastFocusedBeforeBooking?.focus?.();
+    lastFocusedBeforeBooking = null;
   }
 
   function updateClientVehicleCascade() {

@@ -446,7 +446,7 @@ function renderWorkOrderInspections(appointment = {}) {
         <option value="monitor">Vigilar</option>
         <option value="attention">Requiere atención</option>` : ""}
       </select>
-      <input type="text" data-inspection-note="${adminSafe(item.key)}" placeholder="Medición o nota opcional">
+      <input type="text" data-inspection-note="${adminSafe(item.key)}" aria-label="Medición o nota para ${adminSafe(item.name)}" placeholder="Medición o nota opcional">
       ${item.mode === "interval" ? `<div class="maintenance-interval-edit">
         <label>Intervalo meses<input type="number" min="1" step="1" value="${adminSafe(item.months || "")}" data-interval-months="${adminSafe(item.key)}"></label>
         <label>Intervalo km<input type="number" min="1" step="1" value="${adminSafe(item.km || "")}" data-interval-km="${adminSafe(item.key)}"></label>
@@ -473,10 +473,12 @@ function collectWorkOrderInspections() {
     });
 }
 
+let lastFocusedBeforeWorkOrder = null;
 function openWorkOrderModal(appointmentId) {
   const modal = adminQs("#workOrderModal");
   const form = adminQs("#workOrderForm");
   if (!modal || !form) return;
+  lastFocusedBeforeWorkOrder = document.activeElement;
   const appointment = dtekAdminAppointmentsCache.find(item => String(item.id) === String(appointmentId));
   dtekWorkOrderAppointmentId = appointmentId;
   const subtitle = adminQs("#workOrderModalSubtitle");
@@ -609,6 +611,8 @@ function bindLineas() {
 function closeWorkOrderModal() {
   adminQs("#workOrderModal")?.classList.add("hidden-field");
   dtekWorkOrderAppointmentId = null;
+  lastFocusedBeforeWorkOrder?.focus?.();
+  lastFocusedBeforeWorkOrder = null;
 }
 
 // El recibo en el molde que Dominic ya usa, con la marca D-TEK GT y en km.
@@ -716,6 +720,9 @@ async function initBackendAdmin() {
   adminQs("#workOrderModalCancel")?.addEventListener("click", closeWorkOrderModal);
   adminQs("#workOrderModal")?.addEventListener("click", (event) => {
     if (event.target.id === "workOrderModal") closeWorkOrderModal();
+  });
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape" && !adminQs("#workOrderModal")?.classList.contains("hidden-field")) closeWorkOrderModal();
   });
 
   adminQs("#backendLoginForm")?.addEventListener("submit", async (event) => {

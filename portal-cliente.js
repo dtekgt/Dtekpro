@@ -1475,9 +1475,11 @@ async function refreshClientPortal() {
   renderSocialProfile();
 }
 
+let lastFocusedBeforeVehicleModal = null;
 function openVehicleModal() {
   const modal = clientQs("#vehicleModal");
   if (!modal) return;
+  lastFocusedBeforeVehicleModal = document.activeElement;
   modal.setAttribute("aria-hidden", "false");
   document.body.classList.add("client-modal-open");
   setVehicleFormStep(1);
@@ -1489,6 +1491,8 @@ function closeVehicleModal() {
   if (!modal) return;
   modal.setAttribute("aria-hidden", "true");
   document.body.classList.remove("client-modal-open");
+  lastFocusedBeforeVehicleModal?.focus?.();
+  lastFocusedBeforeVehicleModal = null;
 }
 
 function setVehicleFormStep(step) {

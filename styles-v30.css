@@ -98,7 +98,7 @@
   background:#fff;
 }
 .page-public-v25:not(.page-home-cinema) .public-brand-v25 strong{font-size:12px;letter-spacing:.08em}
-.page-public-v25:not(.page-home-cinema) .public-brand-v25 small{font-size:9px;color:rgba(255,255,255,.43)}
+.page-public-v25:not(.page-home-cinema) .public-brand-v25 small{font-size:9px;color:rgba(255,255,255,.64)}
 .page-public-v25:not(.page-home-cinema) .public-links-v25{
   gap:2px;
   padding:3px;
@@ -349,7 +349,7 @@
   border:1px solid transparent;
   border-radius:999px;
   background:#080a0d;
-  color:rgba(255,255,255,.38);
+  color:rgba(255,255,255,.64);
   font-size:11px;
   font-weight:550;
 }
@@ -754,7 +754,7 @@
   min-height:34px;
   padding:0 12px;
   border-radius:999px;
-  color:rgba(255,255,255,.46);
+  color:rgba(255,255,255,.64);
   font-size:11px;
   font-weight:550;
 }
@@ -813,7 +813,7 @@
 .page-client-v23 .garage-section-kicker{
   display:block;
   margin-bottom:6px;
-  color:rgba(255,255,255,.34);
+  color:rgba(255,255,255,.64);
   font-size:9px;
   font-weight:600;
   letter-spacing:.16em;
@@ -1654,7 +1654,7 @@
 .page-client-v23 .auth-signup-head h3{color:#fff;font-weight:350}
 .page-client-v23 .auth-signup-head button{color:#fff;background:rgba(255,255,255,.065)}
 .page-client-v23 .auth-signup-head button:hover{background:rgba(255,255,255,.12)}
-.page-client-v23 .optional-label{color:rgba(255,255,255,.5);background:rgba(255,255,255,.065)}
+.page-client-v23 .optional-label{color:rgba(255,255,255,.64);background:rgba(255,255,255,.065)}
 .page-client-v23 .auth-google-note{color:var(--client-muted)}
 .page-client-v23 .access-warning{
   border-color:rgba(255,186,86,.27);
@@ -1791,8 +1791,8 @@
 .booking-summary-v25 .summary-total.is-empty strong{color:rgba(255,255,255,.5);font-weight:500;font-size:13px}
 
 .req-mark{color:var(--f1-red-hot);font-style:normal;margin-left:1px}
-.optional-mark{color:rgba(255,255,255,.4);font-size:11px;font-style:normal;font-weight:500;text-transform:none;letter-spacing:0;margin-left:4px}
-.confirm-required-note{margin:10px 2px 0;color:rgba(255,255,255,.45);font-size:11.5px}
+.optional-mark{color:rgba(255,255,255,.64);font-size:11px;font-style:normal;font-weight:500;text-transform:none;letter-spacing:0;margin-left:4px}
+.confirm-required-note{margin:10px 2px 0;color:rgba(255,255,255,.64);font-size:11.5px}
 .confirm-required-note .req-mark{margin-left:0;margin-right:2px}
 
 /* ==========================================================================
@@ -2095,7 +2095,7 @@
   font-weight:650;
   letter-spacing:.06em;
   text-transform:uppercase;
-  color:rgba(255,255,255,.4);
+  color:rgba(255,255,255,.64);
 }
 .page-agenda-v25-pro .calendar-grid{
   width:100%;
