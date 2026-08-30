@@ -666,7 +666,7 @@ async function persistSmartAgendaProfile(data) {
 function serviceCard(service) {
   const iconMap = {
     "Revisión y diagnóstico": "⌕",
-    "Compra Segura": "✓",
+    "Compra segura": "✓",
     "Mantenimiento": "↻",
     "Frenos": "◉",
     "Inyección y admisión": "≈",
