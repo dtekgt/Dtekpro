@@ -58,6 +58,8 @@ begin
   insert into public.dtek_phone_lookup_log (phone_key) values (v_key);
 
   -- 1) Cliente con cuenta en el Garage: trae sus carros guardados.
+  -- El perfil no guarda zona/dirección (solo nombre, teléfono, correo) —
+  -- esos dos se rescatan de su cita más reciente si existe una.
   select p.id, p.full_name, p.phone, p.email
   into v_profile
   from public.profiles p
@@ -73,12 +75,22 @@ begin
     from public.vehicles veh
     where veh.owner_id = v_profile.id;
 
+    select a.city, a.location
+    into v_appt
+    from public.appointments a
+    where a.client_id = v_profile.id
+       or lower(a.client_email) = lower(v_profile.email)
+    order by a.created_at desc
+    limit 1;
+
     return jsonb_build_object(
       'found', true,
       'source', 'profile',
       'name', v_profile.full_name,
       'email', v_profile.email,
       'phone', v_profile.phone,
+      'city', v_appt.city,
+      'location', v_appt.location,
       'vehicles', v_vehicles
     );
   end if;
