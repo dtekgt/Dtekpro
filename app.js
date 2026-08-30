@@ -1215,6 +1215,10 @@ function renderLinkedVehicleBanner(vehicle) {
 }
 
 async function loadLinkedVehicleFromUrl() {
+  // Un link armado a mano (marca=...) lo resuelve loadManualVehicleFromUrl;
+  // si seguimos de largo acá, el "if (!vehicleId)" de abajo desbloquea los
+  // campos despues y le pisa el trabajo (loadSmartAgendaContext es async).
+  if (params.get("marca")) return;
   const vehicleId = params.get("vehicle_id");
   linkedAgendaVehicleId = vehicleId || "";
   if (!qs("#agendaForm")) return;
@@ -1257,6 +1261,70 @@ async function loadLinkedVehicleFromUrl() {
   }
 }
 
+const AGENDA_MOVES_MAP = {
+  si: "Sí, arranca y se mueve",
+  "sí": "Sí, arranca y se mueve",
+  arranca_no_mueve: "Arranca pero no se mueve",
+  no: "No arranca",
+  no_seguro: "No estoy seguro"
+};
+
+// Para cuando ya sabés carro y servicio por WhatsApp y solo querés mandar
+// un link donde el cliente elija fecha y hora. No depende de Garage ni de
+// sesión: arma el paso 1 con lo que venga en la URL y salta directo a
+// horario si el servicio también vino resuelto (ver renderAgendaPage).
+function loadManualVehicleFromUrl() {
+  if (!qs("#agendaForm")) return;
+  const marca = params.get("marca");
+  if (!marca) return;
+
+  // El selector de motor lo llena selector-pro.js en su propio DOMContentLoaded,
+  // que corre despues de este y reemplaza el innerHTML entero (borrando lo que
+  // hayamos puesto). Lo llenamos nosotros primero para no perder la carrera.
+  const engineSelect = qs("#vehicleEngine");
+  if (engineSelect && !engineSelect.dataset.loaded) {
+    engineSelect.innerHTML = `<option value="">Elegir motor</option>` + (window.DTEK_ENGINE_OPTIONS || []).map(option => `<option value="${safeText(option)}">${safeText(option)}</option>`).join("");
+    engineSelect.dataset.loaded = "true";
+  }
+
+  applyVehicleToAgendaFields({
+    brand: marca,
+    line: params.get("linea") || "",
+    year: params.get("anio") || "",
+    engine: params.get("motor") || ""
+  });
+
+  const arranca = AGENDA_MOVES_MAP[(params.get("arranca") || "").toLowerCase()];
+  if (arranca) setFieldValue("#vehicleMoves", arranca);
+
+  const holder = qs("#linkedVehicleBanner");
+  if (holder) {
+    holder.classList.remove("hidden-field");
+    holder.innerHTML = `<div class="linked-vehicle-card dtek-glass">
+      <span class="eyebrow">Carro precargado</span>
+      <strong>${safeText(marca)} ${safeText(params.get("linea") || "")} ${safeText(params.get("anio") || "")}</strong>
+      <small>Datos que ya nos diste por WhatsApp. Si algo está mal, corregilo aquí.</small>
+      <button class="linked-vehicle-switch-v31" type="button" data-manual-vehicle>Es otro carro, quiero escribirlo</button>
+    </div>`;
+  }
+
+  const nombre = params.get("nombre");
+  const telefono = params.get("telefono");
+  if (nombre) setFieldValue("#clientName", nombre);
+  if (telefono) setFieldValue("#clientPhone", telefono);
+
+  window.DtekSelectorPro?.updateVehicleCascade?.();
+  updateAgendaSummary();
+
+  if (params.get("servicio")) {
+    // window.DtekBookingWizard lo crea selector-pro.js en su propio
+    // DOMContentLoaded, que corre despues de este archivo - todavia no
+    // existe en este punto. Un tick despues, ya esta listo.
+    setTimeout(() => {
+      if (window.DtekBookingWizard?.getStep?.() === 1) window.DtekBookingWizard.setStep(3, { scroll: false });
+    }, 0);
+  }
+}
 
 function serviceMiniCard(service) {
   return `<button type="button" class="service-mini-card dtek-glass" data-agenda-service="${safeText(service.id)}">
@@ -2291,6 +2359,7 @@ function init() {
   renderServiceDetail();
   renderAgendaPage();
   loadLinkedVehicleFromUrl();
+  loadManualVehicleFromUrl();
   renderAdminPage();
   renderFaqs();
   setupEvents();

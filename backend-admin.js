@@ -945,4 +945,58 @@ adminQs("#clientProvisionForm")?.addEventListener("submit", async (event) => {
   }
 });
 
+const quickServiceSelect = adminQs("#quickService");
+if (quickServiceSelect) {
+  quickServiceSelect.innerHTML = `<option value="">Elegir servicio</option>` +
+    (window.DTEK_SERVICES || []).map(s => `<option value="${adminSafe(s.id)}">${adminSafe(s.name)} · ${adminSafe(s.price)}</option>`).join("");
+}
+
+adminQs("#quickScheduleForm")?.addEventListener("submit", (event) => {
+  event.preventDefault();
+  const brand = adminQs("#quickBrand")?.value.trim() || "";
+  const line = adminQs("#quickLine")?.value.trim() || "";
+  const year = adminQs("#quickYear")?.value || "";
+  const engine = adminQs("#quickEngine")?.value.trim() || "";
+  const moves = adminQs("#quickMoves")?.value || "";
+  const serviceId = adminQs("#quickService")?.value || "";
+  const clientName = adminQs("#quickClientName")?.value.trim() || "";
+  const clientPhone = adminQs("#quickClientPhone")?.value.trim() || "";
+
+  const qp = new URLSearchParams();
+  qp.set("marca", brand);
+  qp.set("linea", line);
+  if (year) qp.set("anio", year);
+  if (engine) qp.set("motor", engine);
+  if (moves) qp.set("arranca", moves);
+  qp.set("servicio", serviceId);
+  if (clientName) qp.set("nombre", clientName);
+  if (clientPhone) qp.set("telefono", clientPhone);
+
+  const link = `${window.location.origin}/agenda.html?${qp.toString()}`;
+  const serviceName = window.DTEK_SERVICES?.find(s => s.id === serviceId)?.name || "el servicio";
+  const primerNombre = clientName.split(" ")[0] || "";
+  const mensaje = `Hola${primerNombre ? " " + primerNombre : ""}, quedó listo tu pedido de ${serviceName} para tu ${brand} ${line}. Elegí el día y la hora que mejor te quede aquí: ${link}`;
+
+  const resultBox = adminQs("#quickScheduleResult");
+  if (resultBox) {
+    resultBox.classList.remove("hidden-field");
+    resultBox.innerHTML = `
+      <h3>Link listo</h3>
+      <div class="dtek-provision-credentials">
+        <code>${adminSafe(link)}</code>
+      </div>
+      <button class="btn btn-cyan" type="button" id="copyQuickLink">Copiar mensaje para WhatsApp</button>
+      ${clientPhone ? `<button class="btn btn-primary" type="button" id="openQuickWhatsapp">Abrir WhatsApp con este cliente</button>` : ""}
+    `;
+    adminQs("#copyQuickLink")?.addEventListener("click", async () => {
+      await navigator.clipboard.writeText(mensaje);
+      provisionStatus("Mensaje copiado. Pegalo en la conversación de WhatsApp.", "ok");
+    });
+    adminQs("#openQuickWhatsapp")?.addEventListener("click", () => {
+      const digits = clientPhone.replace(/\D/g, "");
+      window.open(`https://wa.me/${digits}?text=${encodeURIComponent(mensaje)}`, "_blank", "noopener");
+    });
+  }
+});
+
 document.addEventListener("DOMContentLoaded", initBackendAdmin);

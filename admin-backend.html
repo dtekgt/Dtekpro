@@ -96,6 +96,37 @@
     <section class="section dtek-glass reveal visible">
       <div class="section-head inline-head">
         <div>
+          <span class="eyebrow">Atajo para WhatsApp</span>
+          <h2>Link para que elija día y hora</h2>
+          <p class="muted">Para cuando ya sabés el carro y el servicio por el chat — el cliente abre el link y cae directo en el calendario, sin repetir nada.</p>
+        </div>
+      </div>
+      <form id="quickScheduleForm" class="stacked-form dtek-provision-form">
+        <div class="two-column-grid compact-grid">
+          <label>Marca *<input id="quickBrand" type="text" required placeholder="Toyota" /></label>
+          <label>Línea / modelo *<input id="quickLine" type="text" required placeholder="Corolla" /></label>
+          <label>Año<input id="quickYear" type="number" min="1950" max="2100" placeholder="2020" /></label>
+          <label>Motor<input id="quickEngine" type="text" placeholder="1.8, No sé..." /></label>
+          <label>¿Arranca y se mueve?
+            <select id="quickMoves">
+              <option value="si">Sí, arranca y se mueve</option>
+              <option value="arranca_no_mueve">Arranca pero no se mueve</option>
+              <option value="no">No arranca</option>
+              <option value="no_seguro">No estoy seguro</option>
+            </select>
+          </label>
+          <label>Servicio *<select id="quickService" required><option value="">Elegir servicio</option></select></label>
+          <label>Nombre del cliente<input id="quickClientName" type="text" placeholder="Opcional" /></label>
+          <label>Teléfono del cliente<input id="quickClientPhone" type="tel" placeholder="502XXXXXXXX — para el botón de WhatsApp" /></label>
+        </div>
+        <button class="btn btn-primary" type="submit">Generar link</button>
+      </form>
+      <div id="quickScheduleResult" class="dtek-provision-result hidden-field"></div>
+    </section>
+
+    <section class="section dtek-glass reveal visible">
+      <div class="section-head inline-head">
+        <div>
           <span class="eyebrow">Operación</span>
           <h2>Citas reales</h2>
         </div>
