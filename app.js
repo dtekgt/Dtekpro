@@ -3,7 +3,7 @@
   Código creado para uso exclusivo de D-TEK GT.
 */
 
-console.info("%cD-TEK GT Web OS v5 · Own Scheduler", "color:#e10600;font-size:18px;font-weight:900");
+console.info("%cD-TEK GT Web OS v5 · Own Scheduler", "color:#e32025;font-size:18px;font-weight:900");
 console.info("Propiedad de D-TEK GT / Dominic Morales · Agenda propia local tipo Setmore, creada desde cero.");
 
 let currentCategory = "Recomendados";
@@ -290,7 +290,7 @@ function renderAgendaCompactLaunchers() {
   if (categoryHolder && typeof dtekServiceGroups !== "undefined") {
     categoryHolder.innerHTML = dtekServiceGroups.map(group => `
       <button type="button" class="agenda-category-launcher-v2741 ${group.id === "otros" ? "other" : ""}" data-open-service-group="${safeText(group.id)}">
-        <strong>${safeText(group.title)}</strong><small>${group.services.length} opción${group.services.length === 1 ? "" : "es"}</small><b>›</b>
+        <strong>${safeText(group.title)}</strong><small>${group.services.length} ${group.services.length === 1 ? "opción" : "opciones"}</small><b>›</b>
       </button>`).join("");
   }
   const symptomHolder = qs("#agendaSymptomLaunchers");
@@ -1805,14 +1805,10 @@ async function saveAppointment() {
       if (data.vehicleId && window.DtekBackend?.createAppointmentForVehicle) {
         rpcPayload.vehicle_id = data.vehicleId;
         rpcPayload.source = "client-portal-vehicle";
-        console.log("DTEK_FORM_RPC_PAYLOAD_VEHICLE:", rpcPayload);
-      } else {
-        console.log("DTEK_FORM_RPC_PAYLOAD:", rpcPayload);
       }
       const saved = data.vehicleId && window.DtekBackend?.createAppointmentForVehicle
         ? await window.DtekBackend.createAppointmentForVehicle(rpcPayload)
         : await DtekBackend.createPublicAppointment(rpcPayload);
-      console.log("DTEK_FORM_RPC_RESPONSE:", saved);
       if (!saved?.id) throw new Error("Supabase respondió, pero no devolvió ID de cita.");
       appointment.id = saved.id;
       appointment.status = saved.status || "requested";
@@ -2240,7 +2236,6 @@ function setupEvents() {
       const waWindow = reserveWhatsAppWindow();
       if (submitButton) { submitButton.disabled = true; submitButton.textContent = "Guardando solicitud..."; }
       const saved = await saveAppointment();
-      console.log("DTEK_FORM_SAVE_RESULT:", saved);
       if (submitButton) { submitButton.disabled = false; submitButton.textContent = "Guardar solicitud y abrir WhatsApp"; }
       if (!saved || saved.conflict) {
         closeReservedWhatsAppWindow(waWindow);
