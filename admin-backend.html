@@ -9,7 +9,7 @@
   <meta name="theme-color" content="#05080d" />
   <title>Admin Backend · D-TEK GT</title>
   <link rel="stylesheet" href="styles.css?v=ef56fadb" />
-  <link rel="stylesheet" href="styles-v30.css?v=79f08666" />
+  <link rel="stylesheet" href="styles-v30.css?v=c62819da" />
 </head>
 <body class="page-admin-v31">
   <div class="dtek-bg"><span class="orb orb-red"></span><span class="orb orb-cyan"></span></div>
@@ -248,9 +248,15 @@
       <section class="inspection-capture-v33" aria-labelledby="inspectionCaptureTitle">
         <div class="lineas-head-v320">
           <span id="inspectionCaptureTitle">Mantenimiento e inspección de hoy</span>
-          <small>Marcá servicios realizados; ajustá sus intervalos cuando el manual o el uso real lo requieran.</small>
+          <small>Marcá servicios realizados; ajustá sus intervalos cuando el manual o el uso real lo requieran. Foto obligatoria por ítem revisado.</small>
         </div>
         <div id="workOrderInspections" class="inspection-grid-v33"></div>
+
+        <div class="lineas-head-v320" style="margin-top:14px">
+          <span>Secciones adicionales</span>
+          <button type="button" class="btn btn-ghost" id="workOrderAddCustomSection">＋ Agregar sección</button>
+        </div>
+        <div id="workOrderCustomSections" class="inspection-grid-v33"></div>
       </section>
 
       <label class="cerrar-cita-v320">
@@ -271,8 +277,8 @@
   <script src="supabase-config.js?v=81e95d5d"></script>
   <script src="services-data.js?v=465c3473"></script>
   <script src="vehicle-health.js?v=36000001"></script>
-  <script src="supabase-client.js?v=34adfdb1"></script>
-  <script src="backend-admin.js?v=2c666eda"></script>
+  <script src="supabase-client.js?v=66c80706"></script>
+  <script src="backend-admin.js?v=cee11d07"></script>
   <script defer src="/_vercel/insights/script.js"></script>
 </body>
 </html>

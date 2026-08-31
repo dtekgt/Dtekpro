@@ -425,7 +425,48 @@ async function refreshAllAdminData() {
 }
 
 let dtekWorkOrderAppointmentId = null;
-let dtekInspecciones = {};
+const SpeechRecognitionCtor = window.SpeechRecognition || window.webkitSpeechRecognition || null;
+let dtekReporteVivo = {};   // estado real por component_key ("custom-xxxx" para secciones ad-hoc)
+let dtekCustomKeys = [];    // orden de aparición de las secciones ad-hoc
+let dtekReco = null;
+let dtekRecoKey = null;
+let dtekRecoTimeout = null;
+
+function dtekEstadoVacio() {
+  return { status: "", notes: "", comment_source: null, photo_paths: [], label: "" };
+}
+
+function nombreDeComponenteAdmin(key) {
+  const comp = (window.DtekVehicleHealth?.components || []).find(c => c.key === key);
+  return comp?.name || key;
+}
+
+function filaInspeccionHtml(item) {
+  return `
+    <div class="inspection-row-v33" data-maintenance-row="${adminSafe(item.key)}">
+      <span><strong>${adminSafe(item.name)}</strong><small>${item.mode === "interval" ? `${Number(item.months || 0)} meses · ${Number(item.km || 0).toLocaleString("es-GT")} km` : "Requiere revisión física"}</small></span>
+      <select data-inspection-key="${adminSafe(item.key)}" aria-label="Estado de ${adminSafe(item.name)}">
+        <option value="">No revisado</option>
+        ${item.mode === "interval" ? `<option value="serviced">Servicio realizado hoy</option>` : ""}
+        ${item.mode === "inspection" ? `<option value="ok">Bien</option>
+        <option value="monitor">Vigilar</option>
+        <option value="attention">Requiere atención</option>` : ""}
+      </select>
+      <div class="inspection-note-cell">
+        <input type="text" data-inspection-note="${adminSafe(item.key)}" aria-label="Medición o nota para ${adminSafe(item.name)}" placeholder="Medición, nota o dictado">
+        ${SpeechRecognitionCtor ? `<button type="button" class="dictate-btn-v33" data-dictate="${adminSafe(item.key)}" aria-label="Mantené presionado para dictar">🎙</button>` : ""}
+      </div>
+      <div class="inspection-photos-row-v33" data-photos-for="${adminSafe(item.key)}">
+        <label class="photo-add-btn-v33" aria-label="Agregar foto de ${adminSafe(item.name)}"><input type="file" accept="image/*" capture="environment" data-photo-input="${adminSafe(item.key)}" hidden>📷</label>
+      </div>
+      ${item.mode === "interval" ? `<div class="maintenance-interval-edit">
+        <label>Intervalo meses<input type="number" min="1" step="1" value="${adminSafe(item.months || "")}" data-interval-months="${adminSafe(item.key)}"></label>
+        <label>Intervalo km<input type="number" min="1" step="1" value="${adminSafe(item.km || "")}" data-interval-km="${adminSafe(item.key)}"></label>
+        <label>Fecha realizada<input type="date" data-service-date="${adminSafe(item.key)}"></label>
+        <label>Km realizado<input type="number" min="0" step="1" data-service-mileage="${adminSafe(item.key)}" placeholder="Usar km del cierre"></label>
+      </div>` : ""}
+    </div>`;
+}
 
 function renderWorkOrderInspections(appointment = {}) {
   const holder = adminQs("#workOrderInspections");
@@ -436,41 +477,246 @@ function renderWorkOrderInspections(appointment = {}) {
     year: appointment.vehicle_year
   };
   const allowed = window.DtekVehicleHealth?.planForVehicle?.(vehicle, []) || window.DtekVehicleHealth?.components || [];
-  holder.innerHTML = allowed.map(item => `
-    <div class="inspection-row-v33" data-maintenance-row="${adminSafe(item.key)}">
-      <span><strong>${adminSafe(item.name)}</strong><small>${item.mode === "interval" ? `${Number(item.months || 0)} meses · ${Number(item.km || 0).toLocaleString("es-GT")} km` : "Requiere revisión física"}</small></span>
-      <select data-inspection-key="${adminSafe(item.key)}" aria-label="Estado de ${adminSafe(item.name)}">
-        <option value="">No revisado</option>
-        ${item.mode === "interval" ? `<option value="serviced">Servicio realizado hoy</option>` : ""}
-        ${item.mode === "inspection" ? `<option value="ok">Bien</option>
+  dtekReporteVivo = {};
+  allowed.forEach(item => { dtekReporteVivo[item.key] = dtekEstadoVacio(); });
+  holder.innerHTML = allowed.map(filaInspeccionHtml).join("");
+  dtekCustomKeys = [];
+  pintarSeccionesCustom();
+}
+
+function nuevaClaveCustom() {
+  const base = window.crypto?.randomUUID?.() || `${Date.now()}${Math.random().toString(36).slice(2)}`;
+  return `custom-${base.replace(/-/g, "").slice(0, 8)}`;
+}
+
+function filaInspeccionCustomHtml(key) {
+  const item = dtekReporteVivo[key] || dtekEstadoVacio();
+  return `
+    <div class="inspection-row-v33 inspection-row-custom-v33" data-maintenance-row="${adminSafe(key)}">
+      <span><input type="text" class="custom-title-input" data-custom-title="${adminSafe(key)}" placeholder="Título de la sección (ej. Fuga de aceite)" value="${adminSafe(item.label || "")}"></span>
+      <select data-inspection-key="${adminSafe(key)}" aria-label="Estado de la sección">
+        <option value="">Sin estado</option>
+        <option value="ok">Bien</option>
         <option value="monitor">Vigilar</option>
-        <option value="attention">Requiere atención</option>` : ""}
+        <option value="attention">Requiere atención</option>
       </select>
-      <input type="text" data-inspection-note="${adminSafe(item.key)}" aria-label="Medición o nota para ${adminSafe(item.name)}" placeholder="Medición o nota opcional">
-      ${item.mode === "interval" ? `<div class="maintenance-interval-edit">
-        <label>Intervalo meses<input type="number" min="1" step="1" value="${adminSafe(item.months || "")}" data-interval-months="${adminSafe(item.key)}"></label>
-        <label>Intervalo km<input type="number" min="1" step="1" value="${adminSafe(item.km || "")}" data-interval-km="${adminSafe(item.key)}"></label>
-        <label>Fecha realizada<input type="date" data-service-date="${adminSafe(item.key)}"></label>
-        <label>Km realizado<input type="number" min="0" step="1" data-service-mileage="${adminSafe(item.key)}" placeholder="Usar km del cierre"></label>
-      </div>` : ""}
-    </div>`).join("");
+      <div class="inspection-note-cell">
+        <input type="text" data-inspection-note="${adminSafe(key)}" placeholder="Nota o dictado por voz" aria-label="Nota">
+        ${SpeechRecognitionCtor ? `<button type="button" class="dictate-btn-v33" data-dictate="${adminSafe(key)}" aria-label="Mantené presionado para dictar">🎙</button>` : ""}
+      </div>
+      <div class="inspection-photos-row-v33" data-photos-for="${adminSafe(key)}">
+        <label class="photo-add-btn-v33" aria-label="Agregar foto"><input type="file" accept="image/*" capture="environment" data-photo-input="${adminSafe(key)}" hidden>📷</label>
+      </div>
+      <button type="button" class="btn btn-ghost linea-quitar" data-remove-section="${adminSafe(key)}" aria-label="Quitar esta sección">Quitar sección</button>
+    </div>`;
+}
+
+function pintarSeccionesCustom() {
+  const holder = adminQs("#workOrderCustomSections");
+  if (!holder) return;
+  holder.innerHTML = dtekCustomKeys.map(filaInspeccionCustomHtml).join("");
 }
 
 function collectWorkOrderInspections() {
-  return [...document.querySelectorAll("[data-inspection-key]")]
-    .filter(select => select.value)
-    .map(select => {
-      const key = select.dataset.inspectionKey;
-      return {
-        component_key: key,
-        status: select.value,
-        notes: adminQs(`[data-inspection-note="${key}"]`)?.value.trim() || null,
-        interval_months: Number(adminQs(`[data-interval-months="${key}"]`)?.value || 0) || null,
-        interval_km: Number(adminQs(`[data-interval-km="${key}"]`)?.value || 0) || null,
-        service_date: adminQs(`[data-service-date="${key}"]`)?.value || null,
-        service_mileage: Number(adminQs(`[data-service-mileage="${key}"]`)?.value || 0) || null
-      };
+  return Object.keys(dtekReporteVivo).map(key => {
+    const item = dtekReporteVivo[key];
+    const esCustom = dtekCustomKeys.includes(key);
+    return {
+      component_key: key,
+      component_label: esCustom ? ((item.label || "").trim() || null) : null,
+      status: item.status || "",
+      notes: (item.notes || "").trim() || null,
+      comment_source: item.comment_source || null,
+      photo_paths: item.photo_paths || [],
+      interval_months: Number(adminQs(`[data-interval-months="${key}"]`)?.value || 0) || null,
+      interval_km: Number(adminQs(`[data-interval-km="${key}"]`)?.value || 0) || null,
+      service_date: adminQs(`[data-service-date="${key}"]`)?.value || null,
+      service_mileage: Number(adminQs(`[data-service-mileage="${key}"]`)?.value || 0) || null
+    };
+  }).filter(item => item.status || item.notes || item.photo_paths.length || item.component_label);
+}
+
+function validarReporteVivo() {
+  const errores = [];
+  Object.keys(dtekReporteVivo).forEach(key => {
+    const item = dtekReporteVivo[key];
+    const esCustom = dtekCustomKeys.includes(key);
+    const nombre = esCustom ? ((item.label || "").trim() || "Sección sin título") : nombreDeComponenteAdmin(key);
+    const tocado = Boolean((item.notes || "").trim() || item.photo_paths.length || item.status || (esCustom && (item.label || "").trim()));
+    if (!tocado) return;
+    if (esCustom && !(item.label || "").trim()) errores.push(`"${nombre}": falta el título de la sección.`);
+    if (!item.status) errores.push(`"${nombre}": falta marcar el estado.`);
+    if (!item.photo_paths.length) errores.push(`"${nombre}": falta la foto.`);
+  });
+  return errores;
+}
+
+function comprimirImagen(file, { maxDim = 1600, calidad = 0.72 } = {}) {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    const url = URL.createObjectURL(file);
+    img.onload = () => {
+      URL.revokeObjectURL(url);
+      const escala = Math.min(1, maxDim / Math.max(img.width, img.height));
+      const w = Math.round(img.width * escala) || 1;
+      const h = Math.round(img.height * escala) || 1;
+      const canvas = document.createElement("canvas");
+      canvas.width = w; canvas.height = h;
+      canvas.getContext("2d").drawImage(img, 0, 0, w, h);
+      canvas.toBlob(blob => blob ? resolve(blob) : reject(new Error("No se pudo comprimir la foto.")), "image/jpeg", calidad);
+    };
+    img.onerror = () => { URL.revokeObjectURL(url); reject(new Error("No se pudo leer la foto.")); };
+    img.src = url;
+  });
+}
+
+function rutaFoto(vehicleId, appointmentId, componentKey) {
+  const slug = String(componentKey || "seccion").replace(/[^a-z0-9_-]/gi, "-").toLowerCase();
+  const uuid = window.crypto?.randomUUID?.() || `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+  return `${vehicleId}/${appointmentId}/${slug}/${uuid}.jpg`;
+}
+
+async function subirFoto(file, componentKey) {
+  const appointment = dtekAdminAppointmentsCache.find(item => String(item.id) === String(dtekWorkOrderAppointmentId));
+  const vehicleId = appointment?.vehicle_id;
+  if (!vehicleId) throw new Error("Esta cita no tiene un vehículo vinculado; no se puede subir la foto.");
+  const blob = await comprimirImagen(file);
+  const ruta = rutaFoto(vehicleId, dtekWorkOrderAppointmentId, componentKey);
+  await DtekBackend.uploadInspectionPhoto(ruta, blob);
+  return { ruta, blob };
+}
+
+function crearMiniatura(ruta, previewUrl) {
+  const span = document.createElement("span");
+  span.className = "photo-thumb-v33";
+  span.innerHTML = `<img src="${previewUrl}" alt="Foto"><button type="button" data-remove-photo="${adminSafe(ruta)}" aria-label="Quitar foto">×</button>`;
+  return span;
+}
+
+function iniciarDictado(key) {
+  if (!SpeechRecognitionCtor) return;
+  if (dtekReco) { try { dtekReco.stop(); } catch (e) {} }
+  dtekReco = new SpeechRecognitionCtor();
+  dtekReco.lang = "es-419";
+  dtekReco.continuous = true;
+  dtekReco.interimResults = false;
+  dtekReco.maxAlternatives = 1;
+  dtekRecoKey = key;
+  adminQs(`[data-dictate="${key}"]`)?.classList.add("is-recording");
+  dtekReco.onresult = (ev) => {
+    let nuevo = "";
+    for (let i = ev.resultIndex; i < ev.results.length; i++) {
+      if (ev.results[i].isFinal) nuevo += ev.results[i][0].transcript + " ";
+    }
+    nuevo = nuevo.trim();
+    if (!nuevo) return;
+    const item = dtekReporteVivo[key] = dtekReporteVivo[key] || dtekEstadoVacio();
+    item.notes = item.notes ? `${item.notes.trim()} ${nuevo}` : nuevo;
+    item.comment_source = "voice";
+    const input = adminQs(`[data-inspection-note="${key}"]`);
+    if (input) input.value = item.notes;
+  };
+  const limpiar = () => {
+    adminQs(`[data-dictate="${key}"]`)?.classList.remove("is-recording");
+    if (dtekRecoKey === key) dtekRecoKey = null;
+  };
+  dtekReco.onerror = limpiar;
+  dtekReco.onend = limpiar;
+  try { dtekReco.start(); } catch (e) {}
+  clearTimeout(dtekRecoTimeout);
+  dtekRecoTimeout = setTimeout(() => detenerDictado(key), 15000);
+}
+
+function detenerDictado(key) {
+  clearTimeout(dtekRecoTimeout);
+  if (dtekReco && dtekRecoKey === key) { try { dtekReco.stop(); } catch (e) {} }
+}
+
+function bindInspecciones() {
+  const contenedor = adminQs(".inspection-capture-v33");
+  if (!contenedor) return;
+
+  contenedor.addEventListener("change", (ev) => {
+    const sel = ev.target.closest("[data-inspection-key]");
+    if (sel) {
+      (dtekReporteVivo[sel.dataset.inspectionKey] = dtekReporteVivo[sel.dataset.inspectionKey] || dtekEstadoVacio()).status = sel.value;
+      return;
+    }
+    const input = ev.target.closest("[data-photo-input]");
+    if (!input || !input.files?.length) return;
+    const key = input.dataset.photoInput;
+    const file = input.files[0];
+    input.value = "";
+    const fotosHolder = adminQs(`[data-photos-for="${key}"]`);
+    const temp = document.createElement("span");
+    temp.className = "photo-thumb-v33 is-uploading";
+    temp.textContent = "…";
+    fotosHolder?.insertBefore(temp, fotosHolder.querySelector(".photo-add-btn-v33"));
+    subirFoto(file, key).then(({ ruta, blob }) => {
+      (dtekReporteVivo[key] = dtekReporteVivo[key] || dtekEstadoVacio()).photo_paths.push(ruta);
+      temp.replaceWith(crearMiniatura(ruta, URL.createObjectURL(blob)));
+    }).catch((error) => {
+      temp.remove();
+      alert(`No se pudo subir la foto: ${error.message}`);
     });
+  });
+
+  contenedor.addEventListener("input", (ev) => {
+    const nota = ev.target.closest("[data-inspection-note]");
+    if (nota) {
+      const key = nota.dataset.inspectionNote;
+      const item = dtekReporteVivo[key] = dtekReporteVivo[key] || dtekEstadoVacio();
+      item.notes = nota.value;
+      item.comment_source = "text";
+      return;
+    }
+    const titulo = ev.target.closest("[data-custom-title]");
+    if (titulo) {
+      const key = titulo.dataset.customTitle;
+      (dtekReporteVivo[key] = dtekReporteVivo[key] || dtekEstadoVacio()).label = titulo.value;
+    }
+  });
+
+  contenedor.addEventListener("click", (ev) => {
+    const quitarFoto = ev.target.closest("[data-remove-photo]");
+    if (quitarFoto) {
+      const thumb = quitarFoto.closest(".photo-thumb-v33");
+      const fila = quitarFoto.closest("[data-maintenance-row]");
+      const key = fila?.dataset.maintenanceRow;
+      const ruta = quitarFoto.dataset.removePhoto;
+      if (key && dtekReporteVivo[key]) dtekReporteVivo[key].photo_paths = dtekReporteVivo[key].photo_paths.filter(p => p !== ruta);
+      thumb?.remove();
+      return;
+    }
+    const quitarSeccion = ev.target.closest("[data-remove-section]");
+    if (quitarSeccion) {
+      const key = quitarSeccion.dataset.removeSection;
+      if (!confirm("¿Quitar esta sección del reporte?")) return;
+      dtekCustomKeys = dtekCustomKeys.filter(k => k !== key);
+      delete dtekReporteVivo[key];
+      pintarSeccionesCustom();
+    }
+  });
+
+  adminQs("#workOrderAddCustomSection")?.addEventListener("click", () => {
+    const key = nuevaClaveCustom();
+    dtekCustomKeys.push(key);
+    dtekReporteVivo[key] = dtekEstadoVacio();
+    pintarSeccionesCustom();
+    adminQs(`[data-custom-title="${key}"]`)?.focus();
+  });
+
+  const empezarDictado = (ev) => {
+    const b = ev.target.closest("[data-dictate]");
+    if (b) { ev.preventDefault(); iniciarDictado(b.dataset.dictate); }
+  };
+  const pararDictado = (ev) => {
+    const b = ev.target.closest("[data-dictate]");
+    if (b) detenerDictado(b.dataset.dictate);
+  };
+  contenedor.addEventListener("mousedown", empezarDictado);
+  contenedor.addEventListener("touchstart", empezarDictado, { passive: false });
+  ["mouseup", "mouseleave", "touchend", "touchcancel"].forEach(evt => contenedor.addEventListener(evt, pararDictado));
 }
 
 let lastFocusedBeforeWorkOrder = null;
@@ -491,7 +737,6 @@ function openWorkOrderModal(appointmentId) {
   adminQs("#workOrderStatusBox").innerHTML = "";
   adminQs("#workOrderCloseAppointment").checked = true;
   adminQs("#workOrderMileage").value = "";
-  dtekInspecciones = {};
   renderWorkOrderInspections(appointment);
 
   // Arranca con una linea del servicio agendado, para no empezar en blanco.
@@ -661,6 +906,12 @@ async function submitWorkOrderReport(event, { compartir = false } = {}) {
     return;
   }
 
+  const erroresInspeccion = validarReporteVivo();
+  if (erroresInspeccion.length) {
+    if (statusBox) statusBox.innerHTML = `<p class="status-error">Revisá antes de publicar:<br>${erroresInspeccion.map(adminSafe).join("<br>")}</p>`;
+    return;
+  }
+
   // La ventana se abre en blanco dentro del clic (antes del await), porque
   // despues el navegador ya no deja abrir ventanas nuevas por script.
   const waWindow = compartir ? window.open("", "_blank") : null;
@@ -716,6 +967,7 @@ async function initBackendAdmin() {
   adminQs("#workOrderForm")?.addEventListener("submit", (ev) => submitWorkOrderReport(ev, { compartir: false }));
   adminQs("#workOrderSaveAndShare")?.addEventListener("click", (ev) => submitWorkOrderReport(ev, { compartir: true }));
   bindLineas();
+  bindInspecciones();
   adminQs("#workOrderModalClose")?.addEventListener("click", closeWorkOrderModal);
   adminQs("#workOrderModalCancel")?.addEventListener("click", closeWorkOrderModal);
   adminQs("#workOrderModal")?.addEventListener("click", (event) => {

@@ -817,6 +817,40 @@ const DtekBackend = (() => {
     return data || [];
   }
 
+  const BUCKET_INSPECCIONES = "vehicle-inspections";
+
+  async function uploadInspectionPhoto(path, blob) {
+    const sb = client();
+    if (!sb) throw new Error("Supabase no está configurado todavía.");
+    const { error } = await sb.storage.from(BUCKET_INSPECCIONES).upload(path, blob, {
+      contentType: "image/jpeg",
+      upsert: false,
+      cacheControl: "3600"
+    });
+    if (error) throw error;
+    return path;
+  }
+
+  async function listWorkOrderInspections(appointmentId) {
+    const sb = client();
+    if (!sb) throw new Error("Supabase no está configurado todavía.");
+    const { data, error } = await sb.rpc("dtek_client_work_order_inspections", {
+      p_appointment_id: appointmentId
+    });
+    if (error) throw error;
+    return data || [];
+  }
+
+  async function createInspectionPhotoUrls(paths = []) {
+    const sb = client();
+    if (!sb || !paths.length) return {};
+    const { data, error } = await sb.storage.from(BUCKET_INSPECCIONES).createSignedUrls(paths, 3600);
+    if (error) throw error;
+    const urls = {};
+    (data || []).forEach((row) => { if (row?.path && row.signedUrl) urls[row.path] = row.signedUrl; });
+    return urls;
+  }
+
   async function createAppointmentForVehicle(payload) {
     const sb = client();
     if (!sb) throw new Error("Supabase no está configurado todavía.");
@@ -956,6 +990,9 @@ const DtekBackend = (() => {
     listMyVehicleHistory,
     listMyVehicleHealth,
     saveVehicleInspections,
+    uploadInspectionPhoto,
+    listWorkOrderInspections,
+    createInspectionPhotoUrls,
     createAppointmentForVehicle,
     saveWorkOrderReport,
     cerrarTrabajo,

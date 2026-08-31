@@ -143,9 +143,55 @@
         <p>Cuando se realice, aquí aparecerán el diagnóstico, lo que se cambió y el total.</p>
       </section>` : ""}
 
-      ${pendiente("Fotos del trabajo", "Próximamente vas a ver acá las fotos que se tomaron durante este servicio.")}
-      ${pendiente("Conversación", "Próximamente vas a poder preguntar sobre este servicio y que quede por escrito.")}
+      ${exp.tieneReporte ? `<section class="exp-bloque exp-inspecciones" id="expedienteInspecciones">
+        <h3>Revisión y fotos del mecánico</h3>
+        <div class="exp-inspecciones-body" id="expedienteInspeccionesBody">
+          <p class="exp-nota">Cargando...</p>
+        </div>
+      </section>` : pendiente("Fotos y revisión del mecánico", "Cuando se realice el trabajo, aquí vas a ver las fotos y notas de lo revisado.")}
     `;
+  }
+
+  function nombreDeComponente(key) {
+    const comp = (window.DtekVehicleHealth?.components || []).find((c) => c.key === key);
+    return comp?.name || null;
+  }
+
+  function tonoInspeccion(status) {
+    return { ok: "positive", serviced: "positive", monitor: "waiting", attention: "negative" }[status] || "neutral";
+  }
+
+  function tarjetaInspeccion(item, urls) {
+    const estadoTexto = { ok: "Bien", serviced: "Servicio realizado", monitor: "Vigilar", attention: "Requiere atención", unknown: "Revisado" }[item.status] || "Revisado";
+    const nombre = item.component_label || nombreDeComponente(item.component_key) || "Revisión";
+    const fotos = (item.photo_paths || []).map((ruta) => {
+      const url = urls[ruta];
+      return url ? `<a class="exp-foto-thumb" href="${seguro(url)}" target="_blank" rel="noopener noreferrer"><img src="${seguro(url)}" alt="Foto de ${seguro(nombre)}" loading="lazy"></a>` : "";
+    }).join("");
+    return `<article class="exp-inspeccion-item">
+      <div class="exp-inspeccion-head"><strong>${seguro(nombre)}</strong><span class="client-status-badge ${seguro(tonoInspeccion(item.status))}">${seguro(estadoTexto)}</span></div>
+      ${item.notes ? `<p>${seguro(item.notes)}</p>` : ""}
+      ${fotos ? `<div class="exp-inspeccion-fotos">${fotos}</div>` : ""}
+    </article>`;
+  }
+
+  async function cargarInspeccionesDelExpediente(exp) {
+    const cuerpo = document.querySelector("#expedienteInspeccionesBody");
+    if (!cuerpo || !exp.tieneReporte) return;
+    try {
+      const items = await window.DtekBackend.listWorkOrderInspections(exp.id);
+      const relevantes = (items || []).filter((it) => (it.notes && it.notes.trim()) || (it.photo_paths || []).length);
+      if (!relevantes.length) {
+        cuerpo.innerHTML = `<p class="exp-nota">No se registraron fotos ni notas adicionales en esta visita.</p>`;
+        return;
+      }
+      const rutas = [...new Set(relevantes.flatMap((it) => it.photo_paths || []))];
+      const urls = rutas.length ? await window.DtekBackend.createInspectionPhotoUrls(rutas) : {};
+      cuerpo.innerHTML = relevantes.map((item) => tarjetaInspeccion(item, urls)).join("");
+    } catch (error) {
+      console.warn(error);
+      cuerpo.innerHTML = `<p class="exp-nota">No pudimos cargar las fotos ahora. Volvé a intentar más tarde.</p>`;
+    }
   }
 
   /* ---------- abrir y cerrar ---------- */
@@ -164,6 +210,7 @@
     }
 
     pintar(exp);
+    cargarInspeccionesDelExpediente(exp);
     ultimoFoco = document.activeElement;
     modal.setAttribute("aria-hidden", "false");
     document.body.classList.add("client-modal-open");
