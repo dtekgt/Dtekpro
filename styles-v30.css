@@ -1909,7 +1909,7 @@
 .page-admin-v31 .admin-menu-v34 button.active{color:#fff;background:rgba(227,32,37,.16)}
 
 .page-admin-v31 .admin-section-v34{display:none}
-.page-admin-v31 .admin-section-v34.active{display:block;animation:adminFadeV34 .22s ease}
+.page-admin-v31 .admin-section-v34.active{display:block;min-width:0;animation:adminFadeV34 .22s ease}
 @keyframes adminFadeV34{from{opacity:.35;transform:translateY(3px)}to{opacity:1;transform:none}}
 
 .page-admin-v31 .admin-subtabs-v34{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap}
@@ -1920,7 +1920,7 @@
 .page-admin-v31 .admin-subtabs-v34 button:hover{color:#fff}
 .page-admin-v31 .admin-subtabs-v34 button.active{color:#fff;border-color:rgba(227,32,37,.4);background:rgba(227,32,37,.1)}
 .page-admin-v31 .admin-subpanel-v34{display:none}
-.page-admin-v31 .admin-subpanel-v34.active{display:grid;gap:14px;animation:adminFadeV34 .22s ease}
+.page-admin-v31 .admin-subpanel-v34.active{display:grid;grid-template-columns:minmax(0,1fr);gap:14px;animation:adminFadeV34 .22s ease}
 
 .page-admin-v31 .admin-toolbar.compact-toolbar{position:sticky;top:64px;z-index:40;padding-block:8px;background:rgba(5,8,13,.85);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
 
@@ -1959,6 +1959,22 @@
 @media (min-width:1024px){
   .page-admin-v31 .admin-mobile-nav-v34{display:none}
 }
+
+/* Citas: tarjeta compacta y barra de filtros en chips (antes: bloques
+   label/valor apilados en 2 renglones cada uno + 4 filas de botones grandes) */
+.page-admin-v31 .appt-meta-v34{display:flex;flex-wrap:wrap;gap:5px 14px;margin-top:8px;font-size:12.5px;color:rgba(255,255,255,.58)}
+.page-admin-v31 .appt-symptom-v34{margin:8px 0 0;padding:6px 10px;border-radius:8px;background:rgba(255,195,65,.08);border:1px solid rgba(255,195,65,.22);color:#ffd88a;font-size:12.5px}
+.page-admin-v31 .appt-actions-v34{display:flex;flex-wrap:wrap;gap:6px;grid-template-columns:none}
+.page-admin-v31 .appt-actions-v34 button,
+.page-admin-v31 .appt-actions-v34 .wa-action{flex:none;min-height:32px;padding:0 12px;font-size:11.5px}
+
+.page-admin-v31 .appt-toolbar-v34{display:flex;align-items:center;gap:8px;flex-wrap:nowrap;width:100%;min-width:0;align-self:stretch}
+.page-admin-v31 .appt-filter-scroll-v34{display:flex;flex:1;gap:6px;overflow-x:auto;min-width:0;padding-bottom:2px;scrollbar-width:none}
+.page-admin-v31 .appt-filter-scroll-v34::-webkit-scrollbar{display:none}
+.page-admin-v31 .filter-chip-v34{flex:none;min-height:32px;padding:0 14px;border-radius:999px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.04);color:rgba(255,255,255,.6);font-size:12px;font-weight:700;white-space:nowrap;cursor:pointer}
+.page-admin-v31 .filter-chip-v34:hover{color:#fff}
+.page-admin-v31 .filter-chip-v34.active{color:#fff;border-color:rgba(227,32,37,.4);background:rgba(227,32,37,.12)}
+.page-admin-v31 .appt-refresh-v34{color:var(--f1-red-hot);border-color:rgba(227,32,37,.3)}
 
 /* ==========================================================================
    D-TEK v31 · Referidos — diferenciar formulario público vs Garage

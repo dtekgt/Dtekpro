@@ -229,6 +229,13 @@ function appointmentUrgencyGroup(item, now = new Date()) {
   return "later";
 }
 
+function dtekFormatAppointmentWhen(item) {
+  const start = item.scheduled_start ? new Date(item.scheduled_start) : null;
+  if (!start || Number.isNaN(start.getTime())) return "Sin fecha";
+  const fecha = start.toLocaleDateString("es-GT", { weekday: "short", day: "2-digit", month: "short" });
+  return `${fecha} · ${dtekFormatTimeRange(item)}`;
+}
+
 function appointmentCard(item) {
   const serviceName = item.service_name || item.service_id || "Servicio";
   const vehicleSummary = item.vehicle_summary || [item.vehicle_brand, item.vehicle_line, item.vehicle_year].filter(Boolean).join(" ") || "Vehículo sin datos";
@@ -237,22 +244,21 @@ function appointmentCard(item) {
     .map(([value, label]) => `<button type="button" data-backend-status="${adminSafe(value)}" data-id="${adminSafe(item.id)}">${adminSafe(label)}</button>`)
     .join("");
   return `
-    <article class="memory-item ${adminSafe(status)}">
+    <article class="memory-item appt-card-v34 ${adminSafe(status)}">
       <div class="memory-item-main">
         <div>
           <strong>${adminSafe(serviceName)}</strong>
-          <small>${adminSafe(dtekFormatDateTime(item.scheduled_start))} · ${adminSafe(dtekFormatTimeRange(item))}</small>
-          <small>${adminSafe(item.client_name || "Cliente")} · ${adminSafe(item.client_phone || "Sin teléfono")} · ${adminSafe(item.client_email || "Sin correo")}</small>
+          <small>${adminSafe(dtekFormatAppointmentWhen(item))}</small>
+          <small>${adminSafe(item.client_name || "Cliente")} · ${adminSafe(item.client_phone || "Sin teléfono")}</small>
         </div>
         <span class="status-pill ${adminSafe(status)}">${adminSafe(dtekStatusLabel(status))}</span>
       </div>
-      <div class="appointment-grid">
-        <div><span>Vehículo</span><strong>${adminSafe(vehicleSummary)}</strong></div>
-        <div><span>Ubicación</span><strong>${adminSafe(item.location || "Sin ubicación")}</strong></div>
-        <div><span>Síntoma</span><strong>${adminSafe(item.symptom || "Sin síntoma")}</strong></div>
-        <div><span>Fuente</span><strong>${adminSafe(item.source || "web")}</strong></div>
+      <div class="appt-meta-v34">
+        <span>${adminSafe(vehicleSummary)}</span>
+        <span>${adminSafe(item.location || "Sin ubicación")}</span>
       </div>
-      <div class="memory-actions">
+      ${item.symptom ? `<p class="appt-symptom-v34">${adminSafe(item.symptom)}</p>` : ""}
+      <div class="memory-actions appt-actions-v34">
         ${statusButtons}
         <button type="button" data-workorder-report="${adminSafe(item.id)}">Reporte técnico</button>
         <a class="wa-action" href="${adminSafe(dtekWhatsAppClientLink(item))}" target="_blank" rel="noopener noreferrer">WhatsApp</a>

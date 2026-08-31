@@ -9,7 +9,7 @@
   <meta name="theme-color" content="#05080d" />
   <title>Admin Backend · D-TEK GT</title>
   <link rel="stylesheet" href="styles.css?v=ef56fadb" />
-  <link rel="stylesheet" href="styles-v30.css?v=eba8ffe0" />
+  <link rel="stylesheet" href="styles-v30.css?v=b0084fce" />
 </head>
 <body class="page-admin-v31">
   <div class="dtek-bg"><span class="orb orb-red"></span><span class="orb orb-cyan"></span></div>
@@ -82,13 +82,15 @@
                 <span class="eyebrow">Operación</span>
                 <h2>Citas reales</h2>
               </div>
-              <div class="admin-toolbar compact-toolbar">
-                <button class="btn btn-cyan" id="backendRefresh" type="button">Actualizar</button>
-                <button class="btn btn-ghost" data-filter-status="all" type="button">Todas</button>
-                <button class="btn btn-ghost" data-filter-status="requested" type="button">Solicitadas</button>
-                <button class="btn btn-ghost" data-filter-status="confirmed" type="button">Confirmadas</button>
-                <button class="btn btn-ghost" data-filter-status="completed" type="button">Realizadas</button>
-                <button class="btn btn-ghost" data-filter-status="cancelled" type="button">Canceladas</button>
+              <div class="admin-toolbar compact-toolbar appt-toolbar-v34">
+                <button class="filter-chip-v34 appt-refresh-v34" id="backendRefresh" type="button" aria-label="Actualizar">⟳ Actualizar</button>
+                <div class="appt-filter-scroll-v34">
+                  <button class="filter-chip-v34 active" data-filter-status="all" type="button">Todas</button>
+                  <button class="filter-chip-v34" data-filter-status="requested" type="button">Solicitadas</button>
+                  <button class="filter-chip-v34" data-filter-status="confirmed" type="button">Confirmadas</button>
+                  <button class="filter-chip-v34" data-filter-status="completed" type="button">Realizadas</button>
+                  <button class="filter-chip-v34" data-filter-status="cancelled" type="button">Canceladas</button>
+                </div>
               </div>
             </div>
             <div id="backendAppointments" class="admin-list"></div>
@@ -359,7 +361,7 @@
   <script src="services-data.js?v=465c3473"></script>
   <script src="vehicle-health.js?v=36000001"></script>
   <script src="supabase-client.js?v=66c80706"></script>
-  <script src="backend-admin.js?v=4d8fe333"></script>
+  <script src="backend-admin.js?v=c331e8d7"></script>
   <script defer src="/_vercel/insights/script.js"></script>
 </body>
 </html>
