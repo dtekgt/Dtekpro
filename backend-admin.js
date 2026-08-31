@@ -5,8 +5,10 @@ const adminQsa = (selector) => Array.from(document.querySelectorAll(selector));
 let dtekAdminAppointmentsCache = [];
 let dtekAdminReferralsCache = [];
 let dtekAdminRedemptionsCache = [];
+let dtekAdminBlockedTimesCache = [];
 let dtekAdminFilter = "all";
 let dtekReferralFilter = "all";
+let dtekHorarioSelectedDate = new Date();
 
 function adminSafe(value) {
   return String(value ?? "").replace(/[<>&"]/g, (char) => ({"<":"&lt;", ">":"&gt;", "&":"&amp;", '"':"&quot;"}[char]));
@@ -224,7 +226,9 @@ function appointmentUrgencyGroup(item, now = new Date()) {
   const startDay = new Date(start.getFullYear(), start.getMonth(), start.getDate());
   const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
   const diffDays = Math.round((startDay - today) / 86400000);
-  if (diffDays <= 0) return "today";
+  const resuelto = item.status === "completed" || item.status === "cancelled";
+  if (diffDays === 0) return "today";
+  if (diffDays < 0) return resuelto ? "history" : "overdue";
   if (diffDays <= 7) return "soon";
   return "later";
 }
@@ -319,18 +323,196 @@ function renderAppointmentsList(items) {
   if (!holder) return;
   const filtered = dtekAdminFilter === "all" ? items : items.filter((item) => (item.status || "requested") === dtekAdminFilter);
   const sorted = [...filtered].sort((a, b) => new Date(a.scheduled_start || 0) - new Date(b.scheduled_start || 0));
-  const groups = { today: [], soon: [], later: [] };
+  const groups = { today: [], overdue: [], soon: [], later: [], history: [] };
   sorted.forEach((item) => groups[appointmentUrgencyGroup(item)].push(item));
+  groups.history.reverse();
   const sections = [
-    ["today", "Hoy y atrasadas"],
+    ["today", "Hoy"],
+    ["overdue", "Atrasadas"],
     ["soon", "Próximas (7 días)"],
-    ["later", "Más adelante"]
+    ["later", "Más adelante"],
+    ["history", "Historial"]
   ].filter(([key]) => groups[key].length).map(([key, label]) => `
     <div class="admin-urgency-group">
       <h3 class="admin-urgency-heading">${label}<b>${groups[key].length}</b></h3>
       ${groups[key].map(appointmentCard).join("")}
     </div>`).join("");
   holder.innerHTML = sorted.length ? sections : `<p class="memory-empty">No hay citas para este filtro.</p>`;
+}
+
+/* ---------- Horario: timeline diario que cruza citas + bloqueos ---------- */
+
+const DTEK_HORARIO_PX_POR_HORA = 64;
+
+function dtekTimelineRange(items, dayDate) {
+  const DEFAULT_START_H = 8, DEFAULT_END_H = 18, MIN_RANGO_H = 4;
+  const atHour = (h) => new Date(dayDate.getFullYear(), dayDate.getMonth(), dayDate.getDate(), h, 0, 0, 0);
+  if (!items.length) return { start: atHour(DEFAULT_START_H), end: atHour(DEFAULT_END_H) };
+  const minStart = new Date(Math.min(...items.map((i) => i.start.getTime())));
+  const maxEnd = new Date(Math.max(...items.map((i) => i.end.getTime())));
+  let startH = Math.max(0, Math.floor(minStart.getHours() - 1));
+  let endH = Math.min(24, Math.ceil(maxEnd.getHours() + (maxEnd.getMinutes() > 0 ? 1 : 0)) + 1);
+  if (endH - startH < MIN_RANGO_H) endH = Math.min(24, startH + MIN_RANGO_H);
+  return { start: atHour(startH), end: atHour(endH) };
+}
+
+function dtekLayoutTimelineItems(items, rangeStart, rangeEnd, pxPorHora = DTEK_HORARIO_PX_POR_HORA) {
+  const pxPorMs = pxPorHora / 3600000;
+  const MIN_ALTURA_PX = 30;
+  const MIN_ANCHO_COL_PX = 92;
+
+  const usable = items
+    .map((it) => ({
+      ...it,
+      cStart: new Date(Math.max(it.start.getTime(), rangeStart.getTime())),
+      cEnd: new Date(Math.min(it.end.getTime(), rangeEnd.getTime()))
+    }))
+    .filter((it) => it.cEnd > it.cStart)
+    .sort((a, b) => a.cStart - b.cStart || a.cEnd - b.cEnd);
+
+  const clusters = [];
+  let currentMaxEnd = -Infinity;
+  usable.forEach((it) => {
+    if (!clusters.length || it.cStart.getTime() >= currentMaxEnd) {
+      clusters.push([]);
+      currentMaxEnd = -Infinity;
+    }
+    clusters[clusters.length - 1].push(it);
+    currentMaxEnd = Math.max(currentMaxEnd, it.cEnd.getTime());
+  });
+
+  let maxColsGlobal = 1;
+  const positioned = [];
+  clusters.forEach((cluster) => {
+    const colEnds = [];
+    cluster.forEach((it) => {
+      let col = colEnds.findIndex((end) => end <= it.cStart.getTime());
+      if (col === -1) { col = colEnds.length; colEnds.push(it.cEnd.getTime()); }
+      else colEnds[col] = it.cEnd.getTime();
+      it._col = col;
+    });
+    const totalCols = colEnds.length;
+    maxColsGlobal = Math.max(maxColsGlobal, totalCols);
+    cluster.forEach((it) => {
+      const top = (it.cStart - rangeStart) * pxPorMs;
+      const height = Math.max((it.cEnd - it.cStart) * pxPorMs, MIN_ALTURA_PX);
+      positioned.push({
+        ...it,
+        top, height, col: it._col, totalCols,
+        left: `${(it._col / totalCols) * 100}%`,
+        width: `calc(${100 / totalCols}% - 4px)`
+      });
+    });
+  });
+
+  return { items: positioned, trackMinWidthPx: Math.max(280, maxColsGlobal * MIN_ANCHO_COL_PX) };
+}
+
+function dtekTimelineItemsForDay(dayDate) {
+  const dayStart = new Date(dayDate.getFullYear(), dayDate.getMonth(), dayDate.getDate());
+  const dayEnd = new Date(dayStart.getTime() + 86400000);
+  const overlaps = (s, e) => s < dayEnd && e > dayStart;
+
+  const citas = dtekAdminAppointmentsCache
+    .map((a) => ({
+      id: a.id, type: "appointment", status: a.status || "requested", raw: a,
+      start: new Date(a.scheduled_start), end: new Date(a.scheduled_end)
+    }))
+    .filter((it) => !Number.isNaN(it.start.getTime()) && !Number.isNaN(it.end.getTime()) && overlaps(it.start, it.end));
+
+  const bloqueos = dtekAdminBlockedTimesCache
+    .map((b) => ({
+      id: b.id, type: "blocked", raw: b,
+      start: new Date(b.start_time), end: new Date(b.end_time)
+    }))
+    .filter((it) => !Number.isNaN(it.start.getTime()) && !Number.isNaN(it.end.getTime()) && overlaps(it.start, it.end));
+
+  return [...citas, ...bloqueos];
+}
+
+function horarioItemCard(item) {
+  const style = `top:${item.top}px;height:${item.height}px;left:${item.left};width:${item.width}`;
+  if (item.type === "appointment") {
+    const a = item.raw;
+    return `<button type="button" class="horario-item-v34 ${adminSafe(a.status || "requested")}" style="${style}" data-horario-appt="${adminSafe(a.id)}">
+      <strong>${adminSafe(dtekFormatTimeRange(a))}</strong>
+      <span>${adminSafe(a.service_name || a.service_id || "Servicio")}</span>
+      <small>${adminSafe(a.client_name || "Cliente")}</small>
+    </button>`;
+  }
+  const b = item.raw;
+  return `<button type="button" class="horario-item-v34 blocked" style="${style}" data-horario-block="${adminSafe(b.id)}">
+    <strong>${adminSafe(dtekFormatTimeRange({ scheduled_start: b.start_time, scheduled_end: b.end_time }))}</strong>
+    <span>Bloqueado</span>
+    <small>${adminSafe(b.reason || "Sin motivo")}</small>
+  </button>`;
+}
+
+function renderHorarioView() {
+  const track = adminQs("#horarioTrack");
+  if (!track) return;
+  const label = adminQs("#horarioDateLabel");
+  const empty = adminQs("#horarioEmpty");
+  const day = dtekHorarioSelectedDate;
+
+  if (label) label.textContent = day.toLocaleDateString("es-GT", { weekday: "long", day: "2-digit", month: "long" });
+
+  const items = dtekTimelineItemsForDay(day);
+  const { start, end } = dtekTimelineRange(items, day);
+  const { items: positioned, trackMinWidthPx } = dtekLayoutTimelineItems(items, start, end);
+  const totalPx = (end - start) / 3600000 * DTEK_HORARIO_PX_POR_HORA;
+
+  const hoy = new Date();
+  const esHoy = hoy.toDateString() === day.toDateString();
+  const nowTop = (hoy - start) / 3600000 * DTEK_HORARIO_PX_POR_HORA;
+  const mostrarAhora = esHoy && nowTop >= 0 && nowTop <= totalPx;
+
+  const horas = [];
+  for (let h = start.getHours(), acc = 0; acc <= totalPx; h++, acc += DTEK_HORARIO_PX_POR_HORA) {
+    horas.push(`<div class="horario-hourline-v34" style="top:${acc}px"><span>${String(h % 24).padStart(2, "0")}:00</span></div>`);
+  }
+
+  track.style.minHeight = `${totalPx}px`;
+  track.style.minWidth = `${trackMinWidthPx}px`;
+  track.innerHTML = `
+    <div class="horario-hourlines-v34">${horas.join("")}</div>
+    ${mostrarAhora ? `<div class="horario-now-v34" style="top:${nowTop}px"></div>` : ""}
+    <div class="horario-items-v34">${positioned.map(horarioItemCard).join("")}</div>
+  `;
+  if (empty) empty.hidden = items.length > 0;
+}
+
+function bindHorario() {
+  adminQs("#horarioPrev")?.addEventListener("click", () => {
+    dtekHorarioSelectedDate = new Date(dtekHorarioSelectedDate.getTime() - 86400000);
+    renderHorarioView();
+  });
+  adminQs("#horarioNext")?.addEventListener("click", () => {
+    dtekHorarioSelectedDate = new Date(dtekHorarioSelectedDate.getTime() + 86400000);
+    renderHorarioView();
+  });
+  adminQs("#horarioToday")?.addEventListener("click", () => {
+    dtekHorarioSelectedDate = new Date();
+    renderHorarioView();
+  });
+  adminQs("#horarioTrack")?.addEventListener("click", (event) => {
+    const apptBtn = event.target.closest("[data-horario-appt]");
+    if (apptBtn) { openWorkOrderModal(apptBtn.dataset.horarioAppt); return; }
+
+    const blockBtn = event.target.closest("[data-horario-block]");
+    if (blockBtn) {
+      adminQs(".horario-detail-v34")?.remove();
+      const b = dtekAdminBlockedTimesCache.find((x) => String(x.id) === String(blockBtn.dataset.horarioBlock));
+      if (!b) return;
+      const detail = document.createElement("div");
+      detail.className = "horario-detail-v34";
+      detail.innerHTML = `
+        <span><strong>${adminSafe(b.reason || "Bloqueo D-TEK")}</strong> · ${adminSafe(dtekFormatDateTime(b.start_time))} → ${adminSafe(dtekFormatDateTime(b.end_time))}</span>
+        <button type="button" class="btn btn-cyan" data-delete-block="${adminSafe(b.id)}">Eliminar bloqueo</button>
+      `;
+      adminQs("#horarioTrack").insertAdjacentElement("afterend", detail);
+    }
+  });
 }
 
 async function getAdminProfileOrExplain() {
@@ -370,6 +552,7 @@ async function loadBackendAppointments() {
     dtekAdminAppointmentsCache = data || [];
     renderMetrics(dtekAdminAppointmentsCache);
     renderAppointmentsList(dtekAdminAppointmentsCache);
+    renderHorarioView();
   } catch (error) {
     console.error("D-TEK admin backend error:", error);
     backendStatus(error.message, "error");
@@ -412,6 +595,7 @@ async function loadBlockedTimes() {
   try {
     await ensureAdminReady();
     const data = await withTimeout(DtekBackend.listBlockedTimes(), 8000, "bloqueos");
+    dtekAdminBlockedTimesCache = data || [];
     holder.innerHTML = data.length ? data.map((item) => `
       <article class="memory-item">
         <strong>${adminSafe(item.reason || "Bloqueo D-TEK")}</strong>
@@ -419,6 +603,7 @@ async function loadBlockedTimes() {
         <div class="memory-actions"><button type="button" data-delete-block="${adminSafe(item.id)}">Eliminar bloqueo</button></div>
       </article>
     `).join("") : `<p class="memory-empty">No hay bloqueos manuales.</p>`;
+    renderHorarioView();
   } catch (error) {
     holder.innerHTML = `<div class="empty-slots dtek-glass"><strong>No se pudieron cargar bloqueos.</strong><p>${adminSafe(error.message)}</p></div>`;
   }
@@ -1480,6 +1665,7 @@ async function initBackendAdmin() {
 
   bindResumen();
   bindCitas();
+  bindHorario();
   bindReferidos();
   bindClientes();
   bindWorkOrderModal();

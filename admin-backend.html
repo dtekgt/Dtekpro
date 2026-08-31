@@ -9,7 +9,7 @@
   <meta name="theme-color" content="#05080d" />
   <title>Admin Backend · D-TEK GT</title>
   <link rel="stylesheet" href="styles.css?v=ef56fadb" />
-  <link rel="stylesheet" href="styles-v30.css?v=b0084fce" />
+  <link rel="stylesheet" href="styles-v30.css?v=32c6fcff" />
 </head>
 <body class="page-admin-v31">
   <div class="dtek-bg"><span class="orb orb-red"></span><span class="orb orb-cyan"></span></div>
@@ -71,11 +71,33 @@
 
       <section class="admin-section-v34" data-admin-panel="citas">
         <div class="admin-subtabs-v34">
-          <button type="button" class="active" data-admin-subtab="lista">Citas</button>
+          <button type="button" class="active" data-admin-subtab="horario">Horario</button>
+          <button type="button" data-admin-subtab="lista">Citas</button>
           <button type="button" data-admin-subtab="bloqueos">Bloqueos</button>
         </div>
 
-        <div class="admin-subpanel-v34 active" data-admin-subpanel="lista">
+        <div class="admin-subpanel-v34 active" data-admin-subpanel="horario">
+          <section class="section dtek-glass reveal visible horario-panel-v34">
+            <div class="section-head inline-head">
+              <div>
+                <span class="eyebrow">Operación</span>
+                <h2>Horario del día</h2>
+              </div>
+            </div>
+            <div class="horario-nav-v34">
+              <button type="button" id="horarioPrev" aria-label="Día anterior">◀</button>
+              <button type="button" id="horarioToday">Hoy</button>
+              <strong id="horarioDateLabel"></strong>
+              <button type="button" id="horarioNext" aria-label="Día siguiente">▶</button>
+            </div>
+            <div class="horario-scroll-v34">
+              <div class="horario-track-v34" id="horarioTrack"></div>
+            </div>
+            <p class="memory-empty horario-empty-v34" id="horarioEmpty" hidden>No hay citas ni bloqueos este día.</p>
+          </section>
+        </div>
+
+        <div class="admin-subpanel-v34" data-admin-subpanel="lista">
           <section class="section dtek-glass reveal visible">
             <div class="section-head inline-head">
               <div>
@@ -361,7 +383,7 @@
   <script src="services-data.js?v=465c3473"></script>
   <script src="vehicle-health.js?v=36000001"></script>
   <script src="supabase-client.js?v=66c80706"></script>
-  <script src="backend-admin.js?v=118193a0"></script>
+  <script src="backend-admin.js?v=f026e834"></script>
   <script defer src="/_vercel/insights/script.js"></script>
 </body>
 </html>

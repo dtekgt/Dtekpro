@@ -1960,6 +1960,56 @@
   .page-admin-v31 .admin-mobile-nav-v34{display:none}
 }
 
+/* Horario: timeline diario que cruza citas + bloqueos en una sola línea de
+   tiempo, para detectar de un vistazo huecos y dobles-reservas */
+.page-admin-v31 .horario-panel-v34{min-width:0}
+.page-admin-v31 .horario-nav-v34{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.page-admin-v31 .horario-nav-v34 strong{flex:1;text-align:center;font-size:13.5px;text-transform:capitalize}
+.page-admin-v31 .horario-nav-v34 button{min-height:36px;padding:0 12px;border-radius:10px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.04);color:#fff;font-weight:700;cursor:pointer}
+.page-admin-v31 .horario-nav-v34 button:hover{background:rgba(255,255,255,.08)}
+.page-admin-v31 .horario-nav-v34 #horarioToday{color:var(--f1-red-hot);border-color:rgba(227,32,37,.35)}
+
+.page-admin-v31 .horario-scroll-v34{
+  min-width:0;max-height:min(72vh,640px);overflow:auto;
+  border:1px solid rgba(255,255,255,.08);border-radius:14px;background:rgba(255,255,255,.02);
+  padding:10px 10px 10px 0;
+}
+.page-admin-v31 .horario-track-v34{position:relative;min-width:280px;margin-left:52px}
+.page-admin-v31 .horario-hourlines-v34{position:absolute;inset:0;left:-52px;pointer-events:none}
+.page-admin-v31 .horario-hourline-v34{position:absolute;left:0;right:0;border-top:1px solid rgba(255,255,255,.06)}
+.page-admin-v31 .horario-hourline-v34 span{position:absolute;left:0;top:-8px;width:46px;font-size:10.5px;color:rgba(255,255,255,.4);text-align:right;padding-right:6px}
+.page-admin-v31 .horario-now-v34{position:absolute;left:0;right:0;height:2px;background:var(--f1-red-hot);box-shadow:0 0 8px rgba(227,32,37,.6);z-index:5;pointer-events:none}
+.page-admin-v31 .horario-items-v34{position:relative}
+.page-admin-v31 .horario-item-v34{
+  position:absolute;display:flex;flex-direction:column;gap:2px;
+  padding:5px 7px;border-radius:8px;border:1px solid rgba(255,255,255,.12);
+  background:rgba(255,255,255,.05);color:#fff;text-align:left;cursor:pointer;
+  overflow:hidden;font-size:11px;line-height:1.25;
+}
+.page-admin-v31 .horario-item-v34 strong{font-size:10.5px;opacity:.75;font-weight:700}
+.page-admin-v31 .horario-item-v34 span{font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.page-admin-v31 .horario-item-v34 small{opacity:.75;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.page-admin-v31 .horario-item-v34.requested{border-color:rgba(255,214,107,.4);background:rgba(255,214,107,.1)}
+.page-admin-v31 .horario-item-v34.confirmed{border-color:rgba(0,229,255,.4);background:rgba(0,229,255,.1)}
+.page-admin-v31 .horario-item-v34.completed{border-color:rgba(102,255,198,.4);background:rgba(102,255,198,.1)}
+.page-admin-v31 .horario-item-v34.cancelled{border-color:rgba(255,155,155,.3);background:rgba(255,155,155,.06);opacity:.45}
+.page-admin-v31 .horario-item-v34.blocked{border-color:rgba(255,255,255,.22);background:repeating-linear-gradient(135deg,rgba(255,255,255,.07) 0 6px,rgba(255,255,255,.02) 6px 12px)}
+.page-admin-v31 .horario-empty-v34{margin-top:12px}
+
+.page-admin-v31 .horario-detail-v34{
+  margin-top:8px;padding:10px 12px;border-radius:10px;
+  border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.04);
+  display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;font-size:12.5px;
+}
+.page-admin-v31 .horario-detail-v34 button{flex:none;min-height:30px;padding:0 10px;font-size:11px}
+
+@media (max-width:600px){
+  .page-admin-v31 .horario-track-v34{margin-left:40px}
+  .page-admin-v31 .horario-hourlines-v34{left:-40px}
+  .page-admin-v31 .horario-hourline-v34 span{width:34px;font-size:9.5px}
+  .page-admin-v31 .horario-item-v34{font-size:10px;padding:4px 5px}
+}
+
 /* Citas: tarjeta compacta y barra de filtros en chips (antes: bloques
    label/valor apilados en 2 renglones cada uno + 4 filas de botones grandes) */
 .page-admin-v31 .appt-meta-v34{display:flex;flex-wrap:wrap;gap:5px 14px;margin-top:8px;font-size:12.5px;color:rgba(255,255,255,.58)}
