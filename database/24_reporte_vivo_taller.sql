@@ -21,7 +21,11 @@ on conflict (id) do update set
   file_size_limit = excluded.file_size_limit,
   allowed_mime_types = excluded.allowed_mime_types;
 
-alter table storage.objects enable row level security;
+-- storage.objects ya viene con RLS activado por defecto en todo proyecto
+-- Supabase — ni el dueño del proyecto es owner de esa tabla del sistema,
+-- así que un "alter table ... enable row level security" acá falla con
+-- "must be owner of table objects". No hace falta: las políticas de abajo
+-- alcanzan solas.
 
 drop policy if exists vehicle_inspections_admin_all on storage.objects;
 create policy vehicle_inspections_admin_all
