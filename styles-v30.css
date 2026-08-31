@@ -1886,6 +1886,81 @@
 .page-admin-v31 .admin-modal-actions{display:grid;grid-template-columns:.5fr 1fr;gap:10px;margin-top:4px}
 
 /* ==========================================================================
+   D-TEK v34 · Navegación admin (nav superior + inferior + tabs + modal genérico)
+   ========================================================================== */
+.page-admin-v31 .admin-account-bar-v34{display:flex;align-items:center;gap:12px;margin-bottom:14px}
+.page-admin-v31 .admin-account-bar-v34 .status-box:empty{display:none}
+.page-admin-v31 .admin-gate-v34{width:min(460px,100%);margin:0 auto}
+.page-admin-v31 .admin-gate-v34.hidden-field{display:none}
+
+.page-admin-v31 .admin-menu-v34{
+  position:sticky;top:10px;z-index:60;
+  display:grid;grid-template-columns:repeat(4,1fr);gap:6px;
+  margin-bottom:18px;padding:6px;
+  border:1px solid rgba(255,255,255,.08);border-radius:14px;
+  background:rgba(8,10,15,.7);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+}
+.page-admin-v31 .admin-menu-v34 button{
+  display:flex;align-items:center;justify-content:center;gap:6px;
+  min-height:44px;border:0;border-radius:10px;background:transparent;
+  color:rgba(255,255,255,.55);font-size:13px;font-weight:650;cursor:pointer;
+}
+.page-admin-v31 .admin-menu-v34 button:hover{color:#fff;background:rgba(255,255,255,.06)}
+.page-admin-v31 .admin-menu-v34 button.active{color:#fff;background:rgba(227,32,37,.16)}
+
+.page-admin-v31 .admin-section-v34{display:none}
+.page-admin-v31 .admin-section-v34.active{display:block;animation:adminFadeV34 .22s ease}
+@keyframes adminFadeV34{from{opacity:.35;transform:translateY(3px)}to{opacity:1;transform:none}}
+
+.page-admin-v31 .admin-subtabs-v34{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap}
+.page-admin-v31 .admin-subtabs-v34 button{
+  min-height:38px;padding:0 14px;border:1px solid rgba(255,255,255,.1);border-radius:999px;
+  background:transparent;color:rgba(255,255,255,.55);font-size:12.5px;font-weight:650;cursor:pointer;
+}
+.page-admin-v31 .admin-subtabs-v34 button:hover{color:#fff}
+.page-admin-v31 .admin-subtabs-v34 button.active{color:#fff;border-color:rgba(227,32,37,.4);background:rgba(227,32,37,.1)}
+.page-admin-v31 .admin-subpanel-v34{display:none}
+.page-admin-v31 .admin-subpanel-v34.active{display:grid;gap:14px;animation:adminFadeV34 .22s ease}
+
+.page-admin-v31 .admin-toolbar.compact-toolbar{position:sticky;top:64px;z-index:40;padding-block:8px;background:rgba(5,8,13,.85);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
+
+.page-admin-v31 .admin-modal-panel .wo-subtabs-v34{position:sticky;top:-26px;z-index:5;margin:-8px -26px 0;padding:8px 26px 0;background:rgba(16,21,29,.95)}
+.page-admin-v31 .admin-modal-actions{
+  position:sticky;bottom:-26px;z-index:5;
+  margin:8px -26px -26px;padding:14px 26px calc(14px + env(safe-area-inset-bottom));
+  background:rgba(16,21,29,.95);border-top:1px solid rgba(255,255,255,.08);
+}
+
+.page-admin-v31 .admin-confirm-backdrop-v34{z-index:420}
+.page-admin-v31 .admin-confirm-panel-v34{width:min(420px,100%)}
+
+@media (max-width:1023px){
+  .page-admin-v31 .admin-menu-v34{display:none}
+  .page-admin-v31 .admin-toolbar.compact-toolbar{top:0}
+
+  .page-admin-v31 .admin-mobile-nav-v34{
+    display:grid;grid-template-columns:repeat(4,1fr);
+    position:fixed;z-index:90;right:8px;left:8px;
+    bottom:calc(10px + env(safe-area-inset-bottom));
+    height:64px;padding:4px;gap:2px;
+    border:1px solid rgba(255,255,255,.12);border-radius:20px;
+    background:rgba(11,14,18,.92);backdrop-filter:blur(20px) saturate(140%);-webkit-backdrop-filter:blur(20px) saturate(140%);
+    box-shadow:0 18px 40px rgba(0,0,0,.5);
+  }
+  .page-admin-v31 .admin-mobile-nav-v34 button{
+    display:grid;place-items:center;gap:2px;border:0;border-radius:14px;
+    background:transparent;color:rgba(255,255,255,.5);font-size:9px;font-weight:700;
+  }
+  .page-admin-v31 .admin-mobile-nav-v34 button span{font-size:18px}
+  .page-admin-v31 .admin-mobile-nav-v34 button.active{color:#fff}
+  .page-admin-v31 .admin-mobile-nav-v34 button.active span{color:var(--f1-red-hot)}
+  .page-admin-v31 .page-shell{padding-bottom:calc(88px + env(safe-area-inset-bottom))}
+}
+@media (min-width:1024px){
+  .page-admin-v31 .admin-mobile-nav-v34{display:none}
+}
+
+/* ==========================================================================
    D-TEK v31 · Referidos — diferenciar formulario público vs Garage
    ========================================================================== */
 .page-referral-v24 .referral-garage-hint{

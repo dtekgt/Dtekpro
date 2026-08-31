@@ -1,6 +1,7 @@
 /* D-TEK GT Web OS v30.3 — Admin backend + Pecera */
 
 const adminQs = (selector) => document.querySelector(selector);
+const adminQsa = (selector) => Array.from(document.querySelectorAll(selector));
 let dtekAdminAppointmentsCache = [];
 let dtekAdminReferralsCache = [];
 let dtekAdminRedemptionsCache = [];
@@ -739,6 +740,9 @@ function openWorkOrderModal(appointmentId) {
   adminQs("#workOrderMileage").value = "";
   renderWorkOrderInspections(appointment);
 
+  form.querySelectorAll("[data-wo-subtab]").forEach((b) => b.classList.toggle("active", b.dataset.woSubtab === "recibo"));
+  form.querySelectorAll("[data-wo-subpanel]").forEach((p) => p.classList.toggle("active", p.dataset.woSubpanel === "recibo"));
+
   // Arranca con una linea del servicio agendado, para no empezar en blanco.
   dtekLineas = [];
   const precio = dtekPrecioDeCatalogo(appointment?.service_id);
@@ -960,30 +964,138 @@ async function submitWorkOrderReport(event, { compartir = false } = {}) {
   }
 }
 
-async function initBackendAdmin() {
-  renderBackendSystemStatus();
-  await refreshAllAdminData();
+/* ---------- Navegación del panel (tabs + sub-tabs) ---------- */
 
-  adminQs("#workOrderForm")?.addEventListener("submit", (ev) => submitWorkOrderReport(ev, { compartir: false }));
-  adminQs("#workOrderSaveAndShare")?.addEventListener("click", (ev) => submitWorkOrderReport(ev, { compartir: true }));
-  bindLineas();
-  bindInspecciones();
-  adminQs("#workOrderModalClose")?.addEventListener("click", closeWorkOrderModal);
-  adminQs("#workOrderModalCancel")?.addEventListener("click", closeWorkOrderModal);
-  adminQs("#workOrderModal")?.addEventListener("click", (event) => {
-    if (event.target.id === "workOrderModal") closeWorkOrderModal();
-  });
-  document.addEventListener("keydown", (event) => {
-    if (event.key === "Escape" && !adminQs("#workOrderModal")?.classList.contains("hidden-field")) closeWorkOrderModal();
-  });
+const ADMIN_SECTIONS = ["resumen", "citas", "referidos", "clientes"];
 
+function setAdminSection(section) {
+  const normalized = ADMIN_SECTIONS.includes(section) ? section : "resumen";
+  document.body.dataset.adminSectionActive = normalized;
+  adminQsa("[data-admin-section]").forEach((btn) => {
+    btn.classList.toggle("active", btn.dataset.adminSection === normalized);
+    btn.setAttribute("aria-current", btn.dataset.adminSection === normalized ? "page" : "false");
+  });
+  adminQsa("[data-admin-panel]").forEach((panel) => panel.classList.toggle("active", panel.dataset.adminPanel === normalized));
+  try { sessionStorage.setItem("dtekAdminSection", normalized); } catch (e) {}
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+function bindAdminNav() {
+  adminQsa("[data-admin-section]").forEach((btn) => btn.addEventListener("click", () => setAdminSection(btn.dataset.adminSection)));
+  let restored = "resumen";
+  try { restored = sessionStorage.getItem("dtekAdminSection") || "resumen"; } catch (e) {}
+  setAdminSection(restored);
+}
+
+// Generica: sirve tanto para los sub-tabs de pagina (Citas/Bloqueos, etc.)
+// como para los del modal de orden de trabajo (Recibo/Inspeccion).
+function bindAdminSectionSubtabs(container, subtabAttr, subpanelAttr) {
+  if (!container) return;
+  container.addEventListener("click", (event) => {
+    const btn = event.target.closest(`[${subtabAttr}]`);
+    if (!btn) return;
+    const key = btn.getAttribute(subtabAttr);
+    container.querySelectorAll(`[${subtabAttr}]`).forEach((b) => b.classList.toggle("active", b === btn));
+    container.querySelectorAll(`[${subpanelAttr}]`).forEach((p) => p.classList.toggle("active", p.getAttribute(subpanelAttr) === key));
+  });
+}
+
+/* ---------- Modal generico (reemplaza prompt()/confirm() nativos) ---------- */
+
+let dtekGenericModalResolver = null;
+let dtekGenericModalMode = "confirm"; // "confirm" | "prompt"
+
+function adminGenericModalOpen({ title = "Confirmar", message = "", inputLabel = null, inputValue = "", okLabel = "Aceptar", cancelLabel = "Cancelar" } = {}) {
+  return new Promise((resolve) => {
+    dtekGenericModalResolver = resolve;
+    dtekGenericModalMode = inputLabel != null ? "prompt" : "confirm";
+    adminQs("#adminGenericModalTitle").textContent = title;
+    adminQs("#adminGenericModalMessage").textContent = message;
+    const wrap = adminQs("#adminGenericModalInputWrap");
+    const input = adminQs("#adminGenericModalInput");
+    wrap.classList.toggle("hidden-field", dtekGenericModalMode !== "prompt");
+    if (dtekGenericModalMode === "prompt") {
+      adminQs("#adminGenericModalInputLabel").textContent = inputLabel;
+      input.value = inputValue;
+    }
+    adminQs("#adminGenericModalOk").textContent = okLabel;
+    adminQs("#adminGenericModalCancel").textContent = cancelLabel;
+    adminQs("#adminGenericModal").classList.remove("hidden-field");
+    (dtekGenericModalMode === "prompt" ? input : adminQs("#adminGenericModalOk"))?.focus();
+  });
+}
+
+function adminGenericModalClose(result) {
+  adminQs("#adminGenericModal")?.classList.add("hidden-field");
+  const resolve = dtekGenericModalResolver;
+  dtekGenericModalResolver = null;
+  resolve?.(result);
+}
+
+function adminConfirm(message, opts = {}) {
+  return adminGenericModalOpen({ message, ...opts });
+}
+
+function adminPrompt(message, { defaultValue = "", ...opts } = {}) {
+  return adminGenericModalOpen({ inputLabel: message, inputValue: defaultValue, ...opts })
+    .then((result) => (result === false ? null : result));
+}
+
+function bindAdminGenericModal() {
+  const okValue = () => (dtekGenericModalMode === "prompt" ? adminQs("#adminGenericModalInput").value : true);
+  const cancelValue = () => (dtekGenericModalMode === "prompt" ? null : false);
+  adminQs("#adminGenericModalOk")?.addEventListener("click", () => adminGenericModalClose(okValue()));
+  adminQs("#adminGenericModalCancel")?.addEventListener("click", () => adminGenericModalClose(cancelValue()));
+  adminQs("#adminGenericModal")?.addEventListener("click", (event) => {
+    if (event.target.id === "adminGenericModal") adminGenericModalClose(cancelValue());
+  });
+  adminQs("#adminGenericModalInput")?.addEventListener("keydown", (event) => {
+    if (event.key === "Enter") { event.preventDefault(); adminQs("#adminGenericModalOk")?.click(); }
+  });
+}
+
+function handleAdminEscape(event) {
+  if (event.key !== "Escape") return;
+  if (!adminQs("#adminGenericModal")?.classList.contains("hidden-field")) {
+    adminGenericModalClose(dtekGenericModalMode === "prompt" ? null : false);
+    return;
+  }
+  if (!adminQs("#workOrderModal")?.classList.contains("hidden-field")) closeWorkOrderModal();
+}
+
+/* ---------- Gate (login) vs shell (panel logueado) ---------- */
+
+async function refreshAdminGateState() {
+  const gate = adminQs("#adminGate");
+  const shell = adminQs("#adminShell");
+  const logoutBtn = adminQs("#backendLogout");
+  try {
+    const { session, profile, isAdmin } = await getAdminProfileOrExplain();
+    const authed = Boolean(session && isAdmin);
+    gate?.classList.toggle("hidden-field", authed);
+    shell?.classList.toggle("hidden-field", !authed);
+    logoutBtn?.classList.toggle("hidden-field", !authed);
+    if (authed) {
+      backendStatus(`Sesión admin activa: ${profile.email || session.user.email}`, "ok");
+      await refreshAllAdminData();
+    }
+  } catch (error) {
+    gate?.classList.remove("hidden-field");
+    shell?.classList.add("hidden-field");
+    logoutBtn?.classList.add("hidden-field");
+  }
+}
+
+/* ---------- Bind por sección ---------- */
+
+function bindResumen() {
   adminQs("#backendLoginForm")?.addEventListener("submit", async (event) => {
     event.preventDefault();
     try {
       backendStatus("Iniciando sesión...", "info");
       await withTimeout(DtekBackend.signIn(adminQs("#backendIdentifier").value.trim(), adminQs("#backendPassword").value), 10000, "login");
       backendStatus("Sesión iniciada. Cargando panel...", "ok");
-      await refreshAllAdminData();
+      await refreshAdminGateState();
     } catch (error) {
       console.error("Login/admin load error:", error);
       backendStatus(error.message, "error");
@@ -1018,68 +1130,32 @@ async function initBackendAdmin() {
     renderReferralsList([]);
     renderReferralMetrics([]);
     renderRedemptionsList([]);
+    adminQs("#adminGate")?.classList.remove("hidden-field");
+    adminQs("#adminShell")?.classList.add("hidden-field");
+    adminQs("#backendLogout")?.classList.add("hidden-field");
   });
+}
 
+function bindCitas() {
   adminQs("#backendRefresh")?.addEventListener("click", refreshAllAdminData);
-  adminQs("#backendRefreshReferrals")?.addEventListener("click", loadBackendReferrals);
-  adminQs("#backendRefreshRedemptions")?.addEventListener("click", loadBackendRedemptions);
 
   document.addEventListener("click", async (event) => {
     const filterBtn = event.target.closest("[data-filter-status]");
     if (filterBtn) {
       dtekAdminFilter = filterBtn.dataset.filterStatus;
+      adminQsa("[data-filter-status]").forEach((b) => b.classList.toggle("active", b === filterBtn));
       renderAppointmentsList(dtekAdminAppointmentsCache);
       return;
     }
 
-    const referralFilterBtn = event.target.closest("[data-referral-filter]");
-    if (referralFilterBtn) {
-      dtekReferralFilter = referralFilterBtn.dataset.referralFilter || "all";
-      renderReferralsList(dtekAdminReferralsCache);
-      return;
-    }
-
-    const referralStatusBtn = event.target.closest("[data-referral-status]");
-    if (referralStatusBtn) {
-      try {
-        const status = referralStatusBtn.dataset.referralStatus;
-        const referral = dtekAdminReferralsCache.find(item => String(item.id) === String(referralStatusBtn.dataset.referralId));
-        const reward = 0;
-        if (status === "converted" && !confirm(`¿Confirmar que ${referral?.referred_name || "el referido"} completó su primer trabajo y acreditar 100 puntos?`)) return;
-        if (status === "discarded" && !confirm("¿Marcar esta recomendación como no convertida?")) return;
-        await withTimeout(DtekBackend.updateReferralStatus(referralStatusBtn.dataset.referralId, status, reward, null), 8000, "actualizar referido");
-        await loadBackendReferrals();
-      } catch (error) {
-        alert(error.message);
-      }
-      return;
-    }
-
-    const loyaltyAdjustBtn = event.target.closest("[data-points-adjust]");
-    if (loyaltyAdjustBtn) {
-      try {
-        const amountText = prompt(`Ajuste de puntos para ${loyaltyAdjustBtn.dataset.referrerName}.`, "100");
-        if (amountText === null) return;
-        const amount = Number(amountText);
-        if (!Number.isInteger(amount) || amount === 0) throw new Error("Ingresá puntos enteros diferentes de cero.");
-        const description = prompt("Motivo:", amount < 0 ? "Ajuste de puntos" : "Puntos manuales") || "Ajuste D-TEK";
-        await withTimeout(DtekBackend.adjustPoints(loyaltyAdjustBtn.dataset.pointsAdjust, amount, description), 8000, "ajustar puntos");
-        alert(`Puntos ajustados: ${amount}.`);
-        await loadBackendReferrals();
-      } catch (error) {
-        alert(error.message);
-      }
-      return;
-    }
-
-    const redemptionBtn = event.target.closest("[data-redemption-status]");
-    if (redemptionBtn) {
-      try {
-        const status = redemptionBtn.dataset.redemptionStatus;
-        const note = prompt(status === "fulfilled" ? "Nota del canje:" : "Motivo de cancelación:", "") || "";
-        await withTimeout(DtekBackend.updateRedemptionStatus(redemptionBtn.dataset.redemptionId, status, note), 8000, "actualizar canje");
-        await loadBackendRedemptions();
-      } catch (error) { alert(error.message); }
+    const pendienteBtn = event.target.closest("[data-admin-filter]");
+    if (pendienteBtn) {
+      dtekAdminFilter = pendienteBtn.dataset.adminFilter;
+      adminQsa("[data-filter-status]").forEach((b) => b.classList.toggle("active", b.dataset.filterStatus === dtekAdminFilter));
+      renderAppointmentsList(dtekAdminAppointmentsCache);
+      setAdminSection("citas");
+      const citasSubtab = adminQs('#adminShell [data-admin-subtab="lista"]');
+      citasSubtab?.click();
       return;
     }
 
@@ -1087,7 +1163,7 @@ async function initBackendAdmin() {
     if (statusBtn) {
       try {
         const status = statusBtn.dataset.backendStatus;
-        const note = prompt(`Nota interna para marcar como ${dtekStatusLabel(status)}:`, `Estado actualizado a ${dtekStatusLabel(status)}`) || "";
+        const note = (await adminPrompt(`Nota interna para marcar como ${dtekStatusLabel(status)}:`, { defaultValue: `Estado actualizado a ${dtekStatusLabel(status)}` })) || "";
         const updated = await withTimeout(DtekBackend.updateAppointmentStatus(statusBtn.dataset.id, status, note), 8000, "actualizar estado");
         const appointment = dtekAdminAppointmentsCache.find(item => String(item.id) === String(statusBtn.dataset.id)) || { id: statusBtn.dataset.id };
         await dtekSendZapierEvent("appointment_status_updated", {
@@ -1113,7 +1189,7 @@ async function initBackendAdmin() {
 
     const deleteBlockBtn = event.target.closest("[data-delete-block]");
     if (deleteBlockBtn) {
-      if (!confirm("¿Eliminar este bloqueo de agenda?")) return;
+      if (!(await adminConfirm("¿Eliminar este bloqueo de agenda?"))) return;
       try {
         await withTimeout(DtekBackend.deleteBlockedTime(deleteBlockBtn.dataset.deleteBlock), 8000, "eliminar bloqueo");
         await refreshAllAdminData();
@@ -1147,176 +1223,264 @@ async function initBackendAdmin() {
   });
 }
 
+function bindReferidos() {
+  adminQs("#backendRefreshReferrals")?.addEventListener("click", loadBackendReferrals);
+  adminQs("#backendRefreshRedemptions")?.addEventListener("click", loadBackendRedemptions);
 
+  document.addEventListener("click", async (event) => {
+    const referralFilterBtn = event.target.closest("[data-referral-filter]");
+    if (referralFilterBtn) {
+      dtekReferralFilter = referralFilterBtn.dataset.referralFilter || "all";
+      adminQsa("[data-referral-filter]").forEach((b) => b.classList.toggle("active", b === referralFilterBtn));
+      renderReferralsList(dtekAdminReferralsCache);
+      return;
+    }
 
-adminQs("#clientProvisionForm")?.addEventListener("submit", async (event) => {
-  event.preventDefault();
-  const submit = event.target.querySelector('button[type="submit"]');
-  const payload = {
-    fullName: adminQs("#provisionFullName")?.value.trim() || "",
-    phone: normalizeProvisionPhone(adminQs("#provisionPhone")?.value),
-    username: adminQs("#provisionUsername")?.value.trim() || "",
-    password: adminQs("#provisionPassword")?.value || "",
-    contactEmail: adminQs("#provisionEmail")?.value.trim() || "",
-    vehicleBrand: adminQs("#provisionVehicleBrand")?.value.trim() || "",
-    vehicleLine: adminQs("#provisionVehicleLine")?.value.trim() || "",
-    vehicleYear: adminQs("#provisionVehicleYear")?.value || "",
-    vehiclePlate: adminQs("#provisionVehiclePlate")?.value.trim() || "",
-    vehicleMileage: adminQs("#provisionVehicleMileage")?.value || "",
-    vehicleNickname: adminQs("#provisionVehicleNickname")?.value.trim() || "",
-    serviceDate: adminQs("#provisionServiceDate")?.value || "",
-    serviceDescription: adminQs("#provisionServiceDescription")?.value.trim() || "",
-    serviceRecommendations: adminQs("#provisionServiceRecommendations")?.value.trim() || "",
-    laborTotal: adminQs("#provisionLaborTotal")?.value || "",
-    partsTotal: adminQs("#provisionPartsTotal")?.value || ""
-  };
-  try {
-    if (submit) { submit.disabled = true; submit.textContent = "Creando perfil..."; }
-    provisionStatus("Creando acceso, garage e historial...", "info");
-    const result = await DtekBackend.createClientAccessAsAdmin(payload);
-    const portalUrl = `${window.location.origin}/cliente.html`;
-    const whatsappMessage = `Hola ${payload.fullName.split(" ")[0] || ""}, ya está listo tu Garage D-TEK con la información de tu carro.\n\nUsuario: ${result.username}\nContraseña temporal: ${result.temporaryPassword}\nEntrá aquí: ${portalUrl}\n\nDentro de Perfil podés cambiar tu usuario y contraseña.`;
-    const resultBox = adminQs("#clientProvisionResult");
+    const referralStatusBtn = event.target.closest("[data-referral-status]");
+    if (referralStatusBtn) {
+      try {
+        const status = referralStatusBtn.dataset.referralStatus;
+        const referral = dtekAdminReferralsCache.find(item => String(item.id) === String(referralStatusBtn.dataset.referralId));
+        const reward = 0;
+        if (status === "converted" && !(await adminConfirm(`¿Confirmar que ${referral?.referred_name || "el referido"} completó su primer trabajo y acreditar 100 puntos?`))) return;
+        if (status === "discarded" && !(await adminConfirm("¿Marcar esta recomendación como no convertida?"))) return;
+        await withTimeout(DtekBackend.updateReferralStatus(referralStatusBtn.dataset.referralId, status, reward, null), 8000, "actualizar referido");
+        await loadBackendReferrals();
+      } catch (error) {
+        alert(error.message);
+      }
+      return;
+    }
+
+    const loyaltyAdjustBtn = event.target.closest("[data-points-adjust]");
+    if (loyaltyAdjustBtn) {
+      try {
+        const amountText = await adminPrompt(`Ajuste de puntos para ${loyaltyAdjustBtn.dataset.referrerName}.`, { defaultValue: "100" });
+        if (amountText === null) return;
+        const amount = Number(amountText);
+        if (!Number.isInteger(amount) || amount === 0) throw new Error("Ingresá puntos enteros diferentes de cero.");
+        const description = (await adminPrompt("Motivo:", { defaultValue: amount < 0 ? "Ajuste de puntos" : "Puntos manuales" })) || "Ajuste D-TEK";
+        await withTimeout(DtekBackend.adjustPoints(loyaltyAdjustBtn.dataset.pointsAdjust, amount, description), 8000, "ajustar puntos");
+        alert(`Puntos ajustados: ${amount}.`);
+        await loadBackendReferrals();
+      } catch (error) {
+        alert(error.message);
+      }
+      return;
+    }
+
+    const redemptionBtn = event.target.closest("[data-redemption-status]");
+    if (redemptionBtn) {
+      try {
+        const status = redemptionBtn.dataset.redemptionStatus;
+        const note = (await adminPrompt(status === "fulfilled" ? "Nota del canje:" : "Motivo de cancelación:", { defaultValue: "" })) || "";
+        await withTimeout(DtekBackend.updateRedemptionStatus(redemptionBtn.dataset.redemptionId, status, note), 8000, "actualizar canje");
+        await loadBackendRedemptions();
+      } catch (error) { alert(error.message); }
+    }
+  });
+}
+
+function bindClientes() {
+  adminQs("#clientProvisionForm")?.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    const submit = event.target.querySelector('button[type="submit"]');
+    const payload = {
+      fullName: adminQs("#provisionFullName")?.value.trim() || "",
+      phone: normalizeProvisionPhone(adminQs("#provisionPhone")?.value),
+      username: adminQs("#provisionUsername")?.value.trim() || "",
+      password: adminQs("#provisionPassword")?.value || "",
+      contactEmail: adminQs("#provisionEmail")?.value.trim() || "",
+      vehicleBrand: adminQs("#provisionVehicleBrand")?.value.trim() || "",
+      vehicleLine: adminQs("#provisionVehicleLine")?.value.trim() || "",
+      vehicleYear: adminQs("#provisionVehicleYear")?.value || "",
+      vehiclePlate: adminQs("#provisionVehiclePlate")?.value.trim() || "",
+      vehicleMileage: adminQs("#provisionVehicleMileage")?.value || "",
+      vehicleNickname: adminQs("#provisionVehicleNickname")?.value.trim() || "",
+      serviceDate: adminQs("#provisionServiceDate")?.value || "",
+      serviceDescription: adminQs("#provisionServiceDescription")?.value.trim() || "",
+      serviceRecommendations: adminQs("#provisionServiceRecommendations")?.value.trim() || "",
+      laborTotal: adminQs("#provisionLaborTotal")?.value || "",
+      partsTotal: adminQs("#provisionPartsTotal")?.value || ""
+    };
+    try {
+      if (submit) { submit.disabled = true; submit.textContent = "Creando perfil..."; }
+      provisionStatus("Creando acceso, garage e historial...", "info");
+      const result = await DtekBackend.createClientAccessAsAdmin(payload);
+      const portalUrl = `${window.location.origin}/cliente.html`;
+      const whatsappMessage = `Hola ${payload.fullName.split(" ")[0] || ""}, ya está listo tu Garage D-TEK con la información de tu carro.\n\nUsuario: ${result.username}\nContraseña temporal: ${result.temporaryPassword}\nEntrá aquí: ${portalUrl}\n\nDentro de Perfil podés cambiar tu usuario y contraseña.`;
+      const resultBox = adminQs("#clientProvisionResult");
+      if (resultBox) {
+        resultBox.classList.remove("hidden-field");
+        resultBox.innerHTML = `
+          <h3>Perfil listo para entregar</h3>
+          <div class="dtek-provision-credentials">
+            <code>Usuario: ${adminSafe(result.username)}</code>
+            <code>Contraseña temporal: ${adminSafe(result.temporaryPassword)}</code>
+          </div>
+          <p>${result.vehicle ? `Carro agregado: <strong>${adminSafe(result.vehicle.brand)} ${adminSafe(result.vehicle.line)}</strong>.` : "Acceso creado sin carro."}</p>
+          <button class="btn btn-cyan" type="button" id="copyProvisionAccess">Copiar mensaje para WhatsApp</button>
+          ${result.warnings?.length ? `<p class="status-warning">Revisar: ${adminSafe(result.warnings.join(" · "))}</p>` : ""}
+        `;
+        adminQs("#copyProvisionAccess")?.addEventListener("click", async () => {
+          await navigator.clipboard.writeText(whatsappMessage);
+          provisionStatus("Mensaje copiado. Ya podés enviárselo al cliente.", "ok");
+        });
+      }
+      provisionStatus(result.warnings?.length ? "El acceso se creó con detalles pendientes." : "Perfil creado correctamente.", result.warnings?.length ? "warning" : "ok");
+      event.target.reset();
+    } catch (error) {
+      console.warn(error);
+      provisionStatus(error?.message || "No se pudo crear el perfil.", "error");
+    } finally {
+      if (submit) { submit.disabled = false; submit.textContent = "Crear perfil listo para entregar"; }
+    }
+  });
+
+  const quickServiceSelect = adminQs("#quickService");
+  if (quickServiceSelect) {
+    quickServiceSelect.innerHTML = `<option value="">Elegir servicio</option>` +
+      (window.DTEK_SERVICES || []).map(s => `<option value="${adminSafe(s.id)}">${adminSafe(s.name)} · ${adminSafe(s.price)}</option>`).join("");
+  }
+
+  adminQs("#quickClientPhone")?.addEventListener("blur", async (event) => {
+    const raw = event.target.value.trim();
+    const key = raw.replace(/\D/g, "").slice(-8);
+    if (key.length < 8 || key === quickPhoneLookupLastKey || quickPhoneLookupBusy) return;
+    quickPhoneLookupBusy = true;
+    quickPhoneLookupLastKey = key;
+    try {
+      const result = await DtekBackend.lookupByPhone(raw);
+      if (!result?.found) return;
+      const vehicle = (result.vehicles || [])[0];
+      if (vehicle) {
+        if (vehicle.brand) adminQs("#quickBrand").value = vehicle.brand;
+        if (vehicle.line) adminQs("#quickLine").value = vehicle.line;
+        if (vehicle.year) adminQs("#quickYear").value = vehicle.year;
+        if (vehicle.engine) adminQs("#quickEngine").value = vehicle.engine;
+      }
+      if (result.name && !adminQs("#quickClientName").value.trim()) adminQs("#quickClientName").value = result.name;
+      if (result.email) adminQs("#quickClientEmail").value = result.email;
+      if (result.city) adminQs("#quickClientCity").value = result.city;
+      if (result.location) adminQs("#quickClientAddress").value = result.location;
+    } catch (error) {
+      console.warn("No se pudo buscar por teléfono", error);
+    } finally {
+      quickPhoneLookupBusy = false;
+    }
+  });
+
+  adminQs("#quickScheduleForm")?.addEventListener("submit", (event) => {
+    event.preventDefault();
+    const brand = adminQs("#quickBrand")?.value.trim() || "";
+    const line = adminQs("#quickLine")?.value.trim() || "";
+    const year = adminQs("#quickYear")?.value || "";
+    const engine = adminQs("#quickEngine")?.value.trim() || "";
+    const moves = adminQs("#quickMoves")?.value || "";
+    const serviceId = adminQs("#quickService")?.value || "";
+    const clientName = adminQs("#quickClientName")?.value.trim() || "";
+    const clientPhone = adminQs("#quickClientPhone")?.value.trim() || "";
+    const clientEmail = adminQs("#quickClientEmail")?.value.trim() || "";
+    const clientCity = adminQs("#quickClientCity")?.value.trim() || "";
+    const clientAddress = adminQs("#quickClientAddress")?.value.trim() || "";
+    const customDesc = adminQs("#quickCustomDesc")?.value.trim() || "";
+    const customPrice = adminQs("#quickCustomPrice")?.value || "";
+    const customDuration = adminQs("#quickCustomDuration")?.value || "";
+
+    if (!serviceId && !customDesc) {
+      provisionStatus("Elegí un servicio del catálogo o escribí una descripción para cotizar aparte.", "error");
+      return;
+    }
+    const phoneDigits = clientPhone.replace(/\D/g, "");
+    if (clientPhone && (phoneDigits.length < 8 || phoneDigits.length > 12)) {
+      provisionStatus("Ese teléfono no parece completo — revisalo antes de generar el link (el botón de WhatsApp abre a ese número).", "error");
+      return;
+    }
+
+    const qp = new URLSearchParams();
+    qp.set("marca", brand);
+    qp.set("linea", line);
+    if (year) qp.set("anio", year);
+    if (engine) qp.set("motor", engine);
+    if (moves) qp.set("arranca", moves);
+    if (clientName) qp.set("nombre", clientName);
+    if (clientPhone) qp.set("telefono", clientPhone);
+    if (clientEmail) qp.set("correo", clientEmail);
+    if (clientCity) qp.set("zona", clientCity);
+    if (clientAddress) qp.set("direccion", clientAddress);
+
+    let serviceName;
+    let precioTexto;
+    if (customDesc) {
+      qp.set("servicio", "custom-quote");
+      qp.set("descripcion", customDesc);
+      if (customPrice) qp.set("estimado", customPrice);
+      if (customDuration) qp.set("duracion", customDuration);
+      serviceName = customDesc;
+      precioTexto = customPrice ? `, estimado desde Q${Number(customPrice).toLocaleString("es-GT")}` : "";
+    } else {
+      qp.set("servicio", serviceId);
+      serviceName = window.DTEK_SERVICES?.find(s => s.id === serviceId)?.name || "el servicio";
+      precioTexto = "";
+    }
+
+    const link = `${window.location.origin}/agenda.html?${qp.toString()}`;
+    const primerNombre = clientName.split(" ")[0] || "";
+    const mensaje = `Hola${primerNombre ? " " + primerNombre : ""}, quedó listo tu pedido de ${serviceName} para tu ${brand} ${line}${precioTexto}. Elegí el día y la hora que mejor te quede aquí: ${link}`;
+
+    const resultBox = adminQs("#quickScheduleResult");
     if (resultBox) {
       resultBox.classList.remove("hidden-field");
       resultBox.innerHTML = `
-        <h3>Perfil listo para entregar</h3>
+        <h3>Link listo</h3>
         <div class="dtek-provision-credentials">
-          <code>Usuario: ${adminSafe(result.username)}</code>
-          <code>Contraseña temporal: ${adminSafe(result.temporaryPassword)}</code>
+          <code>${adminSafe(link)}</code>
         </div>
-        <p>${result.vehicle ? `Carro agregado: <strong>${adminSafe(result.vehicle.brand)} ${adminSafe(result.vehicle.line)}</strong>.` : "Acceso creado sin carro."}</p>
-        <button class="btn btn-cyan" type="button" id="copyProvisionAccess">Copiar mensaje para WhatsApp</button>
-        ${result.warnings?.length ? `<p class="status-warning">Revisar: ${adminSafe(result.warnings.join(" · "))}</p>` : ""}
+        <button class="btn btn-cyan" type="button" id="copyQuickLink">Copiar mensaje para WhatsApp</button>
+        ${clientPhone ? `<button class="btn btn-primary" type="button" id="openQuickWhatsapp">Abrir WhatsApp con este cliente</button>` : ""}
       `;
-      adminQs("#copyProvisionAccess")?.addEventListener("click", async () => {
-        await navigator.clipboard.writeText(whatsappMessage);
-        provisionStatus("Mensaje copiado. Ya podés enviárselo al cliente.", "ok");
+      adminQs("#copyQuickLink")?.addEventListener("click", async () => {
+        await navigator.clipboard.writeText(mensaje);
+        provisionStatus("Mensaje copiado. Pegalo en la conversación de WhatsApp.", "ok");
+      });
+      adminQs("#openQuickWhatsapp")?.addEventListener("click", () => {
+        const digits = clientPhone.replace(/\D/g, "");
+        window.open(`https://wa.me/${digits}?text=${encodeURIComponent(mensaje)}`, "_blank", "noopener");
       });
     }
-    provisionStatus(result.warnings?.length ? "El acceso se creó con detalles pendientes." : "Perfil creado correctamente.", result.warnings?.length ? "warning" : "ok");
-    event.target.reset();
-  } catch (error) {
-    console.warn(error);
-    provisionStatus(error?.message || "No se pudo crear el perfil.", "error");
-  } finally {
-    if (submit) { submit.disabled = false; submit.textContent = "Crear perfil listo para entregar"; }
-  }
-});
+  });
+}
 
-const quickServiceSelect = adminQs("#quickService");
-if (quickServiceSelect) {
-  quickServiceSelect.innerHTML = `<option value="">Elegir servicio</option>` +
-    (window.DTEK_SERVICES || []).map(s => `<option value="${adminSafe(s.id)}">${adminSafe(s.name)} · ${adminSafe(s.price)}</option>`).join("");
+function bindWorkOrderModal() {
+  adminQs("#workOrderForm")?.addEventListener("submit", (ev) => submitWorkOrderReport(ev, { compartir: false }));
+  adminQs("#workOrderSaveAndShare")?.addEventListener("click", (ev) => submitWorkOrderReport(ev, { compartir: true }));
+  adminQs("#workOrderModalClose")?.addEventListener("click", closeWorkOrderModal);
+  adminQs("#workOrderModalCancel")?.addEventListener("click", closeWorkOrderModal);
+  adminQs("#workOrderModal")?.addEventListener("click", (event) => {
+    if (event.target.id === "workOrderModal") closeWorkOrderModal();
+  });
 }
 
 let quickPhoneLookupBusy = false;
 let quickPhoneLookupLastKey = "";
-adminQs("#quickClientPhone")?.addEventListener("blur", async (event) => {
-  const raw = event.target.value.trim();
-  const key = raw.replace(/\D/g, "").slice(-8);
-  if (key.length < 8 || key === quickPhoneLookupLastKey || quickPhoneLookupBusy) return;
-  quickPhoneLookupBusy = true;
-  quickPhoneLookupLastKey = key;
-  try {
-    const result = await DtekBackend.lookupByPhone(raw);
-    if (!result?.found) return;
-    const vehicle = (result.vehicles || [])[0];
-    if (vehicle) {
-      if (vehicle.brand) adminQs("#quickBrand").value = vehicle.brand;
-      if (vehicle.line) adminQs("#quickLine").value = vehicle.line;
-      if (vehicle.year) adminQs("#quickYear").value = vehicle.year;
-      if (vehicle.engine) adminQs("#quickEngine").value = vehicle.engine;
-    }
-    if (result.name && !adminQs("#quickClientName").value.trim()) adminQs("#quickClientName").value = result.name;
-    if (result.email) adminQs("#quickClientEmail").value = result.email;
-    if (result.city) adminQs("#quickClientCity").value = result.city;
-    if (result.location) adminQs("#quickClientAddress").value = result.location;
-  } catch (error) {
-    console.warn("No se pudo buscar por teléfono", error);
-  } finally {
-    quickPhoneLookupBusy = false;
-  }
-});
 
-adminQs("#quickScheduleForm")?.addEventListener("submit", (event) => {
-  event.preventDefault();
-  const brand = adminQs("#quickBrand")?.value.trim() || "";
-  const line = adminQs("#quickLine")?.value.trim() || "";
-  const year = adminQs("#quickYear")?.value || "";
-  const engine = adminQs("#quickEngine")?.value.trim() || "";
-  const moves = adminQs("#quickMoves")?.value || "";
-  const serviceId = adminQs("#quickService")?.value || "";
-  const clientName = adminQs("#quickClientName")?.value.trim() || "";
-  const clientPhone = adminQs("#quickClientPhone")?.value.trim() || "";
-  const clientEmail = adminQs("#quickClientEmail")?.value.trim() || "";
-  const clientCity = adminQs("#quickClientCity")?.value.trim() || "";
-  const clientAddress = adminQs("#quickClientAddress")?.value.trim() || "";
-  const customDesc = adminQs("#quickCustomDesc")?.value.trim() || "";
-  const customPrice = adminQs("#quickCustomPrice")?.value || "";
-  const customDuration = adminQs("#quickCustomDuration")?.value || "";
+async function initBackendAdmin() {
+  renderBackendSystemStatus();
 
-  if (!serviceId && !customDesc) {
-    provisionStatus("Elegí un servicio del catálogo o escribí una descripción para cotizar aparte.", "error");
-    return;
-  }
-  const phoneDigits = clientPhone.replace(/\D/g, "");
-  if (clientPhone && (phoneDigits.length < 8 || phoneDigits.length > 12)) {
-    provisionStatus("Ese teléfono no parece completo — revisalo antes de generar el link (el botón de WhatsApp abre a ese número).", "error");
-    return;
-  }
+  bindResumen();
+  bindCitas();
+  bindReferidos();
+  bindClientes();
+  bindWorkOrderModal();
+  bindLineas();
+  bindInspecciones();
+  bindAdminNav();
+  bindAdminSectionSubtabs(adminQs("#adminShell"), "data-admin-subtab", "data-admin-subpanel");
+  bindAdminSectionSubtabs(adminQs("#workOrderForm"), "data-wo-subtab", "data-wo-subpanel");
+  bindAdminGenericModal();
+  document.addEventListener("keydown", handleAdminEscape);
 
-  const qp = new URLSearchParams();
-  qp.set("marca", brand);
-  qp.set("linea", line);
-  if (year) qp.set("anio", year);
-  if (engine) qp.set("motor", engine);
-  if (moves) qp.set("arranca", moves);
-  if (clientName) qp.set("nombre", clientName);
-  if (clientPhone) qp.set("telefono", clientPhone);
-  if (clientEmail) qp.set("correo", clientEmail);
-  if (clientCity) qp.set("zona", clientCity);
-  if (clientAddress) qp.set("direccion", clientAddress);
-
-  let serviceName;
-  let precioTexto;
-  if (customDesc) {
-    qp.set("servicio", "custom-quote");
-    qp.set("descripcion", customDesc);
-    if (customPrice) qp.set("estimado", customPrice);
-    if (customDuration) qp.set("duracion", customDuration);
-    serviceName = customDesc;
-    precioTexto = customPrice ? `, estimado desde Q${Number(customPrice).toLocaleString("es-GT")}` : "";
-  } else {
-    qp.set("servicio", serviceId);
-    serviceName = window.DTEK_SERVICES?.find(s => s.id === serviceId)?.name || "el servicio";
-    precioTexto = "";
-  }
-
-  const link = `${window.location.origin}/agenda.html?${qp.toString()}`;
-  const primerNombre = clientName.split(" ")[0] || "";
-  const mensaje = `Hola${primerNombre ? " " + primerNombre : ""}, quedó listo tu pedido de ${serviceName} para tu ${brand} ${line}${precioTexto}. Elegí el día y la hora que mejor te quede aquí: ${link}`;
-
-  const resultBox = adminQs("#quickScheduleResult");
-  if (resultBox) {
-    resultBox.classList.remove("hidden-field");
-    resultBox.innerHTML = `
-      <h3>Link listo</h3>
-      <div class="dtek-provision-credentials">
-        <code>${adminSafe(link)}</code>
-      </div>
-      <button class="btn btn-cyan" type="button" id="copyQuickLink">Copiar mensaje para WhatsApp</button>
-      ${clientPhone ? `<button class="btn btn-primary" type="button" id="openQuickWhatsapp">Abrir WhatsApp con este cliente</button>` : ""}
-    `;
-    adminQs("#copyQuickLink")?.addEventListener("click", async () => {
-      await navigator.clipboard.writeText(mensaje);
-      provisionStatus("Mensaje copiado. Pegalo en la conversación de WhatsApp.", "ok");
-    });
-    adminQs("#openQuickWhatsapp")?.addEventListener("click", () => {
-      const digits = clientPhone.replace(/\D/g, "");
-      window.open(`https://wa.me/${digits}?text=${encodeURIComponent(mensaje)}`, "_blank", "noopener");
-    });
-  }
-});
+  await refreshAdminGateState();
+}
 
 document.addEventListener("DOMContentLoaded", initBackendAdmin);
