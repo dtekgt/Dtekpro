@@ -1000,9 +1000,14 @@ function bindAdminSectionSubtabs(container, subtabAttr, subpanelAttr) {
   container.addEventListener("click", (event) => {
     const btn = event.target.closest(`[${subtabAttr}]`);
     if (!btn) return;
+    // Cada grupo de sub-tabs vive junto a sus paneles dentro del mismo padre
+    // (ej. la <section> de "Citas" tiene su propio par lista/bloqueos). Sin
+    // este scope, tocar un sub-tab en una sección apagaba el sub-tab activo
+    // de las otras secciones, dejándolas en blanco hasta volver a tocarlas.
+    const scope = btn.closest(".admin-subtabs-v34, .wo-subtabs-v34")?.parentElement || container;
     const key = btn.getAttribute(subtabAttr);
-    container.querySelectorAll(`[${subtabAttr}]`).forEach((b) => b.classList.toggle("active", b === btn));
-    container.querySelectorAll(`[${subpanelAttr}]`).forEach((p) => p.classList.toggle("active", p.getAttribute(subpanelAttr) === key));
+    scope.querySelectorAll(`[${subtabAttr}]`).forEach((b) => b.classList.toggle("active", b === btn));
+    scope.querySelectorAll(`[${subpanelAttr}]`).forEach((p) => p.classList.toggle("active", p.getAttribute(subpanelAttr) === key));
   });
 }
 
