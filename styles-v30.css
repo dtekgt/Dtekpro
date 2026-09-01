@@ -1340,7 +1340,7 @@
   .page-services-v27 .selector-group-toggle{min-height:70px;padding:15px}
   .page-agenda-v25-pro .agenda-shell-v25{padding-top:22px}
   .page-agenda-v25-pro .agenda-heading-v25{padding-top:16px;margin-bottom:18px}
-  .page-agenda-v25-pro .booking-progress-v25{overflow-x:auto;scrollbar-width:none;scroll-snap-type:x mandatory}
+  .page-agenda-v25-pro .booking-progress-v25{overflow-x:auto;scrollbar-width:none;scroll-snap-type:x mandatory;-webkit-mask-image:linear-gradient(to right,#000 calc(100% - 26px),transparent 100%);mask-image:linear-gradient(to right,#000 calc(100% - 26px),transparent 100%)}
   .page-agenda-v25-pro .booking-progress-v25::-webkit-scrollbar{display:none}
   .page-agenda-v25-pro .booking-progress-v25::before{display:none}
   .page-agenda-v25-pro .booking-progress-v25 span{min-width:112px;scroll-snap-align:start}
