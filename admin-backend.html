@@ -191,6 +191,7 @@
         <div class="admin-subtabs-v34">
           <button type="button" class="active" data-admin-subtab="acceso">Crear acceso</button>
           <button type="button" data-admin-subtab="cotizar">Cotizar rápido</button>
+          <button type="button" data-admin-subtab="trabajo">Registrar trabajo</button>
         </div>
 
         <div class="admin-subpanel-v34 active" data-admin-subpanel="acceso">
@@ -270,6 +271,63 @@
               <button class="btn btn-primary" type="submit">Generar link</button>
             </form>
             <div id="quickScheduleResult" class="dtek-provision-result hidden-field"></div>
+          </section>
+        </div>
+
+        <div class="admin-subpanel-v34" data-admin-subpanel="trabajo">
+          <section class="section dtek-glass reveal visible">
+            <div class="section-head inline-head">
+              <div>
+                <span class="eyebrow">Trabajo fuera de catálogo</span>
+                <h2>Registrar trabajo ya realizado</h2>
+                <p class="muted">Para un cliente que ya tiene cuenta y un trabajo que se coordinó fuera del sistema (WhatsApp, en persona) y no está en el catálogo.</p>
+              </div>
+            </div>
+            <form id="walkInJobForm" class="stacked-form dtek-provision-form">
+              <div class="two-column-grid compact-grid">
+                <label>WhatsApp del cliente *<input id="walkInPhone" type="tel" required placeholder="502XXXXXXXX" /></label>
+                <label class="full-span" style="align-self:end">
+                  <button class="btn btn-ghost" type="button" id="walkInSearchClient">Buscar cliente</button>
+                </label>
+              </div>
+              <div id="walkInClientFound" class="status-box hidden-field"></div>
+              <div id="walkInClientMissing" class="status-box hidden-field"></div>
+
+              <div id="walkInVehicleBlock" class="hidden-field">
+                <div class="two-column-grid compact-grid">
+                  <label class="full-span">Vehículo *<select id="walkInVehicle"></select></label>
+                </div>
+                <div id="walkInManualVehicle" class="two-column-grid compact-grid hidden-field">
+                  <label>Marca *<input id="walkInVehicleBrand" type="text" placeholder="Toyota" /></label>
+                  <label>Línea / modelo *<input id="walkInVehicleLine" type="text" placeholder="Corolla" /></label>
+                  <label>Año<input id="walkInVehicleYear" type="number" min="1950" max="2100" placeholder="2018" /></label>
+                </div>
+
+                <div class="two-column-grid compact-grid">
+                  <label>Fecha del trabajo *<input id="walkInServiceDate" type="date" required /></label>
+                  <label>Kilometraje<input id="walkInMileage" type="number" min="0" step="1" inputmode="numeric" placeholder="130000" /></label>
+                  <label class="full-span">Descripción del trabajo *<textarea id="walkInDescription" rows="3" required placeholder="Qué se hizo — ej. Cambio de bomba de agua y termostato por sobrecalentamiento"></textarea></label>
+                  <label class="full-span">Recomendaciones <span class="muted">opcional</span><textarea id="walkInRecommendations" rows="2" placeholder="Próximo servicio, pendientes..."></textarea></label>
+                </div>
+
+                <div class="lineas-v320">
+                  <div class="lineas-head-v320">
+                    <span>Detalle del recibo</span>
+                    <button type="button" class="btn btn-ghost" id="walkInAddItem">＋ Agregar línea</button>
+                  </div>
+                  <div id="walkInItems" class="lineas-cuerpo-v320"></div>
+                  <p class="lineas-vacio-v320" id="walkInItemsEmpty">Sin líneas todavía. Agregá una por cada repuesto y una por la mano de obra.</p>
+                  <div class="lineas-total-v320">
+                    <div><span>Repuestos</span><b id="walkInPartsSum">Q0.00</b></div>
+                    <div><span>Mano de obra</span><b id="walkInLaborSum">Q0.00</b></div>
+                    <div class="gran-total"><span>Total</span><strong id="walkInGrandSum">Q0.00</strong></div>
+                  </div>
+                </div>
+
+                <button class="btn btn-primary" type="submit">Registrar trabajo</button>
+              </div>
+            </form>
+            <div id="walkInJobStatus" class="status-box"></div>
           </section>
         </div>
       </section>
@@ -382,8 +440,8 @@
   <script src="supabase-config.js?v=81e95d5d"></script>
   <script src="services-data.js?v=465c3473"></script>
   <script src="vehicle-health.js?v=36000001"></script>
-  <script src="supabase-client.js?v=66c80706"></script>
-  <script src="backend-admin.js?v=f026e834"></script>
+  <script src="supabase-client.js?v=444fba2b"></script>
+  <script src="backend-admin.js?v=5095ee24"></script>
   <script defer src="/_vercel/insights/script.js"></script>
 </body>
 </html>

@@ -1048,6 +1048,211 @@ function bindLineas() {
   });
 }
 
+/* ---------- Registrar trabajo (cliente existente, fuera de catálogo) ----------
+   Líneas de recibo duplicadas con nombres propios en vez de parametrizar
+   agregarLinea/pintarLineas/sumarLineas/bindLineas: esas ya funcionan en
+   producción para el modal de reporte técnico: tocarlas por un ahorro de
+   código arriesga romper un flujo que ya anda, sin necesidad real (los dos
+   formularios nunca están abiertos a la vez). */
+
+let dtekWalkInClientId = null;
+let dtekWalkInVehicles = [];
+let dtekWalkInLineas = [];
+
+function walkInStatus(message, type = "info") {
+  const box = adminQs("#walkInJobStatus");
+  if (box) box.innerHTML = message ? `<p class="status-${type}">${adminSafe(message)}</p>` : "";
+}
+
+function agregarLineaWalkIn(datos = {}) {
+  dtekWalkInLineas.push({
+    description: datos.description || "",
+    kind: datos.kind || "part",
+    quantity: Number(datos.quantity) || 1,
+    unit_price: Number(datos.unit_price) || 0,
+    service_id: ""
+  });
+  pintarLineasWalkIn();
+}
+
+function pintarLineasWalkIn() {
+  const holder = adminQs("#walkInItems");
+  const vacio = adminQs("#walkInItemsEmpty");
+  if (!holder) return;
+
+  holder.innerHTML = dtekWalkInLineas.map((l, i) => `
+    <div class="linea-v320" data-linea="${i}">
+      <input class="linea-desc" type="text" value="${adminSafe(l.description)}" placeholder="Descripción" aria-label="Descripción de la línea ${i + 1}">
+      <select class="linea-kind" aria-label="Tipo de la línea ${i + 1}">
+        <option value="part"${l.kind === "part" ? " selected" : ""}>Repuesto</option>
+        <option value="labor"${l.kind === "labor" ? " selected" : ""}>Mano de obra</option>
+        <option value="service"${l.kind === "service" ? " selected" : ""}>Servicio</option>
+      </select>
+      <input class="linea-cant" type="number" min="0.01" step="0.01" value="${l.quantity}" aria-label="Cantidad de la línea ${i + 1}">
+      <input class="linea-precio" type="number" min="0" step="0.01" value="${l.unit_price}" aria-label="Precio unitario de la línea ${i + 1}">
+      <b class="linea-sub">${adminSafe(dtekMoneda(l.quantity * l.unit_price))}</b>
+      <button type="button" class="linea-quitar" aria-label="Quitar la línea ${i + 1}">×</button>
+    </div>`).join("");
+
+  if (vacio) vacio.style.display = dtekWalkInLineas.length ? "none" : "block";
+  sumarLineasWalkIn();
+}
+
+function sumarLineasWalkIn() {
+  const mano = dtekWalkInLineas.filter((l) => l.kind === "labor").reduce((a, l) => a + l.quantity * l.unit_price, 0);
+  const resto = dtekWalkInLineas.filter((l) => l.kind !== "labor").reduce((a, l) => a + l.quantity * l.unit_price, 0);
+  const set = (sel, v) => { const e = adminQs(sel); if (e) e.textContent = dtekMoneda(v); };
+  set("#walkInPartsSum", resto);
+  set("#walkInLaborSum", mano);
+  set("#walkInGrandSum", mano + resto);
+  return { mano, resto, total: mano + resto };
+}
+
+function bindLineasWalkIn() {
+  const holder = adminQs("#walkInItems");
+  if (!holder) return;
+
+  holder.addEventListener("input", (ev) => {
+    const fila = ev.target.closest("[data-linea]");
+    if (!fila) return;
+    const i = Number(fila.dataset.linea);
+    const l = dtekWalkInLineas[i];
+    if (!l) return;
+    if (ev.target.classList.contains("linea-desc")) l.description = ev.target.value;
+    if (ev.target.classList.contains("linea-cant")) l.quantity = Number(ev.target.value) || 0;
+    if (ev.target.classList.contains("linea-precio")) l.unit_price = Number(ev.target.value) || 0;
+    const sub = fila.querySelector(".linea-sub");
+    if (sub) sub.textContent = dtekMoneda(l.quantity * l.unit_price);
+    sumarLineasWalkIn();
+  });
+
+  holder.addEventListener("change", (ev) => {
+    const fila = ev.target.closest("[data-linea]");
+    if (!fila || !ev.target.classList.contains("linea-kind")) return;
+    const l = dtekWalkInLineas[Number(fila.dataset.linea)];
+    if (l) { l.kind = ev.target.value; sumarLineasWalkIn(); }
+  });
+
+  holder.addEventListener("click", (ev) => {
+    const btn = ev.target.closest(".linea-quitar");
+    if (!btn) return;
+    dtekWalkInLineas.splice(Number(btn.closest("[data-linea]").dataset.linea), 1);
+    pintarLineasWalkIn();
+  });
+
+  adminQs("#walkInAddItem")?.addEventListener("click", () => {
+    agregarLineaWalkIn({ kind: "part" });
+    adminQs("#walkInItems .linea-v320:last-child .linea-desc")?.focus();
+  });
+}
+
+function pintarWalkInVehiculos() {
+  const select = adminQs("#walkInVehicle");
+  const manual = adminQs("#walkInManualVehicle");
+  if (!select) return;
+  const opciones = dtekWalkInVehicles.map((v, i) =>
+    `<option value="${i}">${adminSafe([v.brand, v.line, v.year].filter(Boolean).join(" ") || "Vehículo")}${v.plate ? " · " + adminSafe(v.plate) : ""}</option>`
+  ).join("");
+  select.innerHTML = opciones + `<option value="manual">Otro vehículo (escribir a mano)</option>`;
+  const esManual = dtekWalkInVehicles.length === 0;
+  select.value = esManual ? "manual" : "0";
+  manual.classList.toggle("hidden-field", !esManual);
+  adminQs("#walkInVehicleBrand").required = esManual;
+  adminQs("#walkInVehicleLine").required = esManual;
+}
+
+function bindWalkInJob() {
+  adminQs("#walkInVehicle")?.addEventListener("change", (event) => {
+    const manual = event.target.value === "manual";
+    adminQs("#walkInManualVehicle")?.classList.toggle("hidden-field", !manual);
+    adminQs("#walkInVehicleBrand").required = manual;
+    adminQs("#walkInVehicleLine").required = manual;
+  });
+
+  adminQs("#walkInSearchClient")?.addEventListener("click", async () => {
+    const phone = adminQs("#walkInPhone")?.value.trim() || "";
+    const foundBox = adminQs("#walkInClientFound");
+    const missingBox = adminQs("#walkInClientMissing");
+    const vehicleBlock = adminQs("#walkInVehicleBlock");
+    foundBox?.classList.add("hidden-field");
+    missingBox?.classList.add("hidden-field");
+    vehicleBlock?.classList.add("hidden-field");
+    dtekWalkInClientId = null;
+    dtekWalkInVehicles = [];
+    if (!phone) { walkInStatus("Escribí el teléfono del cliente.", "error"); return; }
+    try {
+      walkInStatus("Buscando...", "info");
+      const result = await DtekBackend.lookupClientByPhoneAdmin(phone);
+      if (!result?.found) {
+        missingBox.classList.remove("hidden-field");
+        missingBox.innerHTML = `<p class="status-warning">Ese teléfono no tiene una cuenta todavía. Usá "Crear acceso" para darlo de alta primero.</p>`;
+        walkInStatus("", "info");
+        return;
+      }
+      dtekWalkInClientId = result.client_id;
+      dtekWalkInVehicles = result.vehicles || [];
+      foundBox.classList.remove("hidden-field");
+      foundBox.innerHTML = `<p class="status-ok">${adminSafe(result.name || "Cliente")} · ${adminSafe(result.phone || phone)}</p>`;
+      pintarWalkInVehiculos();
+      if (!adminQs("#walkInServiceDate").value) {
+        adminQs("#walkInServiceDate").value = new Date().toISOString().slice(0, 10);
+      }
+      vehicleBlock.classList.remove("hidden-field");
+      walkInStatus("", "info");
+    } catch (error) {
+      walkInStatus(error?.message || "No se pudo buscar el cliente.", "error");
+    }
+  });
+
+  adminQs("#walkInJobForm")?.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    if (!dtekWalkInClientId) { walkInStatus("Buscá y confirmá el cliente antes de registrar el trabajo.", "error"); return; }
+    const lineas = dtekWalkInLineas.filter((l) => String(l.description || "").trim());
+    const descripcion = adminQs("#walkInDescription")?.value.trim() || "";
+    if (!descripcion) { walkInStatus("Escribí qué trabajo se hizo.", "error"); return; }
+
+    const vSel = adminQs("#walkInVehicle")?.value;
+    const esManual = vSel === "manual" || dtekWalkInVehicles.length === 0;
+    const vehiculo = esManual ? null : dtekWalkInVehicles[Number(vSel)];
+    if (esManual && (!adminQs("#walkInVehicleBrand")?.value.trim() || !adminQs("#walkInVehicleLine")?.value.trim())) {
+      walkInStatus("Indicá marca y línea del vehículo.", "error");
+      return;
+    }
+
+    const submit = event.target.querySelector('button[type="submit"]');
+    try {
+      if (submit) { submit.disabled = true; submit.textContent = "Registrando..."; }
+      walkInStatus("Registrando el trabajo...", "info");
+      const payload = {
+        client_id: dtekWalkInClientId,
+        vehicle_id: vehiculo?.id || null,
+        vehicle_brand: esManual ? adminQs("#walkInVehicleBrand")?.value.trim() : null,
+        vehicle_line: esManual ? adminQs("#walkInVehicleLine")?.value.trim() : null,
+        vehicle_year: esManual ? (adminQs("#walkInVehicleYear")?.value || null) : null,
+        service_date: adminQs("#walkInServiceDate")?.value || null,
+        mileage: adminQs("#walkInMileage")?.value || null,
+        job_description: descripcion,
+        recommendations: adminQs("#walkInRecommendations")?.value.trim() || "",
+        items: lineas.map((l, i) => ({ ...l, position: i }))
+      };
+      await withTimeout(DtekBackend.logCompletedJob(payload), 12000, "registrar el trabajo");
+      walkInStatus("Trabajo registrado. Ya aparece en Citas.", "ok");
+      event.target.reset();
+      dtekWalkInClientId = null;
+      dtekWalkInVehicles = [];
+      dtekWalkInLineas = [];
+      pintarLineasWalkIn();
+      adminQs("#walkInVehicleBlock")?.classList.add("hidden-field");
+      adminQs("#walkInClientFound")?.classList.add("hidden-field");
+      await refreshAllAdminData();
+    } catch (error) {
+      walkInStatus(error?.message || "No se pudo registrar el trabajo.", "error");
+    } finally {
+      if (submit) { submit.disabled = false; submit.textContent = "Registrar trabajo"; }
+    }
+  });
+}
+
 function closeWorkOrderModal() {
   adminQs("#workOrderModal")?.classList.add("hidden-field");
   dtekWorkOrderAppointmentId = null;
@@ -1670,6 +1875,8 @@ async function initBackendAdmin() {
   bindClientes();
   bindWorkOrderModal();
   bindLineas();
+  bindWalkInJob();
+  bindLineasWalkIn();
   bindInspecciones();
   bindAdminNav();
   bindAdminSectionSubtabs(adminQs("#adminShell"), "data-admin-subtab", "data-admin-subpanel");

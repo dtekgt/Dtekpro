@@ -909,6 +909,34 @@ const DtekBackend = (() => {
     return Array.isArray(data) ? data[0] : data;
   }
 
+  async function lookupClientByPhoneAdmin(phone) {
+    const sb = client();
+    if (!sb) throw new Error("Supabase no está configurado todavía.");
+    const { data, error } = await sb.rpc("dtek_admin_lookup_client_by_phone", { p_phone: phone });
+    if (error) throw error;
+    return data || { found: false };
+  }
+
+  async function logCompletedJob(payload) {
+    const sb = client();
+    if (!sb) throw new Error("Supabase no está configurado todavía.");
+    const { data, error } = await sb.rpc("dtek_admin_log_completed_job", {
+      p_client_id: payload.client_id,
+      p_vehicle_id: payload.vehicle_id || null,
+      p_job_description: payload.job_description,
+      p_service_date: payload.service_date || null,
+      p_mileage: payload.mileage != null && payload.mileage !== "" ? Number(payload.mileage) : null,
+      p_recommendations: payload.recommendations || null,
+      p_parts_notes: payload.parts_notes || null,
+      p_items: payload.items || [],
+      p_vehicle_brand: payload.vehicle_brand || null,
+      p_vehicle_line: payload.vehicle_line || null,
+      p_vehicle_year: payload.vehicle_year ? Number(payload.vehicle_year) : null
+    });
+    if (error) throw error;
+    return Array.isArray(data) ? data[0] : data;
+  }
+
   async function obtenerRecibo(appointmentId) {
     const sb = client();
     if (!sb) throw new Error("Supabase no está configurado todavía.");
@@ -996,6 +1024,8 @@ const DtekBackend = (() => {
     createAppointmentForVehicle,
     saveWorkOrderReport,
     cerrarTrabajo,
+    lookupClientByPhoneAdmin,
+    logCompletedJob,
     obtenerRecibo,
     listMyWorkOrders
   };
