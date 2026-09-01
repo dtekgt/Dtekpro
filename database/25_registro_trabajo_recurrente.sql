@@ -28,7 +28,16 @@
 alter table public.appointments
   add column if not exists service_label text;
 
-create or replace view public.appointments_view as
+-- No se puede usar "create or replace view" acá: al agregar service_label
+-- a appointments, a.* corre esa columna nueva justo a la posición donde
+-- antes estaba service_name, y Postgres interpreta eso como un intento de
+-- renombrar una columna de la vista (error 42P16) en vez de agregar una.
+-- Drop + create evita el chequeo posicional; no hay grants propios sobre
+-- esta vista (los permisos de anon/authenticated son privilegios por
+-- defecto del schema, se vuelven a aplicar solos a la vista recreada).
+drop view if exists public.appointments_view;
+
+create view public.appointments_view as
 select
   a.*,
   coalesce(s.name, a.service_label) as service_name,
