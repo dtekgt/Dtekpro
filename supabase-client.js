@@ -937,6 +937,26 @@ const DtekBackend = (() => {
     return Array.isArray(data) ? data[0] : data;
   }
 
+  async function createLiveAppointment(payload) {
+    const sb = client();
+    if (!sb) throw new Error("Supabase no está configurado todavía.");
+    const { data, error } = await sb.rpc("dtek_admin_create_live_appointment", {
+      p_client_id: payload.client_id || null,
+      p_vehicle_id: payload.vehicle_id || null,
+      p_client_name: payload.client_name || null,
+      p_client_phone: payload.client_phone || null,
+      p_vehicle_brand: payload.vehicle_brand || null,
+      p_vehicle_line: payload.vehicle_line || null,
+      p_vehicle_year: payload.vehicle_year ? Number(payload.vehicle_year) : null,
+      p_service_label: payload.service_label || null,
+      p_symptom: payload.symptom || null,
+      p_scheduled_start: payload.scheduled_start || null,
+      p_duration_minutes: payload.duration_minutes ? Number(payload.duration_minutes) : 60
+    });
+    if (error) throw error;
+    return Array.isArray(data) ? data[0] : data;
+  }
+
   async function obtenerRecibo(appointmentId) {
     const sb = client();
     if (!sb) throw new Error("Supabase no está configurado todavía.");
@@ -1026,6 +1046,7 @@ const DtekBackend = (() => {
     cerrarTrabajo,
     lookupClientByPhoneAdmin,
     logCompletedJob,
+    createLiveAppointment,
     obtenerRecibo,
     listMyWorkOrders
   };

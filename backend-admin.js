@@ -770,10 +770,13 @@ function rutaFoto(vehicleId, appointmentId, componentKey) {
 
 async function subirFoto(file, componentKey) {
   const appointment = dtekAdminAppointmentsCache.find(item => String(item.id) === String(dtekWorkOrderAppointmentId));
-  const vehicleId = appointment?.vehicle_id;
-  if (!vehicleId) throw new Error("Esta cita no tiene un vehículo vinculado; no se puede subir la foto.");
+  // Citas de invitado o con vehículo escrito a mano no tienen vehicle_id
+  // real — se usa el propio id de la cita como carpeta. Sigue siendo un
+  // uuid válido para el cast de la política RLS de storage.objects; el
+  // acceso de Dominic (admin) no depende de esa política de todos modos.
+  const carpetaId = appointment?.vehicle_id || dtekWorkOrderAppointmentId;
   const blob = await comprimirImagen(file);
-  const ruta = rutaFoto(vehicleId, dtekWorkOrderAppointmentId, componentKey);
+  const ruta = rutaFoto(carpetaId, dtekWorkOrderAppointmentId, componentKey);
   await DtekBackend.uploadInspectionPhoto(ruta, blob);
   return { ruta, blob };
 }
@@ -1249,6 +1252,153 @@ function bindWalkInJob() {
       walkInStatus(error?.message || "No se pudo registrar el trabajo.", "error");
     } finally {
       if (submit) { submit.disabled = false; submit.textContent = "Registrar trabajo"; }
+    }
+  });
+}
+
+/* ====== Crear cita en vivo (WhatsApp → cita abierta → reporte en vivo) ======
+   Variables y funciones propias, sin tocar dtekWalkIn* — mismo criterio
+   que "Registrar trabajo": no arriesgar un flujo ya en producción. */
+let dtekLiveClientId = null;
+let dtekLiveVehicles = [];
+
+function liveApptStatus(message, type = "info") {
+  const box = adminQs("#liveApptStatus");
+  if (box) box.innerHTML = message ? `<p class="status-${type}">${adminSafe(message)}</p>` : "";
+}
+
+function pintarLiveVehiculos() {
+  const select = adminQs("#liveApptVehicle");
+  const manual = adminQs("#liveApptManualVehicle");
+  if (!select) return;
+  const opciones = dtekLiveVehicles.map((v, i) =>
+    `<option value="${i}">${adminSafe([v.brand, v.line, v.year].filter(Boolean).join(" ") || "Vehículo")}${v.plate ? " · " + adminSafe(v.plate) : ""}</option>`
+  ).join("");
+  select.innerHTML = opciones + `<option value="manual">Otro vehículo (escribir a mano)</option>`;
+  const esManual = dtekLiveVehicles.length === 0;
+  select.value = esManual ? "manual" : "0";
+  manual.classList.toggle("hidden-field", !esManual);
+}
+
+function dtekAhoraParaInput() {
+  const d = new Date();
+  d.setSeconds(0, 0);
+  const pad = (n) => String(n).padStart(2, "0");
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+}
+
+function openLiveApptModal() {
+  const modal = adminQs("#liveApptModal");
+  const form = adminQs("#liveApptForm");
+  if (!modal || !form) return;
+  form.reset();
+  dtekLiveClientId = null;
+  dtekLiveVehicles = [];
+  liveApptStatus("");
+  adminQs("#liveApptClientFound")?.classList.add("hidden-field");
+  adminQs("#liveApptGuestFields")?.classList.add("hidden-field");
+  adminQs("#liveApptVehicleBlock")?.classList.add("hidden-field");
+  adminQs("#liveApptWhen").value = dtekAhoraParaInput();
+  adminQs("#liveApptDuration").value = "60";
+  modal.classList.remove("hidden-field");
+  adminQs("#liveApptPhone")?.focus();
+}
+
+function closeLiveApptModal() {
+  adminQs("#liveApptModal")?.classList.add("hidden-field");
+}
+
+function bindLiveApptModal() {
+  adminQs("#horarioNewAppt")?.addEventListener("click", openLiveApptModal);
+  adminQs("#liveApptModalClose")?.addEventListener("click", closeLiveApptModal);
+  adminQs("#liveApptModalCancel")?.addEventListener("click", closeLiveApptModal);
+  adminQs("#liveApptModal")?.addEventListener("click", (event) => {
+    if (event.target.id === "liveApptModal") closeLiveApptModal();
+  });
+
+  adminQs("#liveApptVehicle")?.addEventListener("change", (event) => {
+    adminQs("#liveApptManualVehicle")?.classList.toggle("hidden-field", event.target.value !== "manual");
+  });
+
+  adminQs("#liveApptSearchClient")?.addEventListener("click", async () => {
+    const phone = adminQs("#liveApptPhone")?.value.trim() || "";
+    dtekLiveClientId = null;
+    dtekLiveVehicles = [];
+    adminQs("#liveApptClientFound")?.classList.add("hidden-field");
+    adminQs("#liveApptGuestFields")?.classList.add("hidden-field");
+    adminQs("#liveApptVehicleBlock")?.classList.add("hidden-field");
+    if (!phone) { liveApptStatus("Escribí el teléfono del cliente.", "error"); return; }
+    try {
+      liveApptStatus("Buscando...", "info");
+      const result = await DtekBackend.lookupClientByPhoneAdmin(phone);
+      if (!result?.found) {
+        // A diferencia de "Registrar trabajo", acá NO se bloquea: es
+        // normal que alguien escriba por WhatsApp por primera vez.
+        adminQs("#liveApptGuestFields")?.classList.remove("hidden-field");
+        adminQs("#liveApptVehicleBlock")?.classList.remove("hidden-field");
+        adminQs("#liveApptManualVehicle")?.classList.remove("hidden-field");
+        liveApptStatus("No tiene cuenta todavía — se crea la cita como cliente nuevo.", "info");
+        adminQs("#liveApptName")?.focus();
+        return;
+      }
+      dtekLiveClientId = result.client_id;
+      dtekLiveVehicles = result.vehicles || [];
+      const foundBox = adminQs("#liveApptClientFound");
+      foundBox?.classList.remove("hidden-field");
+      if (foundBox) foundBox.innerHTML = `<p class="status-ok">${adminSafe(result.name || "Cliente")} · ${adminSafe(result.phone || phone)}</p>`;
+      pintarLiveVehiculos();
+      adminQs("#liveApptVehicleBlock")?.classList.remove("hidden-field");
+      liveApptStatus("", "info");
+    } catch (error) {
+      liveApptStatus(error?.message || "No se pudo buscar el cliente.", "error");
+    }
+  });
+
+  adminQs("#liveApptForm")?.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    const esInvitado = !dtekLiveClientId;
+    if (esInvitado && !adminQs("#liveApptName")?.value.trim()) {
+      liveApptStatus("Escribí el nombre del cliente.", "error");
+      return;
+    }
+    const vSel = adminQs("#liveApptVehicle")?.value;
+    const esManual = esInvitado || vSel === "manual" || dtekLiveVehicles.length === 0;
+    const vehiculo = esManual ? null : dtekLiveVehicles[Number(vSel)];
+    if (esManual && (!adminQs("#liveApptVehicleBrand")?.value.trim() || !adminQs("#liveApptVehicleLine")?.value.trim())) {
+      liveApptStatus("Indicá marca y línea del vehículo.", "error");
+      return;
+    }
+    const cuando = adminQs("#liveApptWhen")?.value;
+    if (!cuando) { liveApptStatus("Elegí fecha y hora.", "error"); return; }
+
+    const submit = event.target.querySelector('button[type="submit"]');
+    try {
+      if (submit) { submit.disabled = true; submit.textContent = "Creando..."; }
+      liveApptStatus("Creando la cita...", "info");
+      const payload = {
+        client_id: dtekLiveClientId || null,
+        vehicle_id: vehiculo?.id || null,
+        client_name: esInvitado ? adminQs("#liveApptName")?.value.trim() : null,
+        client_phone: adminQs("#liveApptPhone")?.value.trim() || null,
+        vehicle_brand: esManual ? adminQs("#liveApptVehicleBrand")?.value.trim() : null,
+        vehicle_line: esManual ? adminQs("#liveApptVehicleLine")?.value.trim() : null,
+        vehicle_year: esManual ? (adminQs("#liveApptVehicleYear")?.value || null) : null,
+        service_label: adminQs("#liveApptDescription")?.value.trim() || null,
+        scheduled_start: new Date(cuando).toISOString(),
+        duration_minutes: Number(adminQs("#liveApptDuration")?.value) || 60
+      };
+      const nuevaCita = await withTimeout(DtekBackend.createLiveAppointment(payload), 12000, "crear la cita");
+      dtekAdminAppointmentsCache.unshift(nuevaCita);
+      renderMetrics(dtekAdminAppointmentsCache);
+      renderAppointmentsList(dtekAdminAppointmentsCache);
+      renderHorarioView();
+      closeLiveApptModal();
+      openWorkOrderModal(nuevaCita.id);
+      refreshAllAdminData();
+    } catch (error) {
+      liveApptStatus(error?.message || "No se pudo crear la cita.", "error");
+    } finally {
+      if (submit) { submit.disabled = false; submit.textContent = "Crear cita y abrir reporte"; }
     }
   });
 }
@@ -1874,6 +2024,7 @@ async function initBackendAdmin() {
   bindReferidos();
   bindClientes();
   bindWorkOrderModal();
+  bindLiveApptModal();
   bindLineas();
   bindWalkInJob();
   bindLineasWalkIn();

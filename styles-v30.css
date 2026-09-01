@@ -1934,6 +1934,10 @@
 .page-admin-v31 .admin-confirm-backdrop-v34{z-index:420}
 .page-admin-v31 .admin-confirm-panel-v34{width:min(420px,100%)}
 
+.page-admin-v31 .admin-live-appt-panel-v34{width:min(520px,100%)}
+.page-admin-v31 .live-appt-row-v34{display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap}
+.page-admin-v31 .live-appt-row-v34 label{flex:1;min-width:120px}
+
 @media (max-width:1023px){
   .page-admin-v31 .admin-menu-v34{display:none}
   .page-admin-v31 .admin-toolbar.compact-toolbar{top:0}

@@ -9,7 +9,7 @@
   <meta name="theme-color" content="#05080d" />
   <title>Admin Backend · D-TEK GT</title>
   <link rel="stylesheet" href="styles.css?v=ef56fadb" />
-  <link rel="stylesheet" href="styles-v30.css?v=9524d574" />
+  <link rel="stylesheet" href="styles-v30.css?v=0eecdf2f" />
 </head>
 <body class="page-admin-v31">
   <div class="dtek-bg"><span class="orb orb-red"></span><span class="orb orb-cyan"></span></div>
@@ -89,6 +89,7 @@
               <button type="button" id="horarioToday">Hoy</button>
               <strong id="horarioDateLabel"></strong>
               <button type="button" id="horarioNext" aria-label="Día siguiente">▶</button>
+              <button type="button" id="horarioNewAppt" aria-label="Nueva cita">＋ Nueva cita</button>
             </div>
             <div class="horario-scroll-v34">
               <div class="horario-track-v34" id="horarioTrack"></div>
@@ -417,6 +418,53 @@
     </form>
   </div>
 
+  <div id="liveApptModal" class="admin-modal-backdrop hidden-field" role="dialog" aria-modal="true" aria-labelledby="liveApptModalTitle">
+    <form id="liveApptForm" class="dtek-glass-strong admin-modal-panel admin-live-appt-panel-v34">
+      <div class="admin-modal-head">
+        <div>
+          <span class="eyebrow">Desde WhatsApp</span>
+          <h2 id="liveApptModalTitle">Nueva cita en vivo</h2>
+          <p class="muted">Creá la cita y entrá directo al reporte para ir llenando mientras trabajás.</p>
+        </div>
+        <button type="button" class="admin-modal-close" id="liveApptModalClose" aria-label="Cerrar">×</button>
+      </div>
+
+      <div class="live-appt-row-v34">
+        <label>WhatsApp del cliente<input id="liveApptPhone" type="tel" placeholder="502XXXXXXXX"></label>
+        <button class="btn btn-ghost" type="button" id="liveApptSearchClient">Buscar cliente</button>
+      </div>
+      <div id="liveApptClientFound" class="status-box hidden-field"></div>
+
+      <label id="liveApptGuestFields" class="hidden-field">Nombre del cliente *
+        <input id="liveApptName" type="text" placeholder="Nombre completo">
+      </label>
+
+      <div id="liveApptVehicleBlock" class="hidden-field">
+        <label>Vehículo<select id="liveApptVehicle"></select></label>
+        <div id="liveApptManualVehicle" class="live-appt-row-v34 hidden-field">
+          <label>Marca *<input id="liveApptVehicleBrand" type="text" placeholder="Toyota"></label>
+          <label>Línea / modelo *<input id="liveApptVehicleLine" type="text" placeholder="Corolla"></label>
+          <label>Año<input id="liveApptVehicleYear" type="number" min="1950" max="2100" placeholder="2018"></label>
+        </div>
+      </div>
+
+      <label>Qué se va a hacer <span class="optional-mark">opcional</span>
+        <input id="liveApptDescription" type="text" placeholder="Ej. Cambio de balatas y revisión de suspensión">
+      </label>
+
+      <div class="live-appt-row-v34">
+        <label>Fecha y hora<input id="liveApptWhen" type="datetime-local"></label>
+        <label>Duración (min)<input id="liveApptDuration" type="number" min="15" step="15" value="60"></label>
+      </div>
+
+      <div id="liveApptStatus" class="status-box"></div>
+      <div class="admin-modal-actions">
+        <button type="button" class="btn btn-cyan" id="liveApptModalCancel">Cancelar</button>
+        <button type="submit" class="btn btn-primary">Crear cita y abrir reporte</button>
+      </div>
+    </form>
+  </div>
+
   <div id="adminGenericModal" class="admin-modal-backdrop admin-confirm-backdrop-v34 hidden-field" role="alertdialog" aria-modal="true" aria-labelledby="adminGenericModalTitle">
     <div class="dtek-glass-strong admin-modal-panel admin-confirm-panel-v34">
       <div class="admin-modal-head">
@@ -440,8 +488,8 @@
   <script src="supabase-config.js?v=81e95d5d"></script>
   <script src="services-data.js?v=465c3473"></script>
   <script src="vehicle-health.js?v=36000001"></script>
-  <script src="supabase-client.js?v=444fba2b"></script>
-  <script src="backend-admin.js?v=5095ee24"></script>
+  <script src="supabase-client.js?v=ee5c6e2e"></script>
+  <script src="backend-admin.js?v=b4940c16"></script>
   <script defer src="/_vercel/insights/script.js"></script>
 </body>
 </html>
