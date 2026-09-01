@@ -307,6 +307,8 @@
                 <div class="two-column-grid compact-grid">
                   <label>Fecha del trabajo *<input id="walkInServiceDate" type="date" required /></label>
                   <label>Kilometraje<input id="walkInMileage" type="number" min="0" step="1" inputmode="numeric" placeholder="130000" /></label>
+                  <label>Duración real (min) <span class="muted">opcional</span><input id="walkInDuration" type="number" min="15" step="15" placeholder="60" /></label>
+                  <label>Ubicación <span class="muted">opcional</span><input id="walkInLocation" type="text" placeholder="Zona 10, Ciudad de Guatemala" /></label>
                   <label class="full-span">Descripción del trabajo *<textarea id="walkInDescription" rows="3" required placeholder="Qué se hizo — ej. Cambio de bomba de agua y termostato por sobrecalentamiento"></textarea></label>
                   <label class="full-span">Recomendaciones <span class="muted">opcional</span><textarea id="walkInRecommendations" rows="2" placeholder="Próximo servicio, pendientes..."></textarea></label>
                 </div>
@@ -452,6 +454,10 @@
         <input id="liveApptDescription" type="text" placeholder="Ej. Cambio de balatas y revisión de suspensión">
       </label>
 
+      <label>Ubicación <span class="optional-mark">opcional</span>
+        <input id="liveApptLocation" type="text" placeholder="Zona 10, Ciudad de Guatemala">
+      </label>
+
       <div class="live-appt-row-v34">
         <label>Fecha y hora<input id="liveApptWhen" type="datetime-local"></label>
         <label>Duración (min)<input id="liveApptDuration" type="number" min="15" step="15" value="60"></label>
@@ -488,8 +494,8 @@
   <script src="supabase-config.js?v=81e95d5d"></script>
   <script src="services-data.js?v=465c3473"></script>
   <script src="vehicle-health.js?v=36000001"></script>
-  <script src="supabase-client.js?v=ee5c6e2e"></script>
-  <script src="backend-admin.js?v=b4940c16"></script>
+  <script src="supabase-client.js?v=18ef4356"></script>
+  <script src="backend-admin.js?v=b70b32bc"></script>
   <script defer src="/_vercel/insights/script.js"></script>
 </body>
 </html>

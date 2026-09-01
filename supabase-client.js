@@ -931,7 +931,9 @@ const DtekBackend = (() => {
       p_items: payload.items || [],
       p_vehicle_brand: payload.vehicle_brand || null,
       p_vehicle_line: payload.vehicle_line || null,
-      p_vehicle_year: payload.vehicle_year ? Number(payload.vehicle_year) : null
+      p_vehicle_year: payload.vehicle_year ? Number(payload.vehicle_year) : null,
+      p_duration_minutes: payload.duration_minutes ? Number(payload.duration_minutes) : 60,
+      p_location: payload.location || null
     });
     if (error) throw error;
     return Array.isArray(data) ? data[0] : data;
@@ -951,7 +953,8 @@ const DtekBackend = (() => {
       p_service_label: payload.service_label || null,
       p_symptom: payload.symptom || null,
       p_scheduled_start: payload.scheduled_start || null,
-      p_duration_minutes: payload.duration_minutes ? Number(payload.duration_minutes) : 60
+      p_duration_minutes: payload.duration_minutes ? Number(payload.duration_minutes) : 60,
+      p_location: payload.location || null
     });
     if (error) throw error;
     return Array.isArray(data) ? data[0] : data;

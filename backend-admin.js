@@ -434,10 +434,11 @@ function horarioItemCard(item) {
   const style = `top:${item.top}px;height:${item.height}px;left:${item.left};width:${item.width}`;
   if (item.type === "appointment") {
     const a = item.raw;
+    const clienteLinea = a.location ? `${a.client_name || "Cliente"} · ${a.location}` : (a.client_name || "Cliente");
     return `<button type="button" class="horario-item-v34 ${adminSafe(a.status || "requested")}" style="${style}" data-horario-appt="${adminSafe(a.id)}">
       <strong>${adminSafe(dtekFormatTimeRange(a))}</strong>
       <span>${adminSafe(a.service_name || a.service_id || "Servicio")}</span>
-      <small>${adminSafe(a.client_name || "Cliente")}</small>
+      <small>${adminSafe(clienteLinea)}</small>
     </button>`;
   }
   const b = item.raw;
@@ -1236,6 +1237,8 @@ function bindWalkInJob() {
         mileage: adminQs("#walkInMileage")?.value || null,
         job_description: descripcion,
         recommendations: adminQs("#walkInRecommendations")?.value.trim() || "",
+        duration_minutes: adminQs("#walkInDuration")?.value || null,
+        location: adminQs("#walkInLocation")?.value.trim() || null,
         items: lineas.map((l, i) => ({ ...l, position: i }))
       };
       await withTimeout(DtekBackend.logCompletedJob(payload), 12000, "registrar el trabajo");
@@ -1384,6 +1387,7 @@ function bindLiveApptModal() {
         vehicle_line: esManual ? adminQs("#liveApptVehicleLine")?.value.trim() : null,
         vehicle_year: esManual ? (adminQs("#liveApptVehicleYear")?.value || null) : null,
         service_label: adminQs("#liveApptDescription")?.value.trim() || null,
+        location: adminQs("#liveApptLocation")?.value.trim() || null,
         scheduled_start: new Date(cuando).toISOString(),
         duration_minutes: Number(adminQs("#liveApptDuration")?.value) || 60
       };
