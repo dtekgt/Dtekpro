@@ -1227,6 +1227,57 @@ function consumeOAuthRedirectError() {
   window.history.replaceState({}, document.title, cleanUrl);
 }
 
+/* ---------------------------------------------------------------------
+   v40 — Legibilidad. Tres piezas chicas: la linea de antiguedad, abrir un
+   campo puntual desde su fila, y el control de tamano de letra.
+   --------------------------------------------------------------------- */
+
+function clientSinceLabel(createdAt) {
+  if (!createdAt) return "";
+  const date = new Date(createdAt);
+  if (Number.isNaN(date.getTime())) return "";
+  return `Cliente desde ${date.getFullYear()}`;
+}
+
+function openProfileField(panelSelector, fieldSelector) {
+  const panel = clientQs(panelSelector);
+  if (!panel) return;
+  panel.open = true;
+  panel.scrollIntoView({ behavior: "smooth", block: "start" });
+  window.setTimeout(() => {
+    const field = fieldSelector ? clientQs(fieldSelector) : null;
+    if (!field || field.disabled) return;
+    field.focus();
+    if (typeof field.select === "function" && field.tagName === "INPUT") field.select();
+    clientQsa(".a11y-field-target").forEach((el) => el.classList.remove("a11y-field-target"));
+    field.classList.add("a11y-field-target");
+    window.setTimeout(() => field.classList.remove("a11y-field-target"), 2600);
+  }, 350);
+}
+
+const TEXT_SIZE_KEY = "dtek_text_size";
+const TEXT_SIZES = ["normal", "grande", "muy-grande"];
+
+function applyTextSize(size) {
+  const value = TEXT_SIZES.includes(size) ? size : "normal";
+  if (value === "normal") document.documentElement.removeAttribute("data-text-size");
+  else document.documentElement.setAttribute("data-text-size", value);
+  clientQsa("#a11ySizer button").forEach((button) => {
+    button.setAttribute("aria-pressed", String(button.dataset.textSize === value));
+  });
+  try { window.localStorage.setItem(TEXT_SIZE_KEY, value); } catch (error) { /* modo privado */ }
+}
+
+function bindTextSizeControl() {
+  let saved = "normal";
+  try { saved = window.localStorage.getItem(TEXT_SIZE_KEY) || "normal"; } catch (error) { /* modo privado */ }
+  applyTextSize(saved);
+  clientQs("#a11ySizer")?.addEventListener("click", (event) => {
+    const button = event.target.closest("button[data-text-size]");
+    if (button) applyTextSize(button.dataset.textSize);
+  });
+}
+
 async function loadClientProfile() {
   const holder = clientQs("#clientProfile");
   const session = await getSessionOrNull();
@@ -1238,17 +1289,40 @@ async function loadClientProfile() {
     const contactEmail = profileContactEmail(profile, session);
     const localAccess = isInternalLoginEmail(profile.email || session.user.email);
     if (holder) {
-      holder.innerHTML = [
-        ["Nombre", profile.full_name || "Pendiente"],
-        ["Usuario", profile.username || (localAccess ? "Pendiente" : "Entrás con correo / Google")],
-        ["Correo", contactEmail || "No agregado"],
-        ["WhatsApp", profile.phone || "Pendiente"],
-        ["Dirección frecuente", profile.default_location || "Pendiente"],
-        ["Zona frecuente", profile.default_city || "Pendiente"],
-        ["Horario preferido", profile.preferred_time_window || "Pendiente"],
-        ["Contacto", profile.contact_preference || "WhatsApp"]
-      ].map(([label, value]) => `<div class="profile-data-row"><span>${clientSafe(label)}</span><strong data-empty="${/^(Pendiente|No agregado)/.test(value) ? "true" : "false"}">${clientSafe(value)}</strong></div>`).join("");
+      // Los mismos 8 datos de siempre, ahora agrupados por la pregunta que
+      // responden y tocables uno por uno. Cada fila abre el <details> que ya
+      // existe con el foco puesto en su campo: no hay formulario nuevo.
+      const groups = [
+        ["Quién sos", [
+          ["Nombre", profile.full_name || "Pendiente", "#profileEditPanel", "#profileFullName"],
+          ["WhatsApp", profile.phone || "Pendiente", "#profileEditPanel", "#profilePhone"],
+          ["Cómo te contactamos", profile.contact_preference || "WhatsApp", "#profileEditPanel", "#profileContactPreference"]
+        ]],
+        ["Dónde y cuándo te visitamos", [
+          ["Dirección frecuente", profile.default_location || "Pendiente", "#profileEditPanel", "#profileDefaultLocation"],
+          ["Zona frecuente", profile.default_city || "Pendiente", "#profileEditPanel", "#profileDefaultCity"],
+          ["Horario preferido", profile.preferred_time_window || "Pendiente", "#profileEditPanel", "#profilePreferredTime"]
+        ]],
+        ["Cómo entrás", [
+          ["Usuario", profile.username || (localAccess ? "Pendiente" : "Entrás con correo / Google"), "#accessEditPanel", "#profileUsername"],
+          ["Correo", contactEmail || "No agregado", "#accessEditPanel", "#profileContactEmail"]
+        ]]
+      ];
+      holder.innerHTML = groups.map(([title, rows]) => {
+        const body = rows.map(([label, value, panel, field]) => {
+          const empty = /^(Pendiente|No agregado)$/.test(value);
+          const shown = empty ? "Falta este dato" : value;
+          return `<button class="profile-data-row" type="button" data-profile-panel="${clientSafe(panel)}" data-profile-field="${clientSafe(field)}" aria-label="Cambiar ${clientSafe(label)}">`
+            + `<span class="profile-row-copy">`
+            + `<span class="profile-row-label">${clientSafe(label)}</span>`
+            + `<strong data-empty="${empty ? "true" : "false"}">${clientSafe(shown)}</strong>`
+            + `</span>`
+            + `<span class="profile-row-go" aria-hidden="true">›</span></button>`;
+        }).join("");
+        return `<div class="profile-group"><h3>${clientSafe(title)}</h3><div class="profile-group-rows">${body}</div></div>`;
+      }).join("");
     }
+    setText("#profileHeroSince", clientSinceLabel(profile.created_at));
     renderSocialProfile();
     const values = {
       "#profileFullName": profile.full_name || "",
@@ -1650,12 +1724,18 @@ function initClientPortal() {
   clientQs("#clientRefreshReferrals")?.addEventListener("click", loadClientLoyalty);
 
   clientQs("#profileEditToggle")?.addEventListener("click", () => {
-    const panel = clientQs("#profileEditPanel");
-    if (!panel) return;
-    panel.open = true;
-    panel.scrollIntoView({ behavior: "smooth", block: "start" });
-    window.setTimeout(() => clientQs("#profileFullName")?.focus(), 350);
+    openProfileField("#profileEditPanel", "#profileFullName");
   });
+
+  // Tocar una fila de datos abre el plegable que ya existe, con el foco en
+  // ese campo. No hay formulario nuevo: es el mismo <details> de siempre.
+  clientQs("#clientProfile")?.addEventListener("click", (event) => {
+    const row = event.target.closest("[data-profile-panel]");
+    if (!row) return;
+    openProfileField(row.dataset.profilePanel, row.dataset.profileField);
+  });
+
+  bindTextSizeControl();
 
   clientQs("#clientAccountToggle")?.addEventListener("click", (event) => {
     event.stopPropagation();
