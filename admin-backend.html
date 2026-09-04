@@ -10,6 +10,7 @@
   <title>Admin Backend · D-TEK GT</title>
   <link rel="stylesheet" href="styles.css?v=ef56fadb" />
   <link rel="stylesheet" href="styles-v30.css?v=0eecdf2f" />
+  <link rel="stylesheet" href="styles-reporte-v41.css?v=17c2f2fc" />
 </head>
 <body class="page-admin-v31">
   <div class="dtek-bg"><span class="orb orb-red"></span><span class="orb orb-cyan"></span></div>
@@ -408,6 +409,20 @@
             <button type="button" class="btn btn-ghost" id="workOrderAddCustomSection">＋ Agregar sección</button>
           </div>
           <div id="workOrderCustomSections" class="inspection-grid-v33"></div>
+
+          <div class="lineas-head-v320" style="margin-top:18px">
+            <span id="faultCodesTitle">Códigos de falla leídos</span>
+            <small>Quedan anclados al kilometraje de hoy, igual que el trabajo. Si volvés a abrir este reporte más adelante, los que ya estaban conservan su kilometraje.</small>
+          </div>
+          <div class="fault-codes-v41" aria-labelledby="faultCodesTitle">
+            <div class="fault-code-add-v41">
+              <input type="text" id="faultCodeInput" placeholder="P0301" autocomplete="off" spellcheck="false" aria-label="Código de falla">
+              <input type="text" id="faultCodeDesc" placeholder="Qué significa (opcional)" autocomplete="off" aria-label="Descripción del código">
+              <button type="button" class="btn btn-ghost" id="faultCodeAdd">＋ Agregar código</button>
+            </div>
+            <div id="faultCodesList" class="fault-codes-list-v41"></div>
+            <p id="faultCodesEmpty" class="fault-codes-empty-v41">No se leyó ningún código en esta visita.</p>
+          </div>
         </section>
       </div>
 
@@ -494,8 +509,8 @@
   <script src="supabase-config.js?v=81e95d5d"></script>
   <script src="services-data.js?v=465c3473"></script>
   <script src="vehicle-health.js?v=36000001"></script>
-  <script src="supabase-client.js?v=18ef4356"></script>
-  <script src="backend-admin.js?v=8ece4fc0"></script>
+  <script src="supabase-client.js?v=bd088f94"></script>
+  <script src="backend-admin.js?v=9d20d7c9"></script>
   <script defer src="/_vercel/insights/script.js"></script>
 </body>
 </html>

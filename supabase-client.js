@@ -817,6 +817,38 @@ const DtekBackend = (() => {
     return data || [];
   }
 
+  // v41 — borrar una revisión mal puesta. Antes solo se podía sobrescribir,
+  // así que un "requiere atención" por error le quedaba al cliente para siempre.
+  async function deleteInspection(appointmentId, componentKey) {
+    const sb = client();
+    if (!sb) throw new Error("Supabase no está configurado todavía.");
+    const { error } = await sb.rpc("dtek_admin_delete_inspection", {
+      p_appointment_id: appointmentId,
+      p_component_key: componentKey
+    });
+    if (error) throw error;
+  }
+
+  // v41 — códigos de falla de la visita, anclados al kilometraje.
+  async function saveFaultCodes(appointmentId, codes = []) {
+    const sb = client();
+    if (!sb) throw new Error("Supabase no está configurado todavía.");
+    const { data, error } = await sb.rpc("dtek_admin_save_fault_codes", {
+      p_appointment_id: appointmentId,
+      p_codes: codes
+    });
+    if (error) throw error;
+    return Array.isArray(data) ? data[0] : data;
+  }
+
+  async function getFaultCodes(appointmentId) {
+    const sb = client();
+    if (!sb) throw new Error("Supabase no está configurado todavía.");
+    const { data, error } = await sb.rpc("dtek_fault_codes", { p_appointment_id: appointmentId });
+    if (error) throw error;
+    return Array.isArray(data) ? data : [];
+  }
+
   const BUCKET_INSPECCIONES = "vehicle-inspections";
 
   async function uploadInspectionPhoto(path, blob) {
@@ -1041,6 +1073,9 @@ const DtekBackend = (() => {
     listMyVehicleHistory,
     listMyVehicleHealth,
     saveVehicleInspections,
+    deleteInspection,
+    saveFaultCodes,
+    getFaultCodes,
     uploadInspectionPhoto,
     listWorkOrderInspections,
     createInspectionPhotoUrls,

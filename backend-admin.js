@@ -677,6 +677,164 @@ function renderWorkOrderInspections(appointment = {}) {
   pintarSeccionesCustom();
 }
 
+/* ====== v41 — Volver a abrir un reporte y editarlo ======================
+   Hasta ahora el modal siempre arrancaba en blanco: si un trabajo ya tenía
+   revisiones guardadas, se veían todas como "No revisado" y no había forma
+   de corregir una, de quitar una foto vieja ni de ver qué se había puesto.
+   Eso hacía que "modificar" fuera en realidad "sobrescribir a ciegas".
+   ===================================================================== */
+
+// "revisión" pierde el acento en plural: revisiones, no revisiónes.
+function textoRevisiones(n) {
+  return n === 1 ? "1 revisión" : `${n} revisiones`;
+}
+
+// Deja una fila con lo que ya estaba guardado en la base.
+function aplicarInspeccionGuardada(fila, evento) {
+  const key = evento.component_key;
+  const estado = dtekReporteVivo[key] = dtekReporteVivo[key] || dtekEstadoVacio();
+  estado.status = evento.status && evento.status !== "unknown" ? evento.status : "";
+  estado.notes = evento.notes || "";
+  estado.comment_source = evento.comment_source || null;
+  estado.photo_paths = Array.isArray(evento.photo_paths) ? evento.photo_paths.slice() : [];
+  estado.label = evento.component_label || "";
+  estado.guardado = true;
+
+  const select = fila.querySelector(`[data-inspection-key="${CSS.escape(key)}"]`);
+  if (select) select.value = estado.status;
+  const nota = fila.querySelector(`[data-inspection-note="${CSS.escape(key)}"]`);
+  if (nota) nota.value = estado.notes;
+  const titulo = fila.querySelector(`[data-custom-title="${CSS.escape(key)}"]`);
+  if (titulo) titulo.value = estado.label;
+
+  const setNum = (attr, valor) => {
+    const campo = fila.querySelector(`[${attr}="${CSS.escape(key)}"]`);
+    if (campo && valor != null && valor !== "") campo.value = valor;
+  };
+  setNum("data-interval-months", evento.interval_months);
+  setNum("data-interval-km", evento.interval_km);
+  setNum("data-service-date", evento.service_date);
+  setNum("data-service-mileage", evento.service_mileage);
+
+  fila.classList.add("inspection-row-guardada-v41");
+  if (!fila.querySelector("[data-remove-inspection]")) {
+    const cuando = evento.inspected_at ? new Date(evento.inspected_at).toLocaleDateString("es-GT") : "";
+    const km = evento.mileage ? ` · ${Number(evento.mileage).toLocaleString("es-GT")} km` : "";
+    const aviso = document.createElement("div");
+    aviso.className = "inspection-guardada-aviso-v41";
+    aviso.innerHTML = `<small>Ya guardado${cuando ? " el " + adminSafe(cuando) : ""}${adminSafe(km)}</small>`
+      + `<button type="button" class="btn btn-ghost" data-remove-inspection="${adminSafe(key)}">Quitar revisión</button>`;
+    fila.appendChild(aviso);
+  }
+}
+
+async function precargarInspecciones(appointmentId) {
+  let eventos = [];
+  try {
+    eventos = await withTimeout(DtekBackend.listWorkOrderInspections(appointmentId), 10000, "leer las revisiones guardadas");
+  } catch (error) {
+    console.warn("No se pudieron leer las revisiones guardadas:", error);
+    return { error: true, cantidad: 0 };
+  }
+  if (String(dtekWorkOrderAppointmentId) !== String(appointmentId)) return { error: false, cantidad: 0 };
+  if (!eventos.length) return { error: false, cantidad: 0 };
+
+  // Las secciones ad-hoc no están en el catálogo: hay que recrearlas antes.
+  const custom = eventos.filter((e) => String(e.component_key || "").startsWith("custom-"));
+  custom.forEach((e) => {
+    if (!dtekCustomKeys.includes(e.component_key)) {
+      dtekCustomKeys.push(e.component_key);
+      dtekReporteVivo[e.component_key] = dtekEstadoVacio();
+      dtekReporteVivo[e.component_key].label = e.component_label || "";
+    }
+  });
+  if (custom.length) pintarSeccionesCustom();
+
+  let aplicadas = 0;
+  eventos.forEach((evento) => {
+    const fila = adminQs(`[data-maintenance-row="${CSS.escape(evento.component_key)}"]`);
+    if (!fila) return;
+    aplicarInspeccionGuardada(fila, evento);
+    aplicadas += 1;
+  });
+
+  await pintarFotosGuardadas(eventos);
+  return { error: false, cantidad: aplicadas };
+}
+
+// Las rutas guardadas no son URLs: hay que pedir enlaces firmados al bucket.
+async function pintarFotosGuardadas(eventos) {
+  const rutas = eventos.flatMap((e) => Array.isArray(e.photo_paths) ? e.photo_paths : []);
+  if (!rutas.length) return;
+  let urls = {};
+  try {
+    urls = await withTimeout(DtekBackend.createInspectionPhotoUrls(rutas), 10000, "abrir las fotos guardadas");
+  } catch (error) {
+    console.warn("No se pudieron firmar las fotos guardadas:", error);
+  }
+  eventos.forEach((evento) => {
+    const holder = adminQs(`[data-photos-for="${CSS.escape(evento.component_key)}"]`);
+    if (!holder) return;
+    (evento.photo_paths || []).forEach((ruta) => {
+      if (holder.querySelector(`[data-remove-photo="${CSS.escape(ruta)}"]`)) return;
+      holder.insertBefore(crearMiniatura(ruta, urls[ruta] || ""), holder.querySelector(".photo-add-btn-v33"));
+    });
+  });
+}
+
+/* ---------- Códigos de falla de la visita ---------- */
+
+let dtekFaultCodes = [];
+
+function pintarFaultCodes() {
+  const lista = adminQs("#faultCodesList");
+  const vacio = adminQs("#faultCodesEmpty");
+  if (!lista) return;
+  lista.innerHTML = dtekFaultCodes.map((c, i) => {
+    const km = c.mileage ? `${Number(c.mileage).toLocaleString("es-GT")} km` : "km de hoy";
+    return `<div class="fault-code-chip-v41">`
+      + `<b>${adminSafe(c.code)}</b>`
+      + (c.description ? `<span>${adminSafe(c.description)}</span>` : "")
+      + `<small>${adminSafe(km)}</small>`
+      + `<button type="button" data-remove-fault-code="${i}" aria-label="Quitar el código ${adminSafe(c.code)}">×</button>`
+      + `</div>`;
+  }).join("");
+  if (vacio) vacio.classList.toggle("hidden-field", dtekFaultCodes.length > 0);
+}
+
+function agregarFaultCode() {
+  const campoCodigo = adminQs("#faultCodeInput");
+  const campoDesc = adminQs("#faultCodeDesc");
+  const code = (campoCodigo?.value || "").trim().toUpperCase();
+  if (!code) { campoCodigo?.focus(); return; }
+  if (dtekFaultCodes.some((c) => c.code === code)) {
+    alert(`El código ${code} ya está en la lista.`);
+    campoCodigo.select();
+    return;
+  }
+  // mileage/read_at quedan en null: la funcion de Postgres les pone el
+  // kilometraje de hoy. Los que vienen de la base ya traen el suyo y no
+  // se remarcan, para no reescribir la historia al editar.
+  dtekFaultCodes.push({ code, description: (campoDesc?.value || "").trim() || null, mileage: null, read_at: null });
+  if (campoCodigo) campoCodigo.value = "";
+  if (campoDesc) campoDesc.value = "";
+  pintarFaultCodes();
+  campoCodigo?.focus();
+}
+
+async function precargarFaultCodes(appointmentId) {
+  dtekFaultCodes = [];
+  pintarFaultCodes();
+  try {
+    const codes = await withTimeout(DtekBackend.getFaultCodes(appointmentId), 8000, "leer los códigos de falla");
+    if (String(dtekWorkOrderAppointmentId) !== String(appointmentId)) return;
+    dtekFaultCodes = Array.isArray(codes) ? codes : [];
+    pintarFaultCodes();
+  } catch (error) {
+    console.warn("No se pudieron leer los códigos de falla:", error);
+  }
+}
+
 function nuevaClaveCustom() {
   const base = window.crypto?.randomUUID?.() || `${Date.now()}${Math.random().toString(36).slice(2)}`;
   return `custom-${base.replace(/-/g, "").slice(0, 8)}`;
@@ -714,6 +872,11 @@ function collectWorkOrderInspections() {
   return Object.keys(dtekReporteVivo).map(key => {
     const item = dtekReporteVivo[key];
     const esCustom = dtekCustomKeys.includes(key);
+    // Una fila que vino de la base y no se tocó NO se vuelve a mandar. El
+    // upsert pisa inspected_at con now(), así que reenviarla le cambiaría la
+    // fecha a una inspección vieja: quedaría diciendo que los frenos se
+    // revisaron hoy solo porque se abrió el reporte para corregir otra cosa.
+    if (item.guardado && !item.modificado) return null;
     return {
       component_key: key,
       component_label: esCustom ? ((item.label || "").trim() || null) : null,
@@ -726,7 +889,16 @@ function collectWorkOrderInspections() {
       service_date: adminQs(`[data-service-date="${key}"]`)?.value || null,
       service_mileage: Number(adminQs(`[data-service-mileage="${key}"]`)?.value || 0) || null
     };
-  }).filter(item => item.status || item.notes || item.photo_paths.length || item.component_label);
+  }).filter(item => item && (item.status || item.notes || item.photo_paths.length || item.component_label));
+}
+
+// Marca una fila como tocada en esta sesión. De eso depende que se vuelva a
+// mandar y que se le exija foto: lo que ya estaba guardado y no se tocó no
+// necesita evidencia nueva ni debe reescribirse.
+function marcarModificada(key) {
+  const item = dtekReporteVivo[key] = dtekReporteVivo[key] || dtekEstadoVacio();
+  item.modificado = true;
+  return item;
 }
 
 function validarReporteVivo() {
@@ -737,6 +909,11 @@ function validarReporteVivo() {
     const nombre = esCustom ? ((item.label || "").trim() || "Sección sin título") : nombreDeComponenteAdmin(key);
     const tocado = Boolean((item.notes || "").trim() || item.photo_paths.length || item.status || (esCustom && (item.label || "").trim()));
     if (!tocado) return;
+    // Lo que ya está guardado y no se tocó en esta sesión no se revalida: si
+    // se importó sin foto (o se registró desde "Registrar trabajo", que no
+    // pide fotos), exigirle una ahora bloquearía editar cualquier otra cosa
+    // del reporte. La evidencia se sigue exigiendo para todo lo nuevo.
+    if (item.guardado && !item.modificado) return;
     if (esCustom && !(item.label || "").trim()) errores.push(`"${nombre}": falta el título de la sección.`);
     if (!item.status) errores.push(`"${nombre}": falta marcar el estado.`);
     if (!item.photo_paths.length) errores.push(`"${nombre}": falta la foto.`);
@@ -835,7 +1012,15 @@ function bindInspecciones() {
   contenedor.addEventListener("change", (ev) => {
     const sel = ev.target.closest("[data-inspection-key]");
     if (sel) {
-      (dtekReporteVivo[sel.dataset.inspectionKey] = dtekReporteVivo[sel.dataset.inspectionKey] || dtekEstadoVacio()).status = sel.value;
+      marcarModificada(sel.dataset.inspectionKey).status = sel.value;
+      return;
+    }
+    // Cambiar solo el intervalo o la fecha tambien cuenta como editar: sin
+    // esto, corregir "cada cuantos km" en una fila ya guardada no se mandaria.
+    const plan = ev.target.closest("[data-interval-months],[data-interval-km],[data-service-date],[data-service-mileage]");
+    if (plan) {
+      const fila = plan.closest("[data-maintenance-row]");
+      if (fila) marcarModificada(fila.dataset.maintenanceRow);
       return;
     }
     const input = ev.target.closest("[data-photo-input]");
@@ -849,7 +1034,7 @@ function bindInspecciones() {
     temp.textContent = "…";
     fotosHolder?.insertBefore(temp, fotosHolder.querySelector(".photo-add-btn-v33"));
     subirFoto(file, key).then(({ ruta, blob }) => {
-      (dtekReporteVivo[key] = dtekReporteVivo[key] || dtekEstadoVacio()).photo_paths.push(ruta);
+      marcarModificada(key).photo_paths.push(ruta);
       temp.replaceWith(crearMiniatura(ruta, URL.createObjectURL(blob)));
     }).catch((error) => {
       temp.remove();
@@ -860,16 +1045,20 @@ function bindInspecciones() {
   contenedor.addEventListener("input", (ev) => {
     const nota = ev.target.closest("[data-inspection-note]");
     if (nota) {
-      const key = nota.dataset.inspectionNote;
-      const item = dtekReporteVivo[key] = dtekReporteVivo[key] || dtekEstadoVacio();
+      const item = marcarModificada(nota.dataset.inspectionNote);
       item.notes = nota.value;
       item.comment_source = "text";
       return;
     }
+    const plan = ev.target.closest("[data-interval-months],[data-interval-km],[data-service-date],[data-service-mileage]");
+    if (plan) {
+      const fila = plan.closest("[data-maintenance-row]");
+      if (fila) marcarModificada(fila.dataset.maintenanceRow);
+      return;
+    }
     const titulo = ev.target.closest("[data-custom-title]");
     if (titulo) {
-      const key = titulo.dataset.customTitle;
-      (dtekReporteVivo[key] = dtekReporteVivo[key] || dtekEstadoVacio()).label = titulo.value;
+      marcarModificada(titulo.dataset.customTitle).label = titulo.value;
     }
   });
 
@@ -880,10 +1069,40 @@ function bindInspecciones() {
       const fila = quitarFoto.closest("[data-maintenance-row]");
       const key = fila?.dataset.maintenanceRow;
       const ruta = quitarFoto.dataset.removePhoto;
-      if (key && dtekReporteVivo[key]) dtekReporteVivo[key].photo_paths = dtekReporteVivo[key].photo_paths.filter(p => p !== ruta);
+      if (key && dtekReporteVivo[key]) {
+        marcarModificada(key).photo_paths = dtekReporteVivo[key].photo_paths.filter(p => p !== ruta);
+      }
       thumb?.remove();
       return;
     }
+    // v41 — borrar de la base una revision mal puesta, no solo del formulario.
+    const quitarRevision = ev.target.closest("[data-remove-inspection]");
+    if (quitarRevision) {
+      const key = quitarRevision.dataset.removeInspection;
+      const nombre = dtekCustomKeys.includes(key)
+        ? ((dtekReporteVivo[key]?.label || "").trim() || "esta sección")
+        : nombreDeComponenteAdmin(key);
+      if (!confirm(`¿Quitar la revisión de "${nombre}"? El cliente deja de verla en su Garage.`)) return;
+      quitarRevision.disabled = true;
+      DtekBackend.deleteInspection(dtekWorkOrderAppointmentId, key).then(() => {
+        dtekReporteVivo[key] = dtekEstadoVacio();
+        const fila = adminQs(`[data-maintenance-row="${CSS.escape(key)}"]`);
+        if (fila) {
+          fila.classList.remove("inspection-row-guardada-v41");
+          fila.querySelector(".inspection-guardada-aviso-v41")?.remove();
+          const sel = fila.querySelector(`[data-inspection-key="${CSS.escape(key)}"]`);
+          if (sel) sel.value = "";
+          const nota = fila.querySelector(`[data-inspection-note="${CSS.escape(key)}"]`);
+          if (nota) nota.value = "";
+          fila.querySelectorAll(".photo-thumb-v33").forEach((t) => t.remove());
+        }
+      }).catch((error) => {
+        quitarRevision.disabled = false;
+        alert(`No se pudo quitar la revisión: ${error.message}`);
+      });
+      return;
+    }
+
     const quitarSeccion = ev.target.closest("[data-remove-section]");
     if (quitarSeccion) {
       const key = quitarSeccion.dataset.removeSection;
@@ -892,6 +1111,19 @@ function bindInspecciones() {
       delete dtekReporteVivo[key];
       pintarSeccionesCustom();
     }
+  });
+
+  adminQs("#faultCodeAdd")?.addEventListener("click", agregarFaultCode);
+  ["#faultCodeInput", "#faultCodeDesc"].forEach((sel) => {
+    adminQs(sel)?.addEventListener("keydown", (ev) => {
+      if (ev.key === "Enter") { ev.preventDefault(); agregarFaultCode(); }
+    });
+  });
+  adminQs("#faultCodesList")?.addEventListener("click", (ev) => {
+    const btn = ev.target.closest("[data-remove-fault-code]");
+    if (!btn) return;
+    dtekFaultCodes.splice(Number(btn.dataset.removeFaultCode), 1);
+    pintarFaultCodes();
   });
 
   adminQs("#workOrderAddCustomSection")?.addEventListener("click", () => {
@@ -958,6 +1190,7 @@ function openWorkOrderModal(appointmentId) {
   // detalle anterior: dtek_admin_cerrar_trabajo borra work_order_items y los
   // reemplaza enteros por lo que manda el panel (19_lineas_de_recibo.sql:150).
   precargarReporteExistente(appointmentId);
+  precargarFaultCodes(appointmentId);
 }
 
 async function precargarReporteExistente(appointmentId) {
@@ -970,7 +1203,14 @@ async function precargarReporteExistente(appointmentId) {
 
     const lineas = Array.isArray(recibo.lineas) ? recibo.lineas : [];
     const tieneAlgo = lineas.length || recibo.hallazgos || recibo.recomendaciones || recibo.notas || recibo.km;
-    if (!tieneAlgo) return;
+    if (!tieneAlgo) {
+      // Sin recibo previo puede haber revisiones igual (cita en vivo).
+      const soloRevisiones = await precargarInspecciones(appointmentId);
+      if (soloRevisiones.cantidad && statusBox) {
+        statusBox.innerHTML = `<p class="status-info">Cargamos ${textoRevisiones(soloRevisiones.cantidad)} que ya tenías guardada${soloRevisiones.cantidad === 1 ? "" : "s"}.</p>`;
+      }
+      return;
+    }
 
     if (lineas.length) {
       dtekLineas = lineas.map((l) => ({
@@ -992,8 +1232,14 @@ async function precargarReporteExistente(appointmentId) {
     set("#workOrderRecommendations", recibo.recomendaciones);
     set("#workOrderPartsNotes", recibo.notas);
 
+    const revisiones = await precargarInspecciones(appointmentId);
+    if (String(dtekWorkOrderAppointmentId) !== String(appointmentId)) return;
+
     if (statusBox) {
-      statusBox.innerHTML = `<p class="status-info">Este trabajo ya estaba registrado: cargamos ${lineas.length} línea${lineas.length === 1 ? "" : "s"} del recibo y lo que ya habías escrito. Editá lo que necesités y agregá las revisiones abajo.</p>`;
+      const partes = [`${lineas.length} línea${lineas.length === 1 ? "" : "s"} del recibo`];
+      if (revisiones.cantidad) partes.push(textoRevisiones(revisiones.cantidad));
+      statusBox.innerHTML = `<p class="status-info">Este trabajo ya estaba registrado: cargamos ${partes.join(" y ")}. Podés cambiar lo que sea y volver a guardar.</p>`
+        + (revisiones.error ? `<p class="status-warning">No pudimos leer las revisiones guardadas. No marqués estados hasta que cargue, para no pisar lo que ya estaba.</p>` : "");
     }
   } catch (error) {
     // No bloquea: el modal ya está abierto y usable con la línea por defecto.
@@ -1563,6 +1809,8 @@ async function submitWorkOrderReport(event, { compartir = false } = {}) {
     if (inspections.length) {
       await withTimeout(DtekBackend.saveVehicleInspections(appointmentId, inspections), 12000, "guardar las revisiones");
     }
+    // Se manda siempre, tambien vacia: es como se borra un codigo mal puesto.
+    await withTimeout(DtekBackend.saveFaultCodes(appointmentId, dtekFaultCodes), 10000, "guardar los códigos de falla");
     await dtekSendZapierEvent("work_order_updated", { appointmentId, appointment, workOrder: saved });
 
     if (compartir) {

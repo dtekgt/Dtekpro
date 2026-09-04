@@ -1,0 +1,158 @@
+/* =====================================================================
+   D-TEK v41 — Reporte técnico editable
+   Carga después de styles.css y styles-v30.css en admin-backend.html.
+   No edita ninguna de las dos: revertir es borrar el <link>.
+
+   Sigue el lenguaje visual de la capa v33 (inspection-*-v33): mismo
+   redondeo de 10-12px, mismo borde tenue, misma escala de grises.
+   ===================================================================== */
+
+
+/* ---------------------------------------------------------------------
+   1. Fila que ya viene guardada de la base
+   Se marca en verde para distinguir de un lado lo que ya quedó registrado
+   y del otro lo que se está escribiendo ahora. Sin esto, un reporte
+   reabierto se ve idéntico a uno en blanco.
+   --------------------------------------------------------------------- */
+.inspection-row-guardada-v41{
+  border-color:rgba(111,227,184,.28);
+  background:rgba(111,227,184,.045);
+}
+.inspection-guardada-aviso-v41{
+  grid-column:1/-1;
+  display:flex;
+  flex-wrap:wrap;
+  align-items:center;
+  justify-content:space-between;
+  gap:8px;
+  margin-top:8px;
+  padding-top:8px;
+  border-top:1px dashed rgba(111,227,184,.22);
+}
+.inspection-guardada-aviso-v41 small{
+  color:#6fe3b8;
+  font-size:11px;
+  font-weight:600;
+}
+.inspection-guardada-aviso-v41 .btn{
+  min-height:34px;
+  padding:0 12px;
+  font-size:12px;
+}
+.inspection-guardada-aviso-v41 .btn:hover{
+  border-color:#ff3b3f;
+  color:#ff6c70;
+}
+
+
+/* ---------------------------------------------------------------------
+   2. Códigos de falla
+   --------------------------------------------------------------------- */
+.fault-codes-v41{
+  margin-top:12px;
+  padding:12px;
+  border:1px solid rgba(255,255,255,.055);
+  border-radius:12px;
+}
+.fault-code-add-v41{
+  display:grid;
+  grid-template-columns:minmax(0,130px) minmax(0,1fr) auto;
+  gap:8px;
+  align-items:center;
+}
+.fault-code-add-v41 input{
+  min-height:38px;
+  padding:0 10px;
+  border:1px solid rgba(255,255,255,.14);
+  border-radius:8px;
+  background:rgba(255,255,255,.04);
+  color:#fff;
+  font-size:13px;
+  width:100%;
+}
+.fault-code-add-v41 input:focus{
+  outline:none;
+  border-color:#ff3b3f;
+}
+/* el código en monoespaciada: P0301 y P0801 no se confunden de un vistazo */
+#faultCodeInput{
+  font-family:ui-monospace,SFMono-Regular,Menlo,monospace;
+  font-weight:700;
+  letter-spacing:.04em;
+  text-transform:uppercase;
+}
+.fault-code-add-v41 .btn{
+  min-height:38px;
+  white-space:nowrap;
+}
+
+.fault-codes-list-v41{
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+  margin-top:10px;
+}
+.fault-codes-list-v41:empty{ margin-top:0; }
+
+.fault-code-chip-v41{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  padding:7px 8px 7px 11px;
+  border:1px solid rgba(255,186,86,.32);
+  border-radius:999px;
+  background:rgba(255,186,86,.1);
+  max-width:100%;
+}
+.fault-code-chip-v41 b{
+  flex:none;
+  color:#ffba56;
+  font-family:ui-monospace,SFMono-Regular,Menlo,monospace;
+  font-size:13px;
+  font-weight:800;
+  letter-spacing:.03em;
+}
+.fault-code-chip-v41 span{
+  min-width:0;
+  overflow:hidden;
+  color:#e6e8ec;
+  font-size:12px;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+.fault-code-chip-v41 small{
+  flex:none;
+  padding:2px 7px;
+  border-radius:999px;
+  background:rgba(0,0,0,.28);
+  color:#b9c0ca;
+  font-size:11px;
+  font-variant-numeric:tabular-nums;
+}
+.fault-code-chip-v41 button{
+  flex:none;
+  width:22px;
+  height:22px;
+  border:0;
+  border-radius:50%;
+  background:rgba(255,255,255,.1);
+  color:#fff;
+  font-size:13px;
+  line-height:1;
+  cursor:pointer;
+}
+.fault-code-chip-v41 button:hover{ background:#ff3b3f; }
+
+.fault-codes-empty-v41{
+  margin:10px 2px 0;
+  color:#87909c;
+  font-size:12px;
+}
+.fault-codes-empty-v41.hidden-field{ display:none; }
+
+@media(max-width:700px){
+  .fault-code-add-v41{ grid-template-columns:1fr; }
+  .fault-code-add-v41 .btn{ width:100%; }
+  .fault-code-chip-v41{ width:100%; }
+  .fault-code-chip-v41 span{ white-space:normal; }
+}
