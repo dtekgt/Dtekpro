@@ -951,6 +951,57 @@ function openWorkOrderModal(appointmentId) {
 
   modal.classList.remove("hidden-field");
   adminQs("#workOrderDiagnosis")?.focus();
+
+  // Si esta cita ya tiene un trabajo registrado (por ejemplo, el que se creo
+  // con "Registrar trabajo"), traemos lo que ya esta guardado. Sin esto el
+  // modal arranca con UNA linea del catalogo y al guardar se pierde el
+  // detalle anterior: dtek_admin_cerrar_trabajo borra work_order_items y los
+  // reemplaza enteros por lo que manda el panel (19_lineas_de_recibo.sql:150).
+  precargarReporteExistente(appointmentId);
+}
+
+async function precargarReporteExistente(appointmentId) {
+  const statusBox = adminQs("#workOrderStatusBox");
+  try {
+    const recibo = await withTimeout(DtekBackend.obtenerRecibo(appointmentId), 8000, "leer el reporte guardado");
+    // El modal pudo cerrarse o cambiar de cita mientras se cargaba.
+    if (String(dtekWorkOrderAppointmentId) !== String(appointmentId)) return;
+    if (!recibo) return;
+
+    const lineas = Array.isArray(recibo.lineas) ? recibo.lineas : [];
+    const tieneAlgo = lineas.length || recibo.hallazgos || recibo.recomendaciones || recibo.notas || recibo.km;
+    if (!tieneAlgo) return;
+
+    if (lineas.length) {
+      dtekLineas = lineas.map((l) => ({
+        description: l.descripcion || "",
+        kind: l.tipo || "part",
+        quantity: Number(l.cantidad) || 1,
+        unit_price: Number(l.precio) || 0,
+        service_id: ""
+      }));
+      pintarLineas();
+    }
+
+    const set = (selector, value) => {
+      const field = adminQs(selector);
+      if (field && value != null && value !== "") field.value = value;
+    };
+    set("#workOrderMileage", recibo.km);
+    set("#workOrderDiagnosis", recibo.hallazgos);
+    set("#workOrderRecommendations", recibo.recomendaciones);
+    set("#workOrderPartsNotes", recibo.notas);
+
+    if (statusBox) {
+      statusBox.innerHTML = `<p class="status-info">Este trabajo ya estaba registrado: cargamos ${lineas.length} línea${lineas.length === 1 ? "" : "s"} del recibo y lo que ya habías escrito. Editá lo que necesités y agregá las revisiones abajo.</p>`;
+    }
+  } catch (error) {
+    // No bloquea: el modal ya está abierto y usable con la línea por defecto.
+    console.warn("No se pudo precargar el reporte guardado:", error);
+    if (statusBox && String(dtekWorkOrderAppointmentId) === String(appointmentId)) {
+      statusBox.innerHTML = `<p class="status-warning">No pudimos leer si esta cita ya tenía un recibo guardado. Si ya le habías registrado el trabajo, revisá las líneas antes de guardar: al cerrar se reemplazan por las que estén acá.</p>`;
+    }
+  }
 }
 
 /* ---------- Lineas del recibo ----------
@@ -1166,6 +1217,11 @@ function pintarWalkInVehiculos() {
 }
 
 function bindWalkInJob() {
+  adminQs("#walkInJobStatus")?.addEventListener("click", (event) => {
+    const btn = event.target.closest("[data-abrir-reporte]");
+    if (btn) openWorkOrderModal(btn.dataset.abrirReporte);
+  });
+
   adminQs("#walkInVehicle")?.addEventListener("change", (event) => {
     const manual = event.target.value === "manual";
     adminQs("#walkInManualVehicle")?.classList.toggle("hidden-field", !manual);
@@ -1241,7 +1297,11 @@ function bindWalkInJob() {
         location: adminQs("#walkInLocation")?.value.trim() || null,
         items: lineas.map((l, i) => ({ ...l, position: i }))
       };
-      await withTimeout(DtekBackend.logCompletedJob(payload), 12000, "registrar el trabajo");
+      const orden = await withTimeout(DtekBackend.logCompletedJob(payload), 12000, "registrar el trabajo");
+      // "Registrar trabajo" no captura estado de frenos/llantas ni el proximo
+      // servicio: eso vive en el reporte tecnico. Antes habia que ir a Citas y
+      // encontrar el boton uno mismo, asi que se ofrece el atajo aca.
+      const citaRegistrada = orden?.appointment_id || null;
       walkInStatus("Trabajo registrado. Ya aparece en Citas.", "ok");
       event.target.reset();
       dtekWalkInClientId = null;
@@ -1251,6 +1311,15 @@ function bindWalkInJob() {
       adminQs("#walkInVehicleBlock")?.classList.add("hidden-field");
       adminQs("#walkInClientFound")?.classList.add("hidden-field");
       await refreshAllAdminData();
+      // La cita ya esta en cache: recien aca el atajo puede abrir el modal.
+      if (citaRegistrada) {
+        const box = adminQs("#walkInJobStatus");
+        if (box) {
+          box.innerHTML = `<p class="status-ok">Trabajo registrado. Ya aparece en Citas.</p>`
+            + `<p class="status-info">Falta lo que este formulario no pregunta: cada cuántos km toca el próximo servicio y cómo quedaron frenos, llantas, batería y suspensión.</p>`
+            + `<button type="button" class="btn btn-primary" data-abrir-reporte="${adminSafe(citaRegistrada)}">Agregar revisiones y próximo servicio</button>`;
+        }
+      }
     } catch (error) {
       walkInStatus(error?.message || "No se pudo registrar el trabajo.", "error");
     } finally {
