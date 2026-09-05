@@ -915,10 +915,27 @@ function validarReporteVivo() {
     // del reporte. La evidencia se sigue exigiendo para todo lo nuevo.
     if (item.guardado && !item.modificado) return;
     if (esCustom && !(item.label || "").trim()) errores.push(`"${nombre}": falta el título de la sección.`);
+    // La foto ya NO bloquea. La regla de v33 ("nada se da por bueno sin
+    // evidencia") era correcta como principio, pero en la calle hay piezas
+    // que se revisan sin poder fotografiarlas y trabajos que se registran
+    // después. Exigirla obligaba a inventar una foto o a no registrar nada,
+    // que es peor que registrarlo sin ella. En vez de bloquear, cada ítem
+    // dice si tiene evidencia o si es solo la palabra del mecánico, y el
+    // cliente ve esa diferencia.
     if (!item.status) errores.push(`"${nombre}": falta marcar el estado.`);
-    if (!item.photo_paths.length) errores.push(`"${nombre}": falta la foto.`);
   });
   return errores;
+}
+
+// Aviso suave, no bloqueante: dónde convendría una foto.
+function itemsSinFoto() {
+  return Object.keys(dtekReporteVivo).filter((key) => {
+    const item = dtekReporteVivo[key];
+    if (item.guardado && !item.modificado) return false;
+    return item.status === "attention" && !item.photo_paths.length;
+  }).map((key) => dtekCustomKeys.includes(key)
+    ? ((dtekReporteVivo[key].label || "").trim() || "Sección sin título")
+    : nombreDeComponenteAdmin(key));
 }
 
 function comprimirImagen(file, { maxDim = 1600, calidad = 0.72 } = {}) {
@@ -1821,7 +1838,11 @@ async function submitWorkOrderReport(event, { compartir = false } = {}) {
     }
 
     if (statusBox) {
-      statusBox.innerHTML = `<p class="status-ok">Trabajo cerrado por ${adminSafe(dtekMoneda(totales.total))}.${compartir ? " Abrimos WhatsApp con el recibo." : ""} El cliente ya lo ve en su Garage.</p>`;
+      const sinFoto = itemsSinFoto();
+      statusBox.innerHTML = `<p class="status-ok">Trabajo cerrado por ${adminSafe(dtekMoneda(totales.total))}.${compartir ? " Abrimos WhatsApp con el recibo." : ""} El cliente ya lo ve en su Garage.</p>`
+        + (sinFoto.length
+          ? `<p class="status-warning">Sin foto: ${adminSafe(sinFoto.join(", "))}. Guardó igual, pero al cliente le cuesta más aceptar un gasto que no puede ver. Si podés, volvé a abrir el reporte y agregala.</p>`
+          : "");
     }
     await refreshAllAdminData();
     setTimeout(closeWorkOrderModal, 1200);
