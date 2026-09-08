@@ -553,13 +553,13 @@
 }
 .page-agenda-v25-pro .success-details-v25{border-radius:18px;overflow:hidden}
 .page-agenda-v25-pro .success-details-v25>div{background:#0d1015}
-.page-public-v24:not(.page-home-cinema) .public-page-hero-v24,.page-public-v24:not(.page-home-cinema) .purchase-hero-v24,.page-public-v24:not(.page-home-cinema) .referral-hero-v24{
+.page-public-v24:not(.page-home-cinema) .public-page-hero-v24,.page-public-v24:not(.page-home-cinema) .referral-hero-v24{
   position:relative;
   overflow:hidden;
   padding-top:70px;
   padding-bottom:54px;
 }
-.page-public-v24:not(.page-home-cinema) .public-page-hero-v24::after,.page-public-v24:not(.page-home-cinema) .purchase-hero-v24::after,.page-public-v24:not(.page-home-cinema) .referral-hero-v24::after{
+.page-public-v24:not(.page-home-cinema) .public-page-hero-v24::after,.page-public-v24:not(.page-home-cinema) .referral-hero-v24::after{
   content:"";
   position:absolute;
   left:0;right:28%;bottom:24px;
@@ -567,7 +567,7 @@
   background:linear-gradient(90deg,var(--f1-red-hot),rgba(227,32,37,.16),transparent);
   box-shadow:0 0 18px rgba(227,32,37,.42);
 }
-.page-public-v24:not(.page-home-cinema) .public-page-hero-v24 h1,.page-public-v24:not(.page-home-cinema) .purchase-hero-v24 h1,.page-public-v24:not(.page-home-cinema) .referral-hero-v24 h1{
+.page-public-v24:not(.page-home-cinema) .public-page-hero-v24 h1,.page-public-v24:not(.page-home-cinema) .referral-hero-v24 h1{
   color:#fff;
   font-size:clamp(48px,8vw,100px);
   font-weight:300;
@@ -692,33 +692,7 @@
     radial-gradient(900px 600px at -12% 62%,rgba(255,255,255,.035),transparent 67%),
     linear-gradient(180deg,#050608 0%,#080a0d 48%,#030405 100%);
 }
-.page-public-v24 .purchase-scorecard-v24{
-  position:relative;
-  overflow:hidden;
-  border:1px solid rgba(255,255,255,.12);
-  border-radius:26px;
-  background:
-    radial-gradient(circle at 82% 14%,rgba(227,32,37,.18),transparent 34%),
-    linear-gradient(145deg,#151920,#07080b);
-  box-shadow:var(--f1-shadow);
-}
-.page-public-v24 .purchase-scorecard-v24::after{
-  content:"";
-  position:absolute;
-  left:24%;right:-12%;bottom:24%;
-  height:2px;
-  transform:rotate(-7deg);
-  background:linear-gradient(90deg,transparent,var(--f1-red-hot),transparent);
-  box-shadow:0 0 18px rgba(227,32,37,.5);
-}
-.page-public-v24 .purchase-scorecard-v24>*{position:relative;z-index:1}
-.page-public-v24 .purchase-scorecard-v24 small{
-  border:1px solid rgba(255,255,255,.08);
-  border-radius:14px;
-  color:rgba(255,255,255,.64);
-  background:rgba(255,255,255,.035);
-}
-.page-public-v24 .inspection-grid-v24 article,.page-public-v24 .public-detail-grid-v24 article{
+.page-public-v24 .public-detail-grid-v24 article{
   position:relative;
   overflow:hidden;
   border-color:var(--f1-line);
@@ -727,7 +701,7 @@
   background:linear-gradient(145deg,rgba(255,255,255,.045),rgba(255,255,255,.018));
   box-shadow:inset 0 1px rgba(255,255,255,.025);
 }
-.page-public-v24 .inspection-grid-v24 article::after,.page-public-v24 .public-detail-grid-v24 article::after{
+.page-public-v24 .public-detail-grid-v24 article::after{
   content:"";
   position:absolute;
   left:24px;right:55%;bottom:0;
@@ -735,7 +709,7 @@
   background:linear-gradient(90deg,var(--f1-red-hot),transparent);
   box-shadow:0 0 12px rgba(227,32,37,.36);
 }
-.page-public-v24 .inspection-grid-v24 article>span,.page-public-v24 .public-detail-grid-v24 article>span{color:var(--f1-red-hot)}
+.page-public-v24 .public-detail-grid-v24 article>span{color:var(--f1-red-hot)}
 .page-public-v24 .public-service-detail-v24{padding-top:52px;padding-bottom:100px}
 .page-public-v24 .public-service-detail-hero-v24{
   position:relative;
@@ -833,10 +807,7 @@
     background:var(--f1-red-hot);
     box-shadow:0 0 14px rgba(227,32,37,.68);
   }
-.page-public-v24 .purchase-hero-v24,
-  .page-public-v24 .referral-hero-v24,
-  .page-public-v24 .public-service-detail-hero-v24{min-height:auto;grid-template-columns:1fr;gap:28px;padding-top:34px}
-.page-public-v24 .inspection-grid-v24{grid-template-columns:repeat(2,1fr)}
+.page-public-v24 .referral-hero-v24,.page-public-v24 .public-service-detail-hero-v24{min-height:auto;grid-template-columns:1fr;gap:28px;padding-top:34px}
 .page-public-v24 .public-detail-grid-v24.two{grid-template-columns:1fr}
 .page-public-v24 .faq-aside-v24{position:static}}
 .page-public-v25.page-public-v24 .public-btn-v24.secondary{
