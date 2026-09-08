@@ -6844,3 +6844,42 @@ body.agenda-service-selected .agenda-start-compact-v2741 {
   .page-client-v23 .client-maintenance-drawer,
   .page-client-v23 .client-side-tab{transition:none}
 }
+
+/* ---------------------------------------------------------------------------
+   Superficies del Garage que quedaron blancas de una generacion anterior.
+
+   cliente.html carga styles-v30.css ANTES que styles.css, al reves que el resto
+   del sitio. El contenido se pinta con texto claro (v30), pero estas reglas
+   viejas todavia ponen fondo blanco y, al cargar al final, ganan. Resultado:
+   blanco sobre blanco. La pantalla de login llegaba a 1.07:1 de contraste, o
+   sea invisible, y las tarjetas del historial se veian vacias.
+
+   Ya estaba parchado dentro de @media(max-width:767px) —por eso en telefono se
+   ve bien— y escritorio quedo roto. Estas son las 10 superficies que quedaban,
+   encontradas midiendo contraste elemento por elemento, no a ojo.
+
+   Esto no es la raiz. La raiz es el orden de carga, pero invertirlo mueve ~430
+   de 896 elementos del Garage (ancho, padding y columnas incluidos): eso es
+   trabajo de rediseno, no de arreglo.
+   --------------------------------------------------------------------------- */
+.page-client-v23 .client-public-header{background:rgba(5,6,8,.92);border-color:#20252d}
+.page-client-v23 .auth-card{background:#181d23;border-color:#303640}
+.page-client-v23 .client-empty-state{background:#181d23;border-color:#303640}
+.page-client-v23 .selector-accordion.booking{background:#181d23;border-color:#303640}
+.page-client-v23 .client-btn-secondary{color:#f7f8fa;background:#20252d;border-color:#3a424d}
+.page-client-v23 .client-account-trigger{color:#f7f8fa;background:#20252d;border-color:#3a424d}
+.page-client-v23 .care-unit-toggle{color:#f7f8fa;background:#20252d;border-color:#3a424d}
+.page-client-v23 .client-empty-illustration{background:#20252d;border-color:#3a424d}
+.page-client-v23 .client-status-badge.neutral{color:rgba(247,248,250,.72);background:rgba(255,255,255,.06);border-color:#3a424d}
+/* El de Google se queda blanco a proposito —es su marca—, lo que le faltaba era
+   texto oscuro: lo tenia claro y quedaba invisible sobre su propio fondo. */
+.page-client-v23 .client-btn-google{color:#17181a;background:#fff;border-color:#d3d6db}
+
+/* Los pasos todavia no alcanzados del asistente ("2. Horario", "3. Confirmar")
+   heredaban --client-surface-soft, que es del tema claro: fondo casi blanco con
+   texto casi blanco, 1.04:1. El paso activo y el ya hecho tienen mas
+   especificidad, asi que conservan su rojo y su verde. */
+.page-client-v23 :is(.client-booking-progress,.vehicle-form-progress) span{
+  color:rgba(247,248,250,.72);
+  background:rgba(255,255,255,.05);
+}
