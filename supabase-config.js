@@ -6,7 +6,7 @@
 */
 
 window.DTEK_CONFIG = {
-  whatsappNumber: "50247082329",
+  whatsappNumber: "50242596784",
   ownerEmail: "rgdominicm@gmail.com",
 
   // Opcional: dejalo vacío para usar automáticamente cliente.html en el dominio actual.

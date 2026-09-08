@@ -212,7 +212,7 @@ function deliverWhatsApp(message, reserved = null) {
   if (!whatsAppReady()) {
     closeReservedWhatsAppWindow(reserved);
     console.error("WhatsApp de D-TEK mal configurado — revisar WA_NUMBER en services-data.js");
-    alert("No pudimos abrir WhatsApp en este momento. Escribinos directo al 4708-2329 y te ayudamos con tu solicitud.");
+    alert("No pudimos abrir WhatsApp en este momento. Escribinos directo al 4259-6784 y te ayudamos con tu solicitud.");
     return false;
   }
   const href = waLink(message);

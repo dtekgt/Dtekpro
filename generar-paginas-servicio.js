@@ -19,7 +19,7 @@ const crypto = require("crypto");
 
 const RAIZ = __dirname;
 const SITIO = "https://dtekpro.vercel.app";
-const WA = "50247082329";
+const WA = "50242596784";
 
 /*
   Version por contenido en vez de a mano.
@@ -119,7 +119,7 @@ function pagina(servicio) {
     provider: {
       "@type": "AutoRepair",
       name: "D-TEK GT",
-      telephone: "+502 4708 2329",
+      telephone: "+502 4259 6784",
       areaServed: { "@type": "City", name: "Ciudad de Guatemala" },
       url: SITIO
     },

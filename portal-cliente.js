@@ -976,7 +976,7 @@ function renderOverview() {
     nextCard.dataset.state = appointment.status;
     setText("#nextActionTitle", appointment.service_name || "Servicio D-TEK");
     setText("#nextActionDescription", `${fmtDate(appointment.scheduled_start)}${appointment.location ? ` · ${appointment.location}` : ""}. ${appointment.status === "requested" ? "Te confirmamos por WhatsApp antes de llegar." : "Tu cita ya está confirmada."}`);
-    setHtml("#nextActionActions", `<button class="client-btn client-btn-primary" type="button" data-client-section="appointments">Ver mi cita</button><a class="client-text-link" href="https://wa.me/${clientSafe(window.DTEK_WHATSAPP_NUMBER || window.DTEK_CONFIG?.whatsappNumber || "50247082329")}" target="_blank" rel="noopener">Escribir por WhatsApp</a>`);
+    setHtml("#nextActionActions", `<button class="client-btn client-btn-primary" type="button" data-client-section="appointments">Ver mi cita</button><a class="client-text-link" href="https://wa.me/${clientSafe(window.DTEK_WHATSAPP_NUMBER || window.DTEK_CONFIG?.whatsappNumber || "50242596784")}" target="_blank" rel="noopener">Escribir por WhatsApp</a>`);
   } else if (vehicleInsight.recommendation) {
     status.className = "client-status-badge waiting";
     status.textContent = "Revisión pendiente";

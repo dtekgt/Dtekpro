@@ -3,7 +3,7 @@
   Código creado para uso exclusivo de D-TEK GT.
 */
 
-window.DTEK_WHATSAPP_NUMBER = "50247082329"; // Reemplazar por WhatsApp oficial de D-TEK, sin espacios ni guiones.
+window.DTEK_WHATSAPP_NUMBER = "50242596784"; // Reemplazar por WhatsApp oficial de D-TEK, sin espacios ni guiones.
 const DTEK_WHATSAPP_NUMBER = window.DTEK_WHATSAPP_NUMBER;
 
 window.DTEK_OWNER_EMAIL = "rgdominicm@gmail.com"; // Reemplazar por el correo oficial que recibirá confirmaciones.
