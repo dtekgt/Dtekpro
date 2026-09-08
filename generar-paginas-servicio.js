@@ -104,7 +104,23 @@ const NAV_MOVIL = `<nav class="public-mobile-nav-v25" aria-label="Navegación m�
 function pagina(servicio) {
   const categoria = categoriaDe(servicio.id);
   const monto = montoDe(servicio.price);
-  const titulo = `${servicio.name} a domicilio${monto ? ` desde Q${monto.toLocaleString("es-GT")}` : ""} | D-TEK GT`;
+  /*
+    Google corta el titulo cerca de los 60 caracteres. Con nombres largos
+    ("Cambio de banda de distribucion / accesorios") el titulo completo llegaba
+    a 80 y lo que se perdia era justo el final: "| D-TEK GT".
+
+    Se arma por descarte, de mas informativo a menos: primero cae el precio
+    —que igual va en la descripcion— y despues "a domicilio". El nombre y la
+    marca no se tocan: son lo que hace clicable el resultado.
+  */
+  const tituloCabe = (t) => t.length <= 60;
+  const conPrecio = monto ? ` desde Q${monto.toLocaleString("es-GT")}` : "";
+  const titulo =
+    [
+      `${servicio.name} a domicilio${conPrecio} | D-TEK GT`,
+      `${servicio.name} a domicilio | D-TEK GT`,
+      `${servicio.name} | D-TEK GT`,
+    ].find(tituloCabe) || `${servicio.name} | D-TEK GT`;
   const descripcion = recorta(
     `${servicio.description || servicio.short}${monto ? ` Precio de referencia desde Q${monto.toLocaleString("es-GT")}.` : ""} A domicilio en Guatemala.`
   );

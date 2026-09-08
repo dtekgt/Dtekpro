@@ -190,6 +190,18 @@
     });
   }
 
+  /* Hay dos controles por modo (la tarjeta grande y la pestaña chica), y ademas
+     se puede entrar directo con ?flow=symptoms desde el home, el FAQ o el
+     Garage. El activo se decide por modo, no por que boton se toco, y el primer
+     clic fija el camino: de ahi en adelante se ve el detalle, no las dos
+     tarjetas grandes. */
+  function activateAgendaListMode(mode) {
+    $$('[data-agenda-list-mode]').forEach(item => item.classList.toggle('active', item.dataset.agendaListMode === mode));
+    $('#agendaServicesListPanel')?.classList.toggle('active', mode === 'services');
+    $('#agendaSymptomsListPanel')?.classList.toggle('active', mode === 'symptoms');
+    $('#agendaStart')?.classList.add('path-chosen');
+  }
+
   function renderAgendaSelector() {
     const holder = $("#agendaServiceAccordion");
     if (holder) holder.innerHTML = serviceAccordionHtml({ booking: true });
@@ -201,22 +213,11 @@
     Object.keys(FIELD_MESSAGES).forEach(selector => $(selector)?.addEventListener("change", clearFieldAttention));
     Object.keys(FIELD_MESSAGES).forEach(selector => $(selector)?.addEventListener("input", clearFieldAttention));
     $$('[data-agenda-list-mode]').forEach(button => button.addEventListener('click', () => {
-      const mode = button.dataset.agendaListMode;
-      // Ahora hay dos controles por modo (la tarjeta grande y la pestaña chica):
-      // el activo se decide por modo, no por identidad del boton clicado.
-      $$('[data-agenda-list-mode]').forEach(item => item.classList.toggle('active', item.dataset.agendaListMode === mode));
-      $('#agendaServicesListPanel')?.classList.toggle('active', mode === 'services');
-      $('#agendaSymptomsListPanel')?.classList.toggle('active', mode === 'symptoms');
-      // El primer clic decide el camino: de ahi en adelante se ve el detalle,
-      // no las dos tarjetas grandes.
-      $('#agendaStart')?.classList.add('path-chosen');
+      activateAgendaListMode(button.dataset.agendaListMode);
     }));
     const requestedFlow = new URLSearchParams(window.location.search).get("flow");
     if (["symptoms", "sintomas"].includes(requestedFlow)) {
-      $$('[data-agenda-list-mode]').forEach(item => item.classList.toggle('active', item.dataset.agendaListMode === "symptoms"));
-      $('#agendaServicesListPanel')?.classList.remove('active');
-      $('#agendaSymptomsListPanel')?.classList.add('active');
-      $('#agendaStart')?.classList.add('path-chosen');
+      activateAgendaListMode("symptoms");
       document.body.dataset.agendaPreferredMode = "symptoms";
     }
   }

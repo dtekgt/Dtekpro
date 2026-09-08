@@ -10,3 +10,7 @@ Thumbs.db
 
 # Claude Code: config local y worktrees (adentro lleva una copia entera del repo)
 .claude/
+
+# Respaldos comprimidos del propio repositorio: el historial de git ya es el
+# respaldo, y Vercel los publicaba junto con el sitio.
+*.zip
