@@ -1699,8 +1699,14 @@ code {
   padding: 24px;
   border: 1px solid var(--client-line);
   border-radius: 16px;
-  background: #fff;
-  box-shadow: 0 30px 80px rgba(17,24,39,.24);
+  /* Los modales del Garage se pintan con texto claro (styles-v30.css), pero acá
+     el fondo quedó blanco de una generación anterior. Como cliente.html carga
+     styles.css DESPUÉS de styles-v30.css, este #fff ganaba y dejaba los tres
+     modales —expediente, solicitud y vehículo— blanco sobre blanco de 768px
+     para arriba. En móvil ya se había parchado con un !important dentro de
+     @media(max-width:767px); esto lo arregla para todos los anchos. */
+  background: #181d23;
+  box-shadow: 0 30px 80px rgba(0,0,0,.45);
 }
 .page-client-v23 .client-modal-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 20px; }
 .page-client-v23 .client-modal-head h2 { margin: 5px 0 0; color: var(--client-ink); font-size: 30px; letter-spacing: -.04em; }

@@ -108,13 +108,49 @@ function parsear(css) {
   return leerNodos(false);
 }
 
+/* Parte la lista de selectores por las comas de primer nivel: las comas dentro
+   de :is(), :where() o :not() no separan reglas. */
+function partesDeSelector(prelude) {
+  const partes = [];
+  let prof = 0, actual = "";
+  for (const c of prelude) {
+    if (c === "(") prof++;
+    if (c === ")") prof--;
+    if (c === "," && prof === 0) { partes.push(actual); actual = ""; continue; }
+    actual += c;
+  }
+  partes.push(actual);
+  return partes.map((p) => p.trim()).filter(Boolean);
+}
+
+/* Un selector descendente o compuesto (".a .b", ".a.b") solo coincide si TODAS
+   sus clases están presentes en la cadena. Basta con que una sea exclusiva del
+   Garage o del admin para que ninguna página pública pueda coincidir.
+
+   Al revés —conservar si ALGUNA clase es pública— parecía razonable pero se
+   equivocaba con las clases de estado cortas: ".semaforo-veredicto.warn" se
+   conservaba porque "warn" aparece en el JS público dentro de console.warn, y
+   "ok" aparece como identificador en cualquier lado. Así se colaban cientos de
+   reglas del Garage al CSS público. */
+function partePublica(parte) {
+  const clases = [...parte.matchAll(/\.(-?[A-Za-z_][A-Za-z0-9_-]*)/g)].map((m) => m[1]);
+  if (!clases.length) return true; // body, :root, h1, #id, *
+  return clases.every((c) => tokensPublicos.has(c));
+}
+
 function conservar(nodo) {
   if (nodo.tipo === "decl") return true;
   if (nodo.tipo === "at") return nodo.hijos.some(conservar);
   if (nodo.prelude.startsWith("@")) return true; // keyframes, font-face, page
-  const clases = [...nodo.prelude.matchAll(/\.(-?[A-Za-z_][A-Za-z0-9_-]*)/g)].map((m) => m[1]);
-  if (!clases.length) return true; // body, :root, h1, #id, *
-  return clases.some((c) => tokensPublicos.has(c));
+  return partesDeSelector(nodo.prelude).some(partePublica);
+}
+
+/* Si una regla agrupaba varios selectores y solo algunos aplican a lo público,
+   se emite con esos: arrastrar los demás vuelve a inflar el archivo. */
+function preludeRecortado(prelude) {
+  const partes = partesDeSelector(prelude);
+  const vivas = partes.filter(partePublica);
+  return vivas.length === partes.length ? prelude : vivas.join(",");
 }
 
 function serializar(nodos) {
@@ -123,7 +159,7 @@ function serializar(nodos) {
     if (!conservar(n)) continue;
     if (n.tipo === "decl") out.push(n.texto);
     else if (n.tipo === "at") out.push(`${n.prelude}{${serializar(n.hijos)}}`);
-    else out.push(`${n.prelude}{${n.cuerpo}}`);
+    else out.push(`${preludeRecortado(n.prelude)}{${n.cuerpo}}`);
   }
   return out.join("\n");
 }

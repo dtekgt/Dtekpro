@@ -2990,6 +2990,61 @@
 .page-client-v23 .exp-foto-thumb{width:64px;height:64px;border-radius:10px;overflow:hidden;display:block}
 .page-client-v23 .exp-foto-thumb img{width:100%;height:100%;object-fit:cover;display:block}
 
+/* Semaforo del carro: la respuesta primero, el detalle despues.
+   Reusa los verdes/ambar de la marca (--f1-green / --f1-amber) para no meter
+   una cuarta paleta de estado en el Garage. */
+.page-client-v23 .semaforo-veredicto{padding:16px 15px;border:2px solid;border-radius:16px;margin-bottom:14px}
+.page-client-v23 .semaforo-veredicto.bad{border-color:rgba(255,108,112,.42);background:linear-gradient(160deg,rgba(255,108,112,.14),rgba(255,108,112,.04))}
+.page-client-v23 .semaforo-veredicto.warn{border-color:rgba(255,186,86,.4);background:linear-gradient(160deg,rgba(255,186,86,.13),rgba(255,186,86,.03))}
+.page-client-v23 .semaforo-veredicto.ok{border-color:rgba(111,227,184,.38);background:linear-gradient(160deg,rgba(111,227,184,.12),rgba(111,227,184,.03))}
+.page-client-v23 .semaforo-cuando{color:rgba(255,255,255,.68);font-size:13px;font-weight:600}
+.page-client-v23 .semaforo-veredicto h4{margin:5px 0 0;color:#fff;font-size:21px;line-height:1.22;letter-spacing:-.01em;font-weight:800}
+.page-client-v23 .semaforo-veredicto p{margin:7px 0 0;color:rgba(255,255,255,.82);font-size:14px;line-height:1.45}
+
+.page-client-v23 .semaforo-medidor-caja{margin-bottom:16px}
+.page-client-v23 .semaforo-medidor{display:flex;height:12px;border-radius:999px;overflow:hidden;background:rgba(255,255,255,.07)}
+.page-client-v23 .semaforo-medidor i{display:block;height:100%}
+.page-client-v23 .semaforo-medidor i.bad{background:#ff6c70}
+.page-client-v23 .semaforo-medidor i.warn{background:var(--f1-amber,#ffba56)}
+.page-client-v23 .semaforo-medidor i.ok{background:var(--f1-green,#6fe3b8)}
+.page-client-v23 .semaforo-clave{display:flex;flex-wrap:wrap;gap:12px;margin-top:9px}
+.page-client-v23 .semaforo-clave span{display:flex;align-items:center;gap:6px;color:rgba(255,255,255,.78);font-size:13px;font-weight:600}
+.page-client-v23 .semaforo-clave b{width:10px;height:10px;border-radius:50%}
+.page-client-v23 .semaforo-clave b.bad{background:#ff6c70}
+.page-client-v23 .semaforo-clave b.warn{background:var(--f1-amber,#ffba56)}
+.page-client-v23 .semaforo-clave b.ok{background:var(--f1-green,#6fe3b8)}
+
+.page-client-v23 .semaforo-grupo{border:1px solid rgba(255,255,255,.11);border-radius:14px;overflow:hidden;margin-bottom:12px}
+.page-client-v23 .semaforo-grupo>header{display:flex;align-items:center;gap:9px;padding:11px 13px;border-left:4px solid transparent;background:rgba(255,255,255,.04)}
+.page-client-v23 .semaforo-grupo>header strong{font-size:15px;font-weight:800}
+.page-client-v23 .semaforo-n{margin-left:auto;padding:2px 9px;border-radius:999px;background:rgba(0,0,0,.32);font-size:13px;font-weight:800;font-variant-numeric:tabular-nums}
+.page-client-v23 .semaforo-grupo.bad>header{border-left-color:#ff6c70;background:rgba(255,108,112,.12)}
+.page-client-v23 .semaforo-grupo.bad>header strong{color:#ff8f92}
+.page-client-v23 .semaforo-grupo.warn>header{border-left-color:var(--f1-amber,#ffba56);background:rgba(255,186,86,.11)}
+.page-client-v23 .semaforo-grupo.warn>header strong{color:var(--f1-amber,#ffba56)}
+.page-client-v23 .semaforo-grupo.ok>header{border-left-color:var(--f1-green,#6fe3b8);background:rgba(111,227,184,.1)}
+.page-client-v23 .semaforo-grupo.ok>header strong{color:var(--f1-green,#6fe3b8)}
+.page-client-v23 .semaforo-grupo.none>header{border-left-color:rgba(255,255,255,.26)}
+.page-client-v23 .semaforo-grupo.none>header strong{color:rgba(255,255,255,.74)}
+
+.page-client-v23 .semaforo-item{display:grid;grid-template-columns:38px minmax(0,1fr);gap:11px;padding:12px 13px;border-top:1px solid rgba(255,255,255,.08)}
+.page-client-v23 .semaforo-ico{width:38px;height:38px;display:grid;place-items:center;border-radius:11px;background:rgba(255,255,255,.06);font-size:17px}
+.page-client-v23 .semaforo-cuerpo strong{display:block;font-size:15px;font-weight:700;line-height:1.3}
+.page-client-v23 .semaforo-cuerpo p{margin:4px 0 0;color:rgba(255,255,255,.8);font-size:14px;line-height:1.45}
+.page-client-v23 .semaforo-evidencia{display:inline-flex;align-items:center;gap:5px;margin-top:8px;padding:3px 9px;border-radius:999px;font-size:12px;font-weight:700}
+.page-client-v23 .semaforo-evidencia.con-foto{background:rgba(111,227,184,.15);color:var(--f1-green,#6fe3b8)}
+.page-client-v23 .semaforo-evidencia.sin-foto{background:rgba(255,255,255,.08);color:rgba(255,255,255,.74)}
+.page-client-v23 .semaforo-cta{display:block;width:100%;margin-top:11px;padding:13px;border:0;border-radius:12px;background:#e32025;color:#fff;font-family:inherit;font-size:15px;font-weight:800;text-align:center;cursor:pointer}
+.page-client-v23 .semaforo-cta:hover{background:#c81a1f}
+
+.page-client-v23 .semaforo-codigos{margin-top:14px;padding:13px;border:1px solid rgba(255,186,86,.3);border-radius:14px;background:rgba(255,186,86,.08)}
+.page-client-v23 .semaforo-codigos strong{display:block;font-size:14px;font-weight:800;color:var(--f1-amber,#ffba56)}
+.page-client-v23 .semaforo-codigos p{margin:5px 0 10px;color:rgba(255,255,255,.82);font-size:13px;line-height:1.45}
+.page-client-v23 .semaforo-codigo{display:flex;align-items:center;gap:9px;padding:9px 0;border-top:1px solid rgba(255,186,86,.2)}
+.page-client-v23 .semaforo-codigo b{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:14px;font-weight:800;color:var(--f1-amber,#ffba56)}
+.page-client-v23 .semaforo-codigo span{flex:1;min-width:0;font-size:14px}
+.page-client-v23 .semaforo-codigo small{color:rgba(255,255,255,.68);font-size:12px;font-variant-numeric:tabular-nums}
+
 @media (max-width:560px){
   /* A pantalla completa: centrado dejaba el encabezado 8px arriba del borde. */
   .page-client-v23 .expediente-modal{padding:0;place-items:stretch}

@@ -170,9 +170,7 @@
   border-color:rgba(255,59,63,.62);
   box-shadow:0 0 0 3px rgba(227,32,37,.12),0 0 22px rgba(227,32,37,.1);
 }
-.page-public-v25 select option,
-.page-client-v23 select option,
-.page-admin-v31 select option{
+.page-public-v25 select option{
   color:#f5f6f8;
   background-color:#12161f;
 }
@@ -405,8 +403,7 @@
 }
 .page-agenda-v25-pro .agenda-category-launchers-v2741,
 .page-agenda-v25-pro .agenda-symptom-launchers-v2741{gap:10px}
-.page-agenda-v25-pro .agenda-category-launcher-v2741,
-.page-agenda-v25-pro .agenda-symptom-launcher-v2741{
+.page-agenda-v25-pro .agenda-category-launcher-v2741{
   position:relative;
   overflow:hidden;
   min-height:74px;
@@ -414,8 +411,7 @@
   border-color:rgba(255,255,255,.1);
   background:linear-gradient(135deg,rgba(255,255,255,.055),rgba(255,255,255,.018));
 }
-.page-agenda-v25-pro .agenda-category-launcher-v2741::after,
-.page-agenda-v25-pro .agenda-symptom-launcher-v2741::after{
+.page-agenda-v25-pro .agenda-category-launcher-v2741::after{
   content:"";
   position:absolute;
   left:16px;right:16px;bottom:0;
@@ -427,8 +423,7 @@
   box-shadow:0 0 12px rgba(227,32,37,.4);
   transition:transform .35s var(--f1-ease);
 }
-.page-agenda-v25-pro .agenda-category-launcher-v2741:hover::after,
-.page-agenda-v25-pro .agenda-symptom-launcher-v2741:hover::after{transform:scaleX(1)}
+.page-agenda-v25-pro .agenda-category-launcher-v2741:hover::after{transform:scaleX(1)}
 .page-agenda-v25-pro .service-picked-banner-v25,
 .page-agenda-v25-pro .additional-launcher-v2741,
 .page-agenda-v25-pro .other-service-request-v274{
@@ -558,128 +553,13 @@
 }
 .page-agenda-v25-pro .success-details-v25{border-radius:18px;overflow:hidden}
 .page-agenda-v25-pro .success-details-v25>div{background:#0d1015}
-.page-client-v23 .client-menu button.active{
-  color:#fff;
-  background:linear-gradient(90deg,rgba(227,32,37,.16),rgba(255,255,255,.025));
-}
-.page-client-v23 .client-menu button.active::after{
-  background:var(--f1-red-hot);
-  box-shadow:0 0 14px rgba(227,32,37,.66);
-}
-.page-client-v23 .client-section-heading h1,
-.page-client-v23 .section-action-row h2{
-  color:#fff;
-  font-weight:300;
-  letter-spacing:-.055em;
-}
-.page-client-v23 .client-card{
-  position:relative;
-  overflow:hidden;
-  border-color:var(--client-line);
-  border-radius:22px;
-  background:linear-gradient(150deg,rgba(17,20,26,.94),rgba(7,8,11,.91));
-  box-shadow:var(--client-shadow),inset 0 1px rgba(255,255,255,.032);
-}
-.page-client-v23 .client-card::after{
-  content:"";
-  position:absolute;
-  left:22px;right:58%;bottom:0;
-  height:1px;
-  opacity:.42;
-  background:linear-gradient(90deg,var(--f1-red-hot),transparent);
-  box-shadow:0 0 11px rgba(227,32,37,.4);
-  pointer-events:none;
-}
-.page-client-v23 .garage-mini-dot.done{border-color:var(--f1-red-hot);background:var(--f1-red-hot);box-shadow:0 0 8px rgba(227,32,37,.55)}
-.page-client-v23 .garage-mini-dot.today{border-color:#fff;background:#fff;box-shadow:0 0 8px rgba(255,255,255,.5)}
-.page-client-v23 .garage-timeline-dock[data-tone="overdue"] .garage-mini-dot.target{border-color:var(--f1-red-hot);background:var(--f1-red-hot)}
-.page-client-v23 .overview-layout{grid-template-columns:minmax(0,1.45fr) minmax(280px,.65fr);gap:18px}
-.page-client-v23 .vehicles-workspace{gap:18px}
-.page-client-v23 .vehicle-picker-card.active{
-  border-color:rgba(255,59,63,.3);
-  background:linear-gradient(90deg,rgba(227,32,37,.16),rgba(255,255,255,.025));
-  box-shadow:inset 3px 0 var(--f1-red-hot),0 0 22px rgba(227,32,37,.08);
-}
-.page-client-v23 .vehicle-inner-tabs,
-.page-client-v23 .appointment-tabs,
-.page-client-v23 .points-list-tabs{
-  padding:4px;
-  border:1px solid var(--client-line);
-  border-radius:999px;
-  background:rgba(255,255,255,.025);
-}
-.page-client-v23 .vehicle-inner-tabs button,
-.page-client-v23 .appointment-tabs button,
-.page-client-v23 .points-list-tabs button{
-  min-height:39px;
-  border-radius:999px;
-  color:var(--client-muted);
-  font-weight:550;
-}
-.page-client-v23 .vehicle-inner-tabs button.active,
-.page-client-v23 .appointment-tabs button.active,
-.page-client-v23 .points-list-tabs button.active{
-  color:#fff;
-  background:linear-gradient(90deg,rgba(227,32,37,.3),rgba(122,5,10,.2));
-  box-shadow:inset 0 -2px var(--f1-red-hot),0 0 18px rgba(227,32,37,.11);
-}
-.page-client-v23 .points-wallet{
-  overflow:hidden;
-  border-color:rgba(255,59,63,.2);
-  background:
-    radial-gradient(circle at 84% 15%,rgba(227,32,37,.2),transparent 34%),
-    linear-gradient(140deg,#161a21,#07080b 72%);
-}
-.page-client-v23 .points-wallet::before{
-  content:"";
-  position:absolute;
-  left:42%;right:-8%;bottom:24%;
-  height:2px;
-  transform:rotate(-6deg);
-  background:linear-gradient(90deg,transparent,var(--f1-red-hot),transparent);
-  box-shadow:0 0 20px rgba(227,32,37,.55);
-}
-.page-client-v23 .profile-identity-card{overflow:hidden;background:#090b0f}
-.page-client-v23 .vehicle-form-progress span.active,
-.page-client-v23 .client-booking-progress span.active{
-  color:#fff;
-  background:linear-gradient(90deg,rgba(227,32,37,.3),rgba(119,5,10,.22));
-  box-shadow:inset 0 -2px var(--f1-red-hot);
-}
-.page-client-v23 .client-booking-progress span.done{color:var(--f1-green);background:rgba(111,227,184,.07)}
-.page-client-v23 .client-booking-modal .selector-accordion{
-  overflow:hidden;
-  border:1px solid var(--client-line);
-  border-radius:20px;
-  background:rgba(255,255,255,.02);
-}
-.page-client-v23 .client-booking-modal .selector-group,
-.page-client-v23 .client-booking-modal .selector-group-content,
-.page-client-v23 .client-booking-modal .selector-group-toggle{border-color:var(--client-line);background:transparent;color:#fff}
-.page-client-v23 .client-booking-modal .selector-group-content{background:rgba(0,0,0,.18)}
-.page-client-v23 .client-booking-service:hover,
-.page-client-v23 .client-booking-service.selected{background:rgba(255,255,255,.045)}
-.page-client-v23 .client-booking-service.selected{box-shadow:inset 3px 0 var(--f1-red-hot),0 0 18px rgba(227,32,37,.07)}
-.page-client-v23 .client-booking-dates button.selected,
-.page-client-v23 .client-booking-times button.selected{
-  border-color:rgba(255,59,63,.45);
-  color:#fff;
-  background:linear-gradient(90deg,rgba(227,32,37,.4),rgba(117,5,10,.28));
-  box-shadow:inset 0 -3px var(--f1-red-hot),0 0 24px rgba(227,32,37,.14);
-}
-.page-public-v24:not(.page-home-cinema) .public-page-hero-v24,
-.page-public-v24:not(.page-home-cinema) .purchase-hero-v24,
-.page-public-v24:not(.page-home-cinema) .service-detail-hero-v24,
-.page-public-v24:not(.page-home-cinema) .referral-hero-v24{
+.page-public-v24:not(.page-home-cinema) .public-page-hero-v24,.page-public-v24:not(.page-home-cinema) .purchase-hero-v24,.page-public-v24:not(.page-home-cinema) .referral-hero-v24{
   position:relative;
   overflow:hidden;
   padding-top:70px;
   padding-bottom:54px;
 }
-.page-public-v24:not(.page-home-cinema) .public-page-hero-v24::after,
-.page-public-v24:not(.page-home-cinema) .purchase-hero-v24::after,
-.page-public-v24:not(.page-home-cinema) .service-detail-hero-v24::after,
-.page-public-v24:not(.page-home-cinema) .referral-hero-v24::after{
+.page-public-v24:not(.page-home-cinema) .public-page-hero-v24::after,.page-public-v24:not(.page-home-cinema) .purchase-hero-v24::after,.page-public-v24:not(.page-home-cinema) .referral-hero-v24::after{
   content:"";
   position:absolute;
   left:0;right:28%;bottom:24px;
@@ -687,21 +567,14 @@
   background:linear-gradient(90deg,var(--f1-red-hot),rgba(227,32,37,.16),transparent);
   box-shadow:0 0 18px rgba(227,32,37,.42);
 }
-.page-public-v24:not(.page-home-cinema) .public-page-hero-v24 h1,
-.page-public-v24:not(.page-home-cinema) .purchase-hero-v24 h1,
-.page-public-v24:not(.page-home-cinema) .service-detail-hero-v24 h1,
-.page-public-v24:not(.page-home-cinema) .referral-hero-v24 h1{
+.page-public-v24:not(.page-home-cinema) .public-page-hero-v24 h1,.page-public-v24:not(.page-home-cinema) .purchase-hero-v24 h1,.page-public-v24:not(.page-home-cinema) .referral-hero-v24 h1{
   color:#fff;
   font-size:clamp(48px,8vw,100px);
   font-weight:300;
   line-height:.9;
   letter-spacing:-.065em;
 }
-.page-public-v24:not(.page-home-cinema) .public-form-card-v24,
-.page-public-v24:not(.page-home-cinema) .purchase-card-v24,
-.page-public-v24:not(.page-home-cinema) .service-detail-card-v24,
-.page-public-v24:not(.page-home-cinema) .faq-aside-v24,
-.page-public-v24:not(.page-home-cinema) .referral-steps-v24{
+.page-public-v24:not(.page-home-cinema) .public-form-card-v24,.page-public-v24:not(.page-home-cinema) .faq-aside-v24,.page-public-v24:not(.page-home-cinema) .referral-steps-v24{
   border:1px solid var(--f1-line);
   border-radius:24px;
   color:#fff;
@@ -742,7 +615,6 @@
 .v30-sheen:hover::before{opacity:1}
 .v30-sheen>*{position:relative;z-index:1}
 @keyframes v30NavIn{from{opacity:0;transform:translateY(-16px)}to{opacity:1;transform:none}}
-@media(max-width:1023px){.page-client-v23 .overview-layout{grid-template-columns:minmax(0,1.3fr) minmax(245px,.65fr)}}
 @media(max-width:900px){.page-public-v25:not(.page-home-cinema) .public-nav-v25{border-radius:24px}
 .page-public-v25:not(.page-home-cinema) .public-menu-toggle-v25{border-radius:50%;pointer-events:auto}
 .page-public-v25:not(.page-home-cinema) .public-links-v25{
@@ -795,26 +667,7 @@
     background:transparent;
     backdrop-filter:none;
   }
-.page-agenda-v25-pro .booking-step-footer-v25 .public-btn-v25{min-height:48px}
-.page-client-v23 .overview-layout{grid-template-columns:1fr}
-.page-client-v23 .vehicles-workspace{grid-template-columns:1fr}
-.page-client-v23 .vehicle-inner-tabs,
-  .page-client-v23 .appointment-tabs,
-  .page-client-v23 .points-list-tabs{overflow-x:auto;scrollbar-width:none}
-.page-client-v23 .vehicle-inner-tabs button,
-  .page-client-v23 .appointment-tabs button,
-  .page-client-v23 .points-list-tabs button{min-width:max-content;padding-inline:15px}
-.page-client-v23 .client-mobile-nav button.active{color:#fff}
-.page-client-v23 .client-mobile-nav button.active::before{
-    content:"";
-    position:absolute;
-    left:27%;right:27%;top:3px;
-    height:2px;
-    border-radius:999px;
-    background:var(--f1-red-hot);
-    box-shadow:0 0 14px rgba(227,32,37,.7);
-  }}
-@media(max-width:520px){.page-client-v23 .points-wallet{padding:18px}}
+.page-agenda-v25-pro .booking-step-footer-v25 .public-btn-v25{min-height:48px}}
 @media(prefers-reduced-motion:reduce){.v30-reveal{opacity:1!important;transform:none!important;transition:none!important}}
 .page-public-v25.page-public-v24{
   --pub-bg:var(--f1-black);
@@ -839,8 +692,7 @@
     radial-gradient(900px 600px at -12% 62%,rgba(255,255,255,.035),transparent 67%),
     linear-gradient(180deg,#050608 0%,#080a0d 48%,#030405 100%);
 }
-.page-public-v24 .purchase-scorecard-v24,
-.page-public-v24 .public-service-detail-aside-v24{
+.page-public-v24 .purchase-scorecard-v24{
   position:relative;
   overflow:hidden;
   border:1px solid rgba(255,255,255,.12);
@@ -850,8 +702,7 @@
     linear-gradient(145deg,#151920,#07080b);
   box-shadow:var(--f1-shadow);
 }
-.page-public-v24 .purchase-scorecard-v24::after,
-.page-public-v24 .public-service-detail-aside-v24::after{
+.page-public-v24 .purchase-scorecard-v24::after{
   content:"";
   position:absolute;
   left:24%;right:-12%;bottom:24%;
@@ -860,17 +711,14 @@
   background:linear-gradient(90deg,transparent,var(--f1-red-hot),transparent);
   box-shadow:0 0 18px rgba(227,32,37,.5);
 }
-.page-public-v24 .purchase-scorecard-v24>*,
-.page-public-v24 .public-service-detail-aside-v24>*{position:relative;z-index:1}
+.page-public-v24 .purchase-scorecard-v24>*{position:relative;z-index:1}
 .page-public-v24 .purchase-scorecard-v24 small{
   border:1px solid rgba(255,255,255,.08);
   border-radius:14px;
   color:rgba(255,255,255,.64);
   background:rgba(255,255,255,.035);
 }
-.page-public-v24 .inspection-grid-v24 article,
-.page-public-v24 .process-grid-v24 article,
-.page-public-v24 .public-detail-grid-v24 article{
+.page-public-v24 .inspection-grid-v24 article,.page-public-v24 .public-detail-grid-v24 article{
   position:relative;
   overflow:hidden;
   border-color:var(--f1-line);
@@ -879,9 +727,7 @@
   background:linear-gradient(145deg,rgba(255,255,255,.045),rgba(255,255,255,.018));
   box-shadow:inset 0 1px rgba(255,255,255,.025);
 }
-.page-public-v24 .inspection-grid-v24 article::after,
-.page-public-v24 .process-grid-v24 article::after,
-.page-public-v24 .public-detail-grid-v24 article::after{
+.page-public-v24 .inspection-grid-v24 article::after,.page-public-v24 .public-detail-grid-v24 article::after{
   content:"";
   position:absolute;
   left:24px;right:55%;bottom:0;
@@ -889,9 +735,7 @@
   background:linear-gradient(90deg,var(--f1-red-hot),transparent);
   box-shadow:0 0 12px rgba(227,32,37,.36);
 }
-.page-public-v24 .inspection-grid-v24 article>span,
-.page-public-v24 .process-grid-v24 article>span,
-.page-public-v24 .public-detail-grid-v24 article>span{color:var(--f1-red-hot)}
+.page-public-v24 .inspection-grid-v24 article>span,.page-public-v24 .public-detail-grid-v24 article>span{color:var(--f1-red-hot)}
 .page-public-v24 .public-service-detail-v24{padding-top:52px;padding-bottom:100px}
 .page-public-v24 .public-service-detail-hero-v24{
   position:relative;
@@ -973,14 +817,6 @@
   background:linear-gradient(90deg,rgba(227,32,37,.06),rgba(255,255,255,.018));
   box-shadow:inset 3px 0 var(--f1-red-hot),0 0 24px rgba(227,32,37,.05);
 }
-.page-client-v23 .status-box p{
-  border-color:var(--client-line)!important;
-  border-radius:14px;
-  color:rgba(255,255,255,.7)!important;
-  background:rgba(255,255,255,.04)!important;
-}
-.page-client-v23 .status-box .status-ok{color:var(--f1-green)!important;background:rgba(111,227,184,.07)!important}
-.page-client-v23 .status-box .status-error{color:#ff797d!important;background:rgba(255,108,112,.07)!important}
 @media(max-width:680px){.page-public-v25:not(.page-home-cinema) .public-mobile-nav-v25{
     border-color:rgba(255,255,255,.1);
     background:rgba(5,6,8,.96);
@@ -1014,15 +850,6 @@
   border-color:rgba(255,59,63,.42);
   background:rgba(227,32,37,.075);
 }
-.page-client-v23 .optional-label{color:rgba(255,255,255,.64);background:rgba(255,255,255,.065)}
-.page-admin-v31 .dtek-glass,
-.page-admin-v31 .dtek-glass-strong{border-top-color:rgba(227,32,37,.34)}
-.page-admin-v31 .btn-cyan{background:rgba(227,32,37,.09);border-color:rgba(227,32,37,.32);color:#fff}
-.page-admin-v31 .btn-cyan:hover{background:rgba(227,32,37,.15)}
-.page-admin-v31 .status-pill.confirmed,
-.page-admin-v31 .status-pill.confirmada{color:var(--f1-red-hot);border-color:rgba(227,32,37,.4);background:rgba(227,32,37,.08)}
-.page-admin-v31 .memory-header span{border-color:rgba(227,32,37,.25);background:rgba(227,32,37,.08)}
-.page-admin-v31 .memory-actions button:hover{border-color:rgba(227,32,37,.35);background:rgba(227,32,37,.08)}
 .page-home-cinema .cinema-actions-hint{
   margin:12px 0 0;
   font-size:12px;
@@ -1105,55 +932,12 @@
 .optional-mark{color:rgba(255,255,255,.64);font-size:11px;font-style:normal;font-weight:500;text-transform:none;letter-spacing:0;margin-left:4px}
 .confirm-required-note{margin:10px 2px 0;color:rgba(255,255,255,.64);font-size:11.5px}
 .confirm-required-note .req-mark{margin-left:0;margin-right:2px}
-.page-client-v23 .overview-secondary-column .client-card{
-  box-shadow:none;
-  background:rgba(255,255,255,.022);
-}
-.page-client-v23 .overview-secondary-column .client-card h3{font-size:19px;letter-spacing:-.02em}
-.page-admin-v31 .admin-modal-backdrop.hidden-field{display:none}
-.page-admin-v31 .admin-account-bar-v34 .status-box:empty{display:none}
-.page-admin-v31 .admin-gate-v34.hidden-field{display:none}
-.page-admin-v31 .admin-menu-v34 button.active{color:#fff;background:rgba(227,32,37,.16)}
-.page-admin-v31 .admin-section-v34.active{display:block;min-width:0;animation:adminFadeV34 .22s ease}
 @keyframes adminFadeV34{from{opacity:.35;transform:translateY(3px)}to{opacity:1;transform:none}}
-.page-admin-v31 .admin-subtabs-v34 button.active{color:#fff;border-color:rgba(227,32,37,.4);background:rgba(227,32,37,.1)}
-.page-admin-v31 .admin-subpanel-v34.active{display:grid;grid-template-columns:minmax(0,1fr);gap:14px;animation:adminFadeV34 .22s ease}
-@media (max-width:1023px){.page-admin-v31 .admin-mobile-nav-v34 button.active{color:#fff}
-.page-admin-v31 .admin-mobile-nav-v34 button.active span{color:var(--f1-red-hot)}}
-.page-admin-v31 .horario-item-v34.requested{border-color:rgba(255,214,107,.4);background:rgba(255,214,107,.1)}
-.page-admin-v31 .horario-item-v34.confirmed{border-color:rgba(0,229,255,.4);background:rgba(0,229,255,.1)}
-.page-admin-v31 .horario-item-v34.completed{border-color:rgba(102,255,198,.4);background:rgba(102,255,198,.1)}
-.page-admin-v31 .horario-item-v34.cancelled{border-color:rgba(255,155,155,.3);background:rgba(255,155,155,.06);opacity:.45}
-.page-admin-v31 .horario-item-v34.blocked{border-color:rgba(255,255,255,.22);background:repeating-linear-gradient(135deg,rgba(255,255,255,.07) 0 6px,rgba(255,255,255,.02) 6px 12px)}
-.page-admin-v31 .filter-chip-v34.active{color:#fff;border-color:rgba(227,32,37,.4);background:rgba(227,32,37,.12)}
 .page-referral-v24 .referral-garage-hint{
   margin:2px 0 18px;
   color:rgba(255,255,255,.55);
   font-size:12.5px;
   line-height:1.5;
-}
-.page-client-v23 .spine-car.active{
-  color:#fff;
-  border-color:rgba(227,32,37,.55);
-  background:rgba(227,32,37,.14);
-}
-.page-client-v23 .spine-node.today{
-  border-color:var(--f1-red-hot);
-  background:var(--f1-red-hot);
-  box-shadow:0 0 0 4px rgba(227,32,37,.16),0 0 14px rgba(227,32,37,.5);
-}
-.page-client-v23 .client-mobile-nav button.active{color:#fff}
-.page-client-v23 .client-mobile-nav button.active::before{
-  content:"";
-  position:absolute;
-  top:0;
-  left:50%;
-  width:26px;
-  height:3px;
-  border-radius:0 0 3px 3px;
-  transform:translateX(-50%);
-  background:var(--f1-red-hot);
-  box-shadow:0 0 10px rgba(227,32,37,.6);
 }
 .page-agenda-v25-pro #dateButtons.date-grid{
   display:block;
@@ -1453,17 +1237,6 @@
   box-shadow:0 0 26px rgba(227,32,37,.14);
 }
 .success-whatsapp-v25.needs-tap-v31 p{color:#ffd9d6;font-size:14px}
-.page-client-v23 .client-booking-progress span,
-.page-client-v23 .client-booking-progress span.pending{
-  color:rgba(255,255,255,.62);
-  background:rgba(255,255,255,.04);
-}
-.page-client-v23 .client-booking-progress span.done{
-  color:var(--f1-green);
-  background:rgba(111,227,184,.09);
-  box-shadow:none;
-}
-.page-client-v23 .client-booking-progress span.active{color:#fff}
 .dtek-wa-float{
   position:fixed;
   z-index:120;
@@ -1503,8 +1276,7 @@
     padding:0 16px 0 13px;
     font-size:13px;
     gap:7px;
-  }
-.page-client-v23 .dtek-wa-float{bottom:calc(80px + env(safe-area-inset-bottom))}}
+  }}
 @media print{.dtek-wa-float{display:none}}
 .page-agenda-v25-pro .dtek-wa-float{display:none}
 .page-home-cinema .cinema-kicker{animation:cinemaRise .5s var(--cinema-ease) .10s both}
@@ -1567,7 +1339,6 @@
     transform:none;
     animation:cinemaRise .5s var(--cinema-ease) .44s both;
   }}
-.page-client-v23 .dtek-wa-float{display:none}
 .catalog-price-note-v311{
   margin:0 0 16px;
   padding:14px 18px;
@@ -1606,12 +1377,6 @@
   flex:0 0 auto;
 }
 @media (max-width:520px){.selector-service-parts{font-size:11px;padding:4px 10px 4px 9px}}
-.page-client-v23 .vehicle-inner-tabs button,
-.page-client-v23 .appointment-tabs button,
-.page-client-v23 .points-list-tabs button{
-  border:0;
-  background:transparent;
-}
 .cinema-precios{
   position:relative;
   padding:62px 0 66px;
@@ -2030,17 +1795,6 @@ h2.cinema-how-kicker{margin:0 0 18px;font-size:11px;line-height:1.4}
     background:#090b0e!important;
   }
 .page-agenda-v25-pro :is(
-    .booking-panel-v25,.booking-summary-v25,.schedule-selector-v25,
-    .service-picked-banner-v25,.agenda-list-panel-v25,.other-service-request-v274,
-    .guest-account-box-v31,.booking-success-card-v25
-  ){
-    color:#f7f8fa!important;
-    border-color:#343b45!important;
-    background:#151a20!important;
-    -webkit-backdrop-filter:none;
-    backdrop-filter:none;
-  }
-.page-agenda-v25-pro :is(
     .booking-step-head-v25 h2,.booking-step-head-v25 h3,
     .selected-service-head-v2741 h2,.schedule-selector-v25 h3,
     .booking-summary-v25 h2,.booking-summary-v25 h3
@@ -2092,17 +1846,6 @@ h2.cinema-how-kicker{margin:0 0 18px;font-size:11px;line-height:1.4}
 .page-agenda-v25-pro .booking-progress-v25 span.active{
     color:#fff!important;
     background:#74161d!important;
-  }
-.page-agenda-v25-pro :is(.agenda-path-card-v321,.agenda-symptom-launcher-v2741,.additional-launcher-v2741){
-    color:#f7f8fa!important;
-    border-color:#3a424d!important;
-    background:#20252d!important;
-  }
-.page-agenda-v25-pro :is(.agenda-path-card-v321,.agenda-symptom-launcher-v2741,.additional-launcher-v2741) :is(strong,em){
-    color:#f7f8fa!important;
-  }
-.page-agenda-v25-pro :is(.agenda-path-card-v321,.agenda-symptom-launcher-v2741,.additional-launcher-v2741) :is(span,small){
-    color:#bdc4ce!important;
   }
 .page-agenda-v25-pro .selector-accordion{
     color:#f7f8fa!important;
@@ -2179,9 +1922,4 @@ h2.cinema-how-kicker{margin:0 0 18px;font-size:11px;line-height:1.4}
     color:#ffb4b8!important;
     border-color:#713139!important;
     background:#35181d!important;
-  }
-.page-agenda-v25-pro .booking-status.success{
-    color:#a8eccd!important;
-    border-color:#285b47!important;
-    background:#15382c!important;
   }}

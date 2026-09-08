@@ -144,6 +144,12 @@
   }
 
   function openBooking(trigger) {
+    // El semáforo del expediente lanza esto desde otro modal ya abierto. Se cierra
+    // acá y no en expediente.js para no depender del orden en que se registraron
+    // los dos listeners de click: si el otro cerrara después, se llevaría la clase
+    // client-modal-open que este modal acaba de poner.
+    if (trigger?.dataset.desdeExpediente) window.DtekExpediente?.cerrar?.();
+
     const id = trigger?.dataset.vehicleId || clientPortalState.activeVehicleId;
     booking.vehicle = (clientPortalState.vehicles || []).find(vehicle => String(vehicle.id) === String(id)) || (clientPortalState.vehicles || [])[0] || null;
     // Garage vacío: en vez de forzar a guardar un carro, mandamos a la agenda pública,
@@ -164,6 +170,17 @@
       symptomsChoice.querySelector("small").textContent = useSymptoms ? "Mostrando opciones según lo que hace tu carro" : "Elegí lo que hace tu carro y te orientamos";
     }
     renderInternalList(useSymptoms);
+
+    // Si vino con un servicio ya elegido (el botón rojo del semáforo trae el que
+    // corrige el hallazgo), saltamos el paso 1: el cliente ya dijo qué necesita.
+    const pedido = trigger?.dataset.bookingService;
+    const servicioPedido = pedido ? serviceById(pedido) : null;
+    if (servicioPedido) {
+      booking.service = servicioPedido;
+      $$("[data-client-service]").forEach(item => item.classList.toggle("selected", item.dataset.clientService === pedido));
+      setStep(2);
+      return;
+    }
     setStep(1);
   }
   function closeBooking() {
