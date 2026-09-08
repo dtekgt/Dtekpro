@@ -7,3 +7,6 @@ Thumbs.db
 *.log
 .vscode/
 .idea/
+
+# Claude Code: config local y worktrees (adentro lleva una copia entera del repo)
+.claude/

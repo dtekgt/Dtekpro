@@ -33,6 +33,10 @@ const WA = "50247082329";
 */
 const ASSETS = [
   "styles.css", "styles-v30.css",
+  // Version recortada para paginas publicas: la original menos las reglas que
+  // solo usan el Garage y el panel admin. cliente.html y admin siguen cargando
+  // los archivos completos de arriba. Se regeneran con scripts/generar-css-publico.js
+  "styles-public.css", "styles-v30-public.css",
   "app.js", "services-data.js", "selector-pro.js", "dtek-v30.js",
   "portal-cliente.js", "client-booking.js", "garage-motion.js", "expediente.js",
   "supabase-config.js", "supabase-client.js", "backend-admin.js",
@@ -169,8 +173,8 @@ function pagina(servicio) {
 <meta name="twitter:image" content="${SITIO}/assets/og-image.jpg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../styles.css?v=${v("styles.css")}"><link rel="stylesheet" href="../styles-v30.css?v=${v("styles-v30.css")}">
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" onload="this.rel='stylesheet'"><noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap"></noscript>
+<link rel="stylesheet" href="../styles-public.css?v=${v("styles-public.css")}"><link rel="stylesheet" href="../styles-v30-public.css?v=${v("styles-v30-public.css")}">
 <script type="application/ld+json">${JSON.stringify(fichaGoogle)}</script>
 <script type="application/ld+json">${JSON.stringify(migas)}</script>
 </head>
