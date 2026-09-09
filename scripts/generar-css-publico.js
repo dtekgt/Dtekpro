@@ -17,6 +17,15 @@
   Correr despues de tocar styles.css o styles-v30.css:
       node scripts/generar-css-publico.js
       node generar-paginas-servicio.js     (para resellar los ?v=)
+
+  OJO CON EL ORDEN cuando el cambio estrena clases nuevas en las paginas de
+  servicio: este script decide que conservar leyendo el HTML que YA existe en
+  disco. Si corre antes de que la plantilla haya escrito las 45 paginas, no ve
+  las clases nuevas y las borra en silencio: el CSS completo se ve bien y el
+  publico no. En ese caso van tres pasos:
+      node generar-paginas-servicio.js     (escribe las paginas con las clases)
+      node scripts/generar-css-publico.js  (ahora si las ve)
+      node generar-paginas-servicio.js     (resella los ?v=)
 */
 const fs = require("fs");
 const path = require("path");

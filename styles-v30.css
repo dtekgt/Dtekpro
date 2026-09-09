@@ -4242,3 +4242,298 @@ h2.cinema-how-kicker{margin:0 0 18px;font-size:11px;line-height:1.4}
   .cinema-pregunta{padding:20px 20px 18px}
   .cinema-muestra{padding:16px}
 }
+
+/* ======================================================================
+   Detalle de servicio v41 — "cinema instrumentado"
+   Las 45 paginas salen de una plantilla, asi que esto es un cambio y 45
+   paginas. El contenido, los encabezados y el JSON-LD quedan iguales:
+   son el motor de SEO. Lo que cambia es la piel.
+   La mono carga los datos (precio, tiempo, contadores) y las reglas finas
+   reemplazan la sopa de tarjetas de la generacion v24.
+   ====================================================================== */
+
+.page-detalle-v41{
+  --d-fondo:#030405;
+  --d-superficie:#080a0d;
+  --d-linea:rgba(255,255,255,.09);
+  --d-linea-fuerte:rgba(255,255,255,.14);
+  --d-texto:#fff;
+  --d-texto-2:rgba(255,255,255,.68);
+  --d-texto-3:rgba(255,255,255,.55);
+  --d-rojo:#ff3b3f;
+  --d-rojo-solido:#e32025;
+  --d-mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+  background:var(--d-fondo);
+  color:var(--d-texto);
+}
+.page-detalle-v41 main{background:var(--d-fondo)}
+
+.detalle-shell{width:min(1180px,100%);margin:0 auto;padding:0 48px 90px}
+
+.detalle-etiqueta{
+  font-family:var(--d-mono);
+  font-size:10px;
+  font-weight:500;
+  letter-spacing:.16em;
+  text-transform:uppercase;
+  color:var(--d-texto-3);
+}
+
+/* --- volver --- */
+.detalle-volver{
+  display:inline-flex;
+  align-items:center;
+  gap:9px;
+  margin:34px 0 30px;
+  color:var(--d-texto-3);
+  font-size:12.5px;
+  text-decoration:none;
+  transition:color .25s cubic-bezier(.16,1,.3,1);
+}
+.detalle-volver i{font-style:normal}
+.detalle-volver:hover{color:#fff}
+.detalle-volver:focus-visible{outline:none;box-shadow:0 0 0 3px rgba(227,32,37,.28);border-radius:6px}
+
+/* --- hero --- */
+.detalle-hero{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) 340px;
+  gap:56px;
+  align-items:start;
+}
+.detalle-kicker{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  margin-bottom:18px;
+  font-family:var(--d-mono);
+  font-size:10.5px;
+  font-weight:500;
+  letter-spacing:.16em;
+  text-transform:uppercase;
+  color:var(--d-texto-3);
+}
+.detalle-kicker i{width:7px;height:7px;border-radius:50%;background:var(--d-rojo-solido)}
+.page-detalle-v41 h1{
+  margin:0;
+  font-size:clamp(32px,4.6vw,52px);
+  font-weight:300;
+  letter-spacing:-.045em;
+  line-height:1;
+  text-wrap:balance;
+}
+.detalle-resumen{
+  margin:20px 0 0;
+  max-width:58ch;
+  font-size:15.5px;
+  line-height:1.66;
+  color:var(--d-texto-2);
+}
+.detalle-apunte{
+  margin:14px 0 0;
+  font-size:13px;
+  line-height:1.6;
+  color:var(--d-texto-3);
+}
+
+/* --- ficha de datos --- */
+.detalle-ficha{
+  border:1px solid rgba(255,255,255,.13);
+  border-radius:20px;
+  background:var(--d-superficie);
+  overflow:hidden;
+}
+.detalle-ficha-precio{
+  display:flex;
+  flex-direction:column;
+  gap:5px;
+  padding:22px 24px 20px;
+  border-bottom:1px solid var(--d-linea);
+}
+.detalle-ficha-precio strong{
+  font-family:var(--d-mono);
+  font-size:clamp(22px,2.6vw,30px);
+  font-weight:500;
+  letter-spacing:-.02em;
+  font-variant-numeric:tabular-nums;
+}
+.detalle-ficha-precio small{font-size:11.5px;color:var(--d-texto-3)}
+.detalle-ficha-datos{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:1px;
+  background:var(--d-linea);
+}
+.detalle-ficha-datos>div{
+  display:flex;
+  flex-direction:column;
+  gap:5px;
+  padding:16px 24px;
+  background:var(--d-superficie);
+}
+.detalle-ficha-datos b{
+  font-family:var(--d-mono);
+  font-size:14px;
+  font-weight:500;
+  font-variant-numeric:tabular-nums;
+}
+.detalle-ficha-acciones{display:flex;flex-direction:column;gap:9px;padding:20px 24px 22px}
+
+.detalle-btn{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:10px;
+  min-height:48px;
+  padding:0 18px;
+  border:1px solid transparent;
+  border-radius:999px;
+  font-size:13.5px;
+  font-weight:500;
+  text-decoration:none;
+  text-align:center;
+  transition:transform .3s cubic-bezier(.16,1,.3,1),filter .3s cubic-bezier(.16,1,.3,1);
+}
+.detalle-btn i{font-style:normal;font-size:13px}
+.detalle-btn:hover{transform:translateY(-2px)}
+.detalle-btn:focus-visible{outline:none;box-shadow:0 0 0 3px rgba(227,32,37,.32)}
+.detalle-btn-primario{color:#fff;background:var(--d-rojo-solido)}
+.detalle-btn-wa{
+  color:#fff;
+  border-color:rgba(34,180,92,.42);
+  background:rgba(34,180,92,.12);
+}
+.detalle-btn-wa i{color:#3ddc84}
+
+/* --- las dos columnas --- */
+.detalle-columnas{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:56px;
+  margin-top:54px;
+}
+.detalle-bloque-cab{
+  display:flex;
+  align-items:baseline;
+  gap:13px;
+  padding-bottom:13px;
+  border-bottom:1px solid var(--d-linea-fuerte);
+}
+.detalle-bloque-cab span{
+  font-family:var(--d-mono);
+  font-size:11px;
+  font-weight:600;
+  color:var(--d-rojo);
+}
+.page-detalle-v41 h2{
+  margin:0;
+  font-size:19px;
+  font-weight:400;
+  letter-spacing:-.02em;
+}
+.detalle-lista{list-style:none;margin:0;padding:0;display:flex;flex-direction:column}
+.detalle-lista li{
+  padding:14px 0;
+  border-bottom:1px solid rgba(255,255,255,.07);
+  font-size:14px;
+  line-height:1.5;
+  color:rgba(255,255,255,.78);
+}
+.detalle-chips{list-style:none;margin:0;padding:18px 0 0;display:flex;flex-wrap:wrap;gap:8px}
+.detalle-chips li{
+  padding:7px 14px;
+  border:1px solid var(--d-linea-fuerte);
+  border-radius:999px;
+  font-family:var(--d-mono);
+  font-size:12px;
+  color:rgba(255,255,255,.78);
+}
+.detalle-bloque .detalle-apunte{margin-top:18px}
+
+/* --- ideal si --- */
+.detalle-ideal{
+  margin-top:54px;
+  padding:30px 34px;
+  border:1px solid rgba(255,255,255,.11);
+  border-radius:22px;
+  background:linear-gradient(145deg,rgba(255,255,255,.045),rgba(255,255,255,.014));
+}
+.detalle-ideal h2{margin-bottom:20px}
+.detalle-ideal ul{
+  list-style:none;
+  margin:0;
+  padding:0;
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(190px,1fr));
+  gap:14px;
+}
+.detalle-ideal li{
+  padding-left:14px;
+  border-left:2px solid rgba(255,255,255,.2);
+  font-size:14px;
+  line-height:1.45;
+  color:rgba(255,255,255,.84);
+}
+
+.detalle-nota{
+  margin:22px 0 0;
+  max-width:78ch;
+  font-size:12.5px;
+  line-height:1.65;
+  color:var(--d-texto-3);
+}
+
+/* --- otros del grupo --- */
+.detalle-hermanos{display:block;margin-top:46px}
+.detalle-hermanos-cab{
+  display:flex;
+  align-items:baseline;
+  justify-content:space-between;
+  gap:20px;
+  flex-wrap:wrap;
+  padding-bottom:14px;
+  border-bottom:1px solid var(--d-linea-fuerte);
+}
+.detalle-hermanos-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(230px,1fr));
+  gap:1px;
+  margin-top:1px;
+  background:var(--d-linea);
+}
+.detalle-hermanos-grid a{
+  display:flex;
+  flex-direction:column;
+  gap:7px;
+  padding:18px 20px;
+  background:var(--d-fondo);
+  text-decoration:none;
+  transition:background .25s cubic-bezier(.16,1,.3,1);
+}
+.detalle-hermanos-grid a:hover{background:rgba(255,255,255,.035)}
+.detalle-hermanos-grid a:focus-visible{outline:none;box-shadow:inset 0 0 0 2px rgba(227,32,37,.5)}
+.detalle-hermanos-grid strong{font-size:14.5px;font-weight:500;color:#fff}
+.detalle-hermanos-grid small{
+  font-family:var(--d-mono);
+  font-size:13px;
+  font-variant-numeric:tabular-nums;
+  color:var(--d-texto-2);
+}
+
+/* --- angosto --- */
+@media(max-width:980px){
+  .detalle-hero{grid-template-columns:1fr;gap:30px}
+  .detalle-columnas{gap:36px}
+}
+@media(max-width:820px){
+  .detalle-shell{padding:0 20px 80px}
+  .detalle-columnas{grid-template-columns:1fr;margin-top:40px}
+  .detalle-ideal{margin-top:40px;padding:24px 22px}
+  .detalle-hermanos{margin-top:38px}
+}
+@media(max-width:700px){
+  .detalle-volver{margin:22px 0 22px}
+  .detalle-ficha-precio{padding:18px 20px 16px}
+  .detalle-ficha-datos>div{padding:14px 20px}
+  .detalle-ficha-acciones{padding:16px 20px 18px}
+}

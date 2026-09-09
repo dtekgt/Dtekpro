@@ -85,6 +85,21 @@ const categoriaDe = (id) => {
   return g ? g.title : "Servicios";
 };
 
+// La linea bajo el precio. Distingue tres casos reales del catalogo, porque
+// "sin repuesto corto" no significa lo mismo que "sin repuesto".
+const repuestoLinea = (servicio) => {
+  const corto = repuestoCorto(servicio);
+  if (corto) return `${corto} incluido`;
+  const p = String(servicio.partsIncluded || "").trim();
+  if (!p) return "";
+  return /^no$/i.test(p) ? "Solo mano de obra" : "Repuesto incluido";
+};
+
+const tamanoGrupo = (categoria) => {
+  const g = GRUPOS.find((grupo) => grupo.title === categoria);
+  return g ? g.services.length : 0;
+};
+
 /* ---------- piezas compartidas ---------- */
 
 const NAV = `<header class="public-header-v25"><div class="public-nav-v25">
@@ -189,50 +204,67 @@ function pagina(servicio) {
 <meta name="twitter:image" content="${SITIO}/assets/og-image.jpg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" onload="this.rel='stylesheet'"><noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap"></noscript>
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@300;400;500;600&display=swap" onload="this.rel='stylesheet'"><noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@300;400;500;600&display=swap"></noscript>
 <link rel="stylesheet" href="../styles-public.css?v=${v("styles-public.css")}"><link rel="stylesheet" href="../styles-v30-public.css?v=${v("styles-v30-public.css")}">
 <script type="application/ld+json">${JSON.stringify(fichaGoogle)}</script>
 <script type="application/ld+json">${JSON.stringify(migas)}</script>
 </head>
-<body class="page-public-v25 page-public-v24 page-service-detail-v24">
+<body class="page-public-v25 page-detalle-v41">
 ${NAV}
 <main>
-  <section class="public-shell-v24 public-service-detail-v24">
-    <div class="public-service-detail-hero-v24 service-detail-v27">
-      <div>
-        <a class="public-back-link-v24" href="../servicios.html">← Servicios</a>
-        <span class="public-kicker-v24">${esc(categoria)}</span>
+  <section class="detalle-shell">
+    <a class="detalle-volver" href="../servicios.html"><i>←</i>Servicios</a>
+
+    <div class="detalle-hero">
+      <div class="detalle-hero-copy">
+        <span class="detalle-kicker"><i></i>${esc(categoria)}</span>
         <h1>${esc(servicio.name)}</h1>
-        <p class="servicio-resumen">${esc(servicio.description || servicio.short)}</p>
-        <div class="public-detail-facts-v24">
-          <span><small>Precio</small><strong>${esc(servicio.price)}</strong></span>
-          <span><small>Tiempo</small><strong>${esc(servicio.duration)}</strong></span>
-          ${repuestoCorto(servicio)
-            ? `<span><small>Incluye</small><strong>${esc(repuestoCorto(servicio))}</strong></span>` : ""}
-        </div>
-        <div class="public-hero-actions-v24">
-          <a class="public-btn-v24 primary" href="../agenda.html?servicio=${encodeURIComponent(servicio.id)}">Agendar este servicio</a>
-          <a class="public-btn-v24 secondary" href="https://wa.me/${WA}?text=${encodeURIComponent(`Hola D-TEK, quiero consultar por ${servicio.name}.`)}" target="_blank" rel="noopener">Preguntar por WhatsApp</a>
-        </div>
+        <p class="detalle-resumen">${esc(servicio.description || servicio.short)}</p>
+        ${servicio.priceNote ? `<p class="detalle-apunte">${esc(servicio.priceNote)}</p>` : ""}
       </div>
+
+      <aside class="detalle-ficha">
+        <div class="detalle-ficha-precio">
+          <span class="detalle-etiqueta">Precio</span>
+          <strong>${esc(servicio.price)}</strong>
+          ${repuestoLinea(servicio) ? `<small>${esc(repuestoLinea(servicio))}</small>` : ""}
+        </div>
+        <div class="detalle-ficha-datos">
+          <div><span class="detalle-etiqueta">Tiempo</span><b>${esc(servicio.duration)}</b></div>
+          <div><span class="detalle-etiqueta">Garantía</span><b>3 meses</b></div>
+        </div>
+        <div class="detalle-ficha-acciones">
+          <a class="detalle-btn detalle-btn-primario" href="../agenda.html?servicio=${encodeURIComponent(servicio.id)}"><span>Agendar este servicio</span><i>↗</i></a>
+          <a class="detalle-btn detalle-btn-wa" href="https://wa.me/${WA}?text=${encodeURIComponent(`Hola D-TEK, quiero consultar por ${servicio.name}.`)}" target="_blank" rel="noopener"><span>Preguntar por WhatsApp</span><i>→</i></a>
+        </div>
+      </aside>
     </div>
 
-    <div class="public-detail-grid-v24 two">
-      <article><span>01</span><h2>Qué incluye</h2><ul>${lista(servicio.includes)}</ul></article>
-      <article><span>02</span><h2>Qué necesitamos saber</h2><ul>${lista(servicio.dataNeeded)}</ul></article>
+    <div class="detalle-columnas">
+      <article class="detalle-bloque">
+        <div class="detalle-bloque-cab"><span>01</span><h2>Qué incluye</h2></div>
+        <ul class="detalle-lista">${lista(servicio.includes)}</ul>
+      </article>
+      <article class="detalle-bloque">
+        <div class="detalle-bloque-cab"><span>02</span><h2>Qué necesitamos saber</h2></div>
+        <ul class="detalle-chips">${lista(servicio.dataNeeded)}</ul>
+        <p class="detalle-apunte">Con esto cotizamos el repuesto correcto antes de llegar.</p>
+      </article>
     </div>
 
-    ${servicio.ideal && servicio.ideal.length ? `<div class="servicio-ideal">
+    ${servicio.ideal && servicio.ideal.length ? `<div class="detalle-ideal">
       <h2>Ideal si</h2>
       <ul>${lista(servicio.ideal)}</ul>
     </div>` : ""}
 
-    ${servicio.priceNote ? `<p class="servicio-nota">${esc(servicio.priceNote)}</p>` : ""}
-    <p class="servicio-nota">Precio de referencia base sobre un sedán de 4 cilindros. Puede variar según el vehículo y lo que encontremos en la revisión.${servicio.bookingPolicy ? " " + esc(servicio.bookingPolicy) : ""}</p>
+    <p class="detalle-nota">Precio de referencia base sobre un sedán de 4 cilindros. Puede variar según el vehículo y lo que encontremos en la revisión.${servicio.bookingPolicy ? " " + esc(servicio.bookingPolicy) : ""}</p>
 
-    <nav class="servicio-hermanos" aria-label="Otros servicios de ${esc(categoria)}">
-      <h2>Otros de ${esc(categoria)}</h2>
-      <div>${hermanos(servicio, categoria)}</div>
+    <nav class="detalle-hermanos" aria-label="Otros servicios de ${esc(categoria)}">
+      <div class="detalle-hermanos-cab">
+        <h2>Otros de ${esc(categoria)}</h2>
+        <span class="detalle-etiqueta">${tamanoGrupo(categoria)} en el grupo</span>
+      </div>
+      <div class="detalle-hermanos-grid">${hermanos(servicio, categoria)}</div>
     </nav>
   </section>
 </main>
