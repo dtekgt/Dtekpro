@@ -5510,3 +5510,9 @@ h2.cinema-how-kicker{margin:0 0 18px;font-size:11px;line-height:1.4}
    linea de puntos de la tarjeta de referidos, todos #e32025 a 13px. */
 .page-client-v23 #clientAccountMenu span,
 .page-client-v23 .points-referral-card summary small{color:#ff5f62}
+
+/* El logotipo de las paginas internas (admin y recuperar contrasena) usa el
+   rojo de marca a 16px: 4.3:1, abajo del minimo. Mismo criterio que en el
+   resto del sitio, aclarar solo el texto chico. */
+a.brand span,
+.nav-shell a.brand span{color:#ff5f62}

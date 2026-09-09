@@ -7051,3 +7051,8 @@ body.agenda-service-selected .agenda-start-compact-v2741 {
   color:rgba(247,248,250,.72);
   background:rgba(255,255,255,.05);
 }
+
+/* reset-password.html carga SOLO styles.css (no styles-v30.css), asi que la
+   correccion del logotipo tiene que vivir aca tambien. El rojo de marca a
+   16px da 4.3:1; para texto chico va #ff5f62. */
+a.brand span{color:#ff5f62}
