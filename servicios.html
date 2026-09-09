@@ -2,7 +2,9 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="theme-color" content="#030405">
-<meta name="description" content="Revisión, mantenimiento, frenos, inyección, eléctrico y más a domicilio en Guatemala. Precios de referencia y duración de cada servicio, sin sorpresas."><link rel="stylesheet" href="styles-public.css?v=329571dd"><link rel="stylesheet" href="styles-v30-public.css?v=12ec3d0d"><link rel="icon" href="assets/favicon-32.png" sizes="32x32" type="image/png">
+<meta name="description" content="Revisión, mantenimiento, frenos, inyección, eléctrico y más a domicilio en Guatemala. Precios de referencia y duración de cada servicio, sin sorpresas."><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@300;400;500;600&display=swap" onload="this.rel='stylesheet'"><noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@300;400;500;600&display=swap"></noscript>
+<link rel="stylesheet" href="styles-public.css?v=90d0d5d9"><link rel="stylesheet" href="styles-v30-public.css?v=35f2c28b"><link rel="icon" href="assets/favicon-32.png" sizes="32x32" type="image/png">
 <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
 <link rel="manifest" href="site.webmanifest">
 <link rel="canonical" href="https://dtekpro.vercel.app/servicios.html">
@@ -23,19 +25,40 @@
 <title>Servicios y precios de mecánica a domicilio | D-TEK GT</title>
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Inicio","item":"https://dtekpro.vercel.app/"},{"@type":"ListItem","position":2,"name":"Servicios","item":"https://dtekpro.vercel.app/servicios.html"}]}</script>
 </head>
-<body class="page-public-v25 page-services-v25 page-services-v27">
+<body class="page-public-v25 page-servicios-v41 catalogo-v41">
 <header class="public-header-v25"><div class="public-nav-v25">
   <a class="public-brand-v25" href="index.html"><img src="assets/logo-dtek.png" alt="D-TEK GT"><span><strong>D-TEK GT</strong><small>Mecánica a domicilio</small></span></a>
   <button class="menu-toggle public-menu-toggle-v25" id="menuToggle" type="button" aria-label="Menú" aria-expanded="false"><span></span><span></span><span></span></button>
   <nav class="public-links-v25 nav-links" id="navLinks" aria-label="Navegación principal"><a href="index.html">Inicio</a><a class="active" href="servicios.html">Servicios</a><a href="compra-segura.html">Compra segura</a><a href="cliente.html">Garage</a><a class="public-nav-cta-v25" href="agenda.html">Agendar</a></nav>
 </div></header>
-<main class="public-shell-v25 services-shell-v25">
-  <header class="services-hero-v25"><span class="public-kicker-v25">Diagnóstico · Precisión · Seguimiento</span><h1>Servicios</h1><p>Elegí por trabajo o contanos el síntoma. No necesitás saber el nombre técnico.</p></header>
-  <div class="catalog-toolbar-v25">
-    <div class="catalog-tabs-v25"><button class="active" type="button" data-catalog-mode="services">Servicio</button><button type="button" data-catalog-mode="symptoms">Síntoma</button></div>
-    <label class="catalog-search-v25"><span>⌕</span><input id="serviceSearch" type="search" placeholder="Buscar"></label>
+<main class="public-shell-v25 servicios-shell">
+  <header class="servicios-hero">
+    <span class="servicios-kicker"><i></i>45 servicios · precio publicado · repuesto incluido</span>
+    <h1>Todo lo que hacemos,<em>con el precio adelante.</em></h1>
+    <p>No hace falta que sepás el nombre técnico. Buscá el trabajo, o contanos qué hace el carro y nosotros te decimos qué revisar.</p>
+  </header>
+
+  <!-- Las dos entradas conservan data-catalog-mode: el JS que cambia de panel
+       es el mismo, lo que cambia es que la decision ahora se ve. -->
+  <div class="servicios-entradas">
+    <button type="button" class="servicios-entrada active" data-catalog-mode="services">
+      <span class="servicios-entrada-num">01</span>
+      <span class="servicios-entrada-copy"><b>Sé qué trabajo necesito</b><em>Buscá por categoría: mantenimiento, frenos, diagnóstico</em></span>
+      <i>→</i>
+    </button>
+    <button type="button" class="servicios-entrada" data-catalog-mode="symptoms">
+      <span class="servicios-entrada-num">02</span>
+      <span class="servicios-entrada-copy"><b>Solo sé qué hace el carro</b><em>Contanos el síntoma y te sugerimos qué revisar</em></span>
+      <i>→</i>
+    </button>
   </div>
-  <p class="catalog-price-note-v311"><b>Precios de referencia base, con repuesto incluido.</b> Cuando el servicio indica una pieza, nosotros la conseguimos y la compramos: el precio ya la lleva. Están calculados sobre un sedán de 4 cilindros y pueden variar según el vehículo y lo que encontremos en la revisión. Los que dicen «solo mano de obra» no traen repuesto.</p>
+
+  <label class="servicios-buscar">
+    <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 4 4"/></svg>
+    <input id="serviceSearch" type="search" placeholder="Buscar «balatas», «no arranca», «aceite»…" aria-label="Buscar un servicio o un síntoma">
+  </label>
+
+  <p class="servicios-nota-precio"><b>Con el repuesto incluido.</b> Cuando el trabajo lleva pieza, nosotros la conseguimos y el precio ya la trae. Base sobre un sedán de 4 cilindros y puede variar según el vehículo. <span>Los que dicen «solo mano de obra» no traen repuesto.</span></p>
   <section class="catalog-panel-v25 active" id="serviceCatalogPanel"><div class="selector-accordion" id="serviceAccordion"></div></section>
   <section class="catalog-panel-v25" id="symptomCatalogPanel"><div class="selector-accordion" id="symptomAccordion"></div></section>
   <section class="additional-catalog-v274 compact-v2741"><details class="additional-catalog-details-v2741" open><summary><span><small>También ofrecemos</small><h2>Servicios adicionales</h2><em>Filtros, batería, llantas, refrigerante y más</em></span><b>Ver 9</b></summary><div id="serviceAddOnsCatalog" class="additional-catalog-grid-v274"></div></details></section>
