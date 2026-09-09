@@ -2912,3 +2912,63 @@ h2.cinema-how-kicker{margin:0 0 18px;font-size:11px;line-height:1.4}
 .page-agenda-v41 .quote-addon-card b{color:#ff5f62}
 .page-agenda-v41 .calendar-grid .date-chip small{color:rgba(255,255,255,.72)}
 .page-agenda-v41 .calendar-grid .date-chip.selected small{color:#fff}
+:root{
+  --dtek-mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+}
+.page-home-cinema .cinema-precio-pie b,
+.page-home-cinema .cinema-precio-pie small,
+.page-home-cinema .cinema-precio-cat,
+.page-home-cinema .cinema-how-kicker,
+.page-home-cinema .cinema-kicker,
+.page-home-cinema .cinema-how-grid article>span,
+.page-home-cinema .cinema-pregunta p b,
+.page-home-cinema .cinema-muestra-tag,
+.page-home-cinema .cinema-pill,
+.page-home-cinema .cinema-ev,
+.page-home-cinema .cinema-contacto-datos dt{
+  font-family:var(--dtek-mono);
+  font-variant-numeric:tabular-nums;
+}
+.page-home-cinema .cinema-precio-pie b{font-weight:500;letter-spacing:-.01em}
+.page-home-cinema .cinema-trust>span{font-family:var(--dtek-mono);font-size:11px;letter-spacing:.06em}
+.page-compra-v41 .cs-monto,
+.page-compra-v41 .cs-precio b,
+.page-compra-v41 .cs-reparaciones b,
+.page-compra-v41 .cs-eyebrow,
+.page-compra-v41 .cs-duracion,
+.page-compra-v41 .cs-balanza-tag,
+.page-compra-v41 .cs-pill,
+.page-compra-v41 .cs-ev,
+.page-compra-v41 .cs-insignia{
+  font-family:var(--dtek-mono);
+  font-variant-numeric:tabular-nums;
+}
+.page-compra-v41 .cs-monto{font-weight:500}
+.page-compra-v41 .cs-precio b{font-weight:500;letter-spacing:-.02em}
+.page-compra-v41 .cs-reparaciones b{font-weight:500}
+.page-compra-v41 .cs-eyebrow{font-size:10.5px;font-weight:500;letter-spacing:.16em;text-transform:uppercase}
+.page-faq-v24 .public-kicker-v24{
+  font-family:var(--dtek-mono);
+  font-size:10.5px;
+  font-weight:500;
+  letter-spacing:.16em;
+  text-transform:uppercase;
+}
+.page-faq-v24 .faq-question span{font-family:var(--dtek-mono);font-weight:500}
+.page-referral-v24 .public-kicker-v24{
+  font-family:var(--dtek-mono);
+  font-size:10.5px;
+  font-weight:500;
+  letter-spacing:.16em;
+  text-transform:uppercase;
+}
+.page-referral-v24 .referral-value-v24 strong,
+.page-referral-v24 .referral-value-v24 small,
+.page-referral-v24 .referral-value-v24 span,
+.page-referral-v24 .referral-steps-v24 article b,
+.page-referral-v24 .referral-rule-v24 span{
+  font-family:var(--dtek-mono);
+  font-variant-numeric:tabular-nums;
+}
+.page-referral-v24 .referral-value-v24 strong{font-weight:500;letter-spacing:-.03em}
+.page-referral-v24 .referral-steps-v24 article b{font-weight:500}
