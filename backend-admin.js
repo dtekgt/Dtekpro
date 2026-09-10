@@ -661,6 +661,31 @@ function filaInspeccionHtml(item) {
     </div>`;
 }
 
+/* El catalogo de areas lo pone vehicle-health.js. Si ese archivo no cargo
+   (red caida a media carga, una copia vieja pegada en el cache del telefono,
+   un navegador que revienta al tocar localStorage), este panel pintaba una
+   lista VACIA y no decia nada: parecia que la opcion de registrar hallazgos
+   por area simplemente ya no existia. Ahora se avisa y se explica que hacer.
+   Ojo con el `||`: un arreglo vacio es truthy en JS, asi que el respaldo de
+   antes nunca entraba. Por eso se pregunta por .length. */
+function catalogoDeAreas(vehicle) {
+  const salud = window.DtekVehicleHealth;
+  let lista = [];
+  try {
+    lista = salud?.planForVehicle?.(vehicle, []) || [];
+  } catch (error) {
+    console.warn("No se pudo armar el plan del vehiculo:", error);
+  }
+  if (!lista.length && Array.isArray(salud?.components)) lista = salud.components;
+  return lista;
+}
+
+function avisoCatalogoVacioHtml() {
+  return `<div class="status-box"><p class="status-warning"><b>No se cargó la lista de áreas para inspeccionar.</b>
+    Recargá la página (en el celular: mantené el botón de recargar y elegí recargar sin caché).
+    Mientras tanto podés registrar cada hallazgo abajo con <b>＋ Agregar sección</b>: se guarda igual.</p></div>`;
+}
+
 function renderWorkOrderInspections(appointment = {}) {
   const holder = adminQs("#workOrderInspections");
   if (!holder) return;
@@ -669,10 +694,10 @@ function renderWorkOrderInspections(appointment = {}) {
     line: appointment.vehicle_line,
     year: appointment.vehicle_year
   };
-  const allowed = window.DtekVehicleHealth?.planForVehicle?.(vehicle, []) || window.DtekVehicleHealth?.components || [];
+  const allowed = catalogoDeAreas(vehicle);
   dtekReporteVivo = {};
   allowed.forEach(item => { dtekReporteVivo[item.key] = dtekEstadoVacio(); });
-  holder.innerHTML = allowed.map(filaInspeccionHtml).join("");
+  holder.innerHTML = allowed.length ? allowed.map(filaInspeccionHtml).join("") : avisoCatalogoVacioHtml();
   dtekCustomKeys = [];
   pintarSeccionesCustom();
 }

@@ -5,7 +5,18 @@
 (() => {
   const DAY = 86400000;
   const KM_PER_MILE = 1.609344;
-  let distanceUnit = localStorage.getItem("dtek-distance-unit") === "mi" ? "mi" : "km";
+
+  /* En Safari privado, con cookies bloqueadas o con "sitios sin datos", con
+     solo TOCAR localStorage el navegador lanza SecurityError. Como esto vive
+     en el nivel de arriba del archivo, esa excepcion mataba el modulo entero
+     antes de exportarlo: window.DtekVehicleHealth quedaba sin definir y el
+     panel de admin pintaba CERO areas para inspeccionar, sin decir nada.
+     La preferencia de km/mi no vale romper el reporte tecnico. */
+  const almacen = {
+    leer(clave) { try { return localStorage.getItem(clave); } catch { return null; } },
+    guardar(clave, valor) { try { localStorage.setItem(clave, valor); } catch { /* sin memoria, pero funciona */ } }
+  };
+  let distanceUnit = almacen.leer("dtek-distance-unit") === "mi" ? "mi" : "km";
   let lastRenderArgs = null;
   let lastLifeEvents = [];
   const esc = (value = "") => String(value).replace(/[&<>'"]/g, c => ({
@@ -50,6 +61,12 @@
     { key:"wipers", group:"Confort", icon:"⌇", name:"Plumillas y lavaparabrisas", mode:"inspection", words:["plumilla","limpiaparabrisas"] },
     { key:"ac", group:"Confort", icon:"❄", name:"Aire acondicionado", mode:"inspection", words:["aire acondicionado","a/c"] }
   ];
+
+  /* El catalogo se exporta AQUI, no al final: render() y planForVehicle() son
+     declaraciones de funcion (se izan), asi que ya se pueden referenciar. Si
+     algo mas abajo llegara a fallar en un navegador raro, el panel de admin
+     conserva las areas para inspeccionar en vez de quedarse en blanco. */
+  window.DtekVehicleHealth = { render, components:COMPONENTS, planForVehicle };
 
   const FORD_ESCAPE_2013_2019 = {
     title:"Ford Escape 2013–2019",
@@ -449,7 +466,6 @@
     });
   }
 
-  window.DtekVehicleHealth = { render, components:COMPONENTS, planForVehicle };
   document.addEventListener("click", event => {
     const lifeButton = event.target.closest("[data-life-event]");
     if (lifeButton) {
@@ -462,7 +478,7 @@
     const button = event.target.closest("[data-care-unit]");
     if (!button) return;
     distanceUnit = button.dataset.careUnit === "mi" ? "mi" : "km";
-    localStorage.setItem("dtek-distance-unit", distanceUnit);
+    almacen.guardar("dtek-distance-unit", distanceUnit);
     if (lastRenderArgs) render(...lastRenderArgs);
   });
 })();
