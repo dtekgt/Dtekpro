@@ -731,10 +731,15 @@ function aplicarInspeccionGuardada(fila, evento) {
   if (!fila.querySelector("[data-remove-inspection]")) {
     const cuando = evento.inspected_at ? new Date(evento.inspected_at).toLocaleDateString("es-GT") : "";
     const km = evento.mileage ? ` · ${Number(evento.mileage).toLocaleString("es-GT")} km` : "";
+    // Una seccion ad-hoc ya trae su propio "Quitar seccion" y hace exactamente
+    // lo mismo. Poner los dos dejaba la fila con dos botones que borran igual
+    // pero preguntan distinto: no se sabe cual usar ni si hacen cosas
+    // distintas. El "Ya guardado el ..." si va en las dos.
+    const boton = dtekCustomKeys.includes(key) ? ""
+      : `<button type="button" class="btn btn-ghost" data-remove-inspection="${adminSafe(key)}">Quitar revisión</button>`;
     const aviso = document.createElement("div");
     aviso.className = "inspection-guardada-aviso-v41";
-    aviso.innerHTML = `<small>Ya guardado${cuando ? " el " + adminSafe(cuando) : ""}${adminSafe(km)}</small>`
-      + `<button type="button" class="btn btn-ghost" data-remove-inspection="${adminSafe(key)}">Quitar revisión</button>`;
+    aviso.innerHTML = `<small>Ya guardado${cuando ? " el " + adminSafe(cuando) : ""}${adminSafe(km)}</small>${boton}`;
     fila.appendChild(aviso);
   }
 }
