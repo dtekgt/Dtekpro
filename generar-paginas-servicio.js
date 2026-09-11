@@ -40,7 +40,14 @@ const ASSETS = [
   "app.js", "services-data.js", "selector-pro.js", "dtek-v30.js",
   "portal-cliente.js", "client-booking.js", "garage-motion.js", "expediente.js",
   "supabase-config.js", "supabase-client.js", "backend-admin.js",
-  "referidos.js", "reset-password.js"
+  "referidos.js", "reset-password.js",
+  // Estos tres llevaban ?v= en el HTML pero NO estaban aca, asi que su hash
+  // nunca se actualizaba. vehicle-health.js tenia dos numeros escritos a mano
+  // y distintos entre si (36000001 en admin, 39000002 en el Garage) mientras
+  // el archivo real iba por otro lado: los cambios se subian a Vercel pero el
+  // navegador de quien ya habia visitado seguia usando la copia vieja.
+  // Si agregas un archivo con ?v= a una pagina, agregalo tambien aca.
+  "vehicle-health.js", "styles-a11y.css", "styles-reporte-v41.css"
 ];
 
 const HASH = {};
