@@ -14,3 +14,8 @@ Thumbs.db
 # Respaldos comprimidos del propio repositorio: el historial de git ya es el
 # respaldo, y Vercel los publicaba junto con el sitio.
 *.zip
+
+# Grafo de conocimiento de graphify. Es indice local para trabajar, no parte del
+# sitio: se regenera con /graphify y pesa. Por la misma razon que los .zip de
+# arriba — Vercel publica la raiz del repo — esto NO se commitea.
+graphify-out/
