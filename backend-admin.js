@@ -689,6 +689,17 @@ function textoRevisiones(n) {
   return n === 1 ? "1 revisión" : `${n} revisiones`;
 }
 
+// Distingue "esta funcion no existe en Supabase" de cualquier otro error. Sin
+// esto, no correr una migracion se ve igual que una caida de red, y el mensaje
+// manda a revisar la conexion cuando lo que falta es un SQL.
+function faltaEnLaBase(error) {
+  const codigo = String(error?.code || "");
+  const texto = String(error?.message || "").toLowerCase();
+  return codigo === "PGRST202" || codigo === "42883"
+    || texto.includes("could not find the function")
+    || texto.includes("does not exist");
+}
+
 // Deja una fila con lo que ya estaba guardado en la base.
 function aplicarInspeccionGuardada(fila, evento) {
   const key = evento.component_key;
@@ -728,6 +739,40 @@ function aplicarInspeccionGuardada(fila, evento) {
   }
 }
 
+// Le arma fila a lo que quedo fuera del plan del vehiculo. El nombre sale del
+// catalogo cuando el componente todavia existe; si ya no existe, del label
+// guardado. El modo importa: uno de intervalo necesita la opcion "Servicio
+// realizado hoy", que las filas de inspeccion no tienen.
+function pintarFilasFueraDePlan(eventos) {
+  const holder = adminQs("#workOrderInspections");
+  if (!holder) return;
+  const catalogo = window.DtekVehicleHealth?.components || [];
+
+  eventos.forEach((evento) => {
+    const key = String(evento.component_key || "");
+    if (!key || key.startsWith("custom-")) return;
+    if (adminQs(`[data-maintenance-row="${CSS.escape(key)}"]`)) return;
+
+    const base = catalogo.find((c) => c.key === key);
+    const fila = document.createElement("div");
+    fila.innerHTML = filaInspeccionHtml({
+      key,
+      name: base?.name || evento.component_label || key,
+      mode: base?.mode || (evento.status === "serviced" ? "interval" : "inspection"),
+      months: base?.months || evento.interval_months || 0,
+      km: base?.km || evento.interval_km || 0
+    });
+
+    const nodo = fila.firstElementChild;
+    if (!nodo) return;
+    nodo.classList.add("inspection-row-fuera-plan-v41");
+    nodo.insertAdjacentHTML("beforeend",
+      `<p class="inspection-fuera-plan-aviso-v41">Se guardó en su momento, pero hoy no forma parte del plan de este vehículo. Podés corregirlo o quitarlo.</p>`);
+    dtekReporteVivo[key] = dtekEstadoVacio();
+    holder.appendChild(nodo);
+  });
+}
+
 async function precargarInspecciones(appointmentId) {
   let eventos = [];
   try {
@@ -749,6 +794,14 @@ async function precargarInspecciones(appointmentId) {
     }
   });
   if (custom.length) pintarSeccionesCustom();
+
+  // v41.1 — revisiones guardadas que hoy no tienen fila donde caer. Pasa cuando
+  // el plan del vehiculo cambio despues de guardarlas (se le anoto "diesel" al
+  // motor y las bujias dejaron de aplicar, por ejemplo) o cuando el item salio
+  // del catalogo. Antes se saltaban en silencio: no se veian, no se podian
+  // corregir y no se podian quitar, pero el cliente las seguia viendo. Se les
+  // arma la fila igual, marcada, para poder editarlas o borrarlas.
+  pintarFilasFueraDePlan(eventos);
 
   let aplicadas = 0;
   eventos.forEach((evento) => {
@@ -1115,18 +1168,46 @@ function bindInspecciones() {
         }
       }).catch((error) => {
         quitarRevision.disabled = false;
-        alert(`No se pudo quitar la revisión: ${error.message}`);
+        alert(faltaEnLaBase(error)
+          ? "No se pudo quitar: a la base le falta correr database/28_reporte_editable.sql."
+          : `No se pudo quitar la revisión: ${error.message}`);
       });
       return;
     }
 
+    // v41.1 — una seccion ad-hoc que YA esta en la base hay que borrarla ahi.
+    // Antes solo se sacaba del formulario, y como collectWorkOrderInspections
+    // no vuelve a mandar lo que no esta, nada la pisaba: al guardar parecia
+    // quitada y el cliente la seguia viendo en su Garage para siempre. Los
+    // componentes del catalogo ya se borraban bien ("Quitar revisión"); las
+    // secciones ad-hoc se habian quedado sin ese camino.
     const quitarSeccion = ev.target.closest("[data-remove-section]");
     if (quitarSeccion) {
       const key = quitarSeccion.dataset.removeSection;
-      if (!confirm("¿Quitar esta sección del reporte?")) return;
-      dtekCustomKeys = dtekCustomKeys.filter(k => k !== key);
-      delete dtekReporteVivo[key];
-      pintarSeccionesCustom();
+      const guardada = Boolean(dtekReporteVivo[key]?.guardado);
+      const pregunta = guardada
+        ? "¿Quitar esta sección? Ya está guardada: el cliente deja de verla en su Garage."
+        : "¿Quitar esta sección del reporte?";
+      if (!confirm(pregunta)) return;
+
+      const sacarDelFormulario = () => {
+        dtekCustomKeys = dtekCustomKeys.filter(k => k !== key);
+        delete dtekReporteVivo[key];
+        pintarSeccionesCustom();
+      };
+
+      if (!guardada) { sacarDelFormulario(); return; }
+
+      quitarSeccion.disabled = true;
+      DtekBackend.deleteInspection(dtekWorkOrderAppointmentId, key)
+        .then(sacarDelFormulario)
+        .catch((error) => {
+          quitarSeccion.disabled = false;
+          alert(faltaEnLaBase(error)
+            ? "No se pudo quitar: a la base le falta correr database/28_reporte_editable.sql."
+            : `No se pudo quitar la sección: ${error.message}`);
+        });
+      return;
     }
   });
 
@@ -1865,7 +1946,22 @@ async function submitWorkOrderReport(event, { compartir = false } = {}) {
       await withTimeout(DtekBackend.saveVehicleInspections(appointmentId, inspections), 12000, "guardar las revisiones");
     }
     // Se manda siempre, tambien vacia: es como se borra un codigo mal puesto.
-    await withTimeout(DtekBackend.saveFaultCodes(appointmentId, dtekFaultCodes), 10000, "guardar los códigos de falla");
+    //
+    // Pero NO puede tumbar el guardado. Esto corre despues de cerrar_trabajo y
+    // de las revisiones: si truena aca, lo importante YA quedo en la base y aun
+    // asi el panel mostraba un error rojo, no refrescaba y no cerraba el modal.
+    // Se leia como "no se guardo nada", asi que se volvia a intentar y volvia a
+    // salir rojo. Si esta funcion todavia no existe en Supabase (falta correr
+    // database/28_reporte_editable.sql), eso pasaba en CADA guardado.
+    let avisoCodigos = "";
+    try {
+      await withTimeout(DtekBackend.saveFaultCodes(appointmentId, dtekFaultCodes), 10000, "guardar los códigos de falla");
+    } catch (error) {
+      console.warn("No se pudieron guardar los códigos de falla:", error);
+      avisoCodigos = faltaEnLaBase(error)
+        ? "Los códigos de falla no se guardaron: a la base le falta correr database/28_reporte_editable.sql. Todo lo demás sí quedó."
+        : `Los códigos de falla no se guardaron (${adminSafe(error.message)}). Todo lo demás sí quedó.`;
+    }
     await dtekSendZapierEvent("work_order_updated", { appointmentId, appointment, workOrder: saved });
 
     if (compartir) {
@@ -1885,6 +1981,7 @@ async function submitWorkOrderReport(event, { compartir = false } = {}) {
         ? `Trabajo cerrado por ${adminSafe(dtekMoneda(totales.total))}.`
         : `Revisión guardada${cuantas ? `: ${adminSafe(textoRevisiones(cuantas))}` : " (sin ítems nuevos)"}.`;
       statusBox.innerHTML = `<p class="status-ok">${encabezado}${compartir ? " Abrimos WhatsApp con el recibo." : ""} El cliente ya lo ve en su Garage.</p>`
+        + (avisoCodigos ? `<p class="status-warning">${avisoCodigos}</p>` : "")
         + (sinFoto.length
           ? `<p class="status-warning">Sin foto: ${adminSafe(sinFoto.join(", "))}. Guardó igual, pero al cliente le cuesta más aceptar un gasto que no puede ver. Si podés, volvé a abrir el reporte y agregala.</p>`
           : "");

@@ -44,6 +44,21 @@
   color:#ff6c70;
 }
 
+/* v41.1 — fila que se guardó cuando sí aplicaba y hoy quedó fuera del plan
+   del vehículo. Ámbar, no verde: está registrada, pero hay algo que revisar.
+   Gana sobre el verde de arriba porque va después y con la misma fuerza. */
+.inspection-row-fuera-plan-v41{
+  border-color:rgba(240,180,90,.32);
+  background:rgba(240,180,90,.05);
+}
+.inspection-fuera-plan-aviso-v41{
+  grid-column:1/-1;
+  margin:6px 0 0;
+  font-size:11px;
+  line-height:1.45;
+  color:#f0b45a;
+}
+
 
 /* ---------------------------------------------------------------------
    2. Códigos de falla
