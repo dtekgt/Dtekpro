@@ -25,7 +25,11 @@ const { execSync } = require("child_process");
 
 const RAIZ = path.resolve(__dirname, "..");
 const SITIO = process.env.DTEK_SITIO || "https://dtekpro.vercel.app";
-const PAGINAS = ["index.html", "servicios.html", "agenda.html", "cliente.html", "compra-segura.html"];
+// admin-backend.html va acá aunque no sea pública: es la que más se toca y la
+// única cuyo JS no carga ninguna otra página, así que si su ?v= se queda atrás
+// nadie más lo nota. Ya pasó: se arreglaba el reporte técnico, se subía, y el
+// navegador de Dominic seguía con la copia vieja.
+const PAGINAS = ["index.html", "servicios.html", "agenda.html", "cliente.html", "compra-segura.html", "admin-backend.html"];
 
 const verde = (s) => `\x1b[32m${s}\x1b[0m`;
 const rojo = (s) => `\x1b[31m${s}\x1b[0m`;
