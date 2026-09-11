@@ -1189,6 +1189,11 @@ function openWorkOrderModal(appointmentId) {
 
   // Arranca con una linea del servicio agendado, para no empezar en blanco.
   dtekLineas = [];
+  // Hasta que precargarReporteExistente conteste no sabemos si esta cita ya
+  // tenia lineas guardadas. Importa: cerrar_trabajo borra work_order_items y
+  // los reemplaza por lo que manda el panel, asi que guardar sin lineas
+  // mientras no sabemos podria borrar un recibo que si existia.
+  dtekPrecargaRecibo = "pendiente";
   const precio = dtekPrecioDeCatalogo(appointment?.service_id);
   agregarLinea({
     description: appointment?.service_name || appointment?.service_id || "Servicio",
@@ -1222,12 +1227,15 @@ async function precargarReporteExistente(appointmentId) {
     const tieneAlgo = lineas.length || recibo.hallazgos || recibo.recomendaciones || recibo.notas || recibo.km;
     if (!tieneAlgo) {
       // Sin recibo previo puede haber revisiones igual (cita en vivo).
+      dtekPrecargaRecibo = "ok";
       const soloRevisiones = await precargarInspecciones(appointmentId);
       if (soloRevisiones.cantidad && statusBox) {
         statusBox.innerHTML = `<p class="status-info">Cargamos ${textoRevisiones(soloRevisiones.cantidad)} que ya tenías guardada${soloRevisiones.cantidad === 1 ? "" : "s"}.</p>`;
       }
       return;
     }
+
+    dtekPrecargaRecibo = "ok";
 
     if (lineas.length) {
       dtekLineas = lineas.map((l) => ({
@@ -1260,6 +1268,7 @@ async function precargarReporteExistente(appointmentId) {
     }
   } catch (error) {
     // No bloquea: el modal ya está abierto y usable con la línea por defecto.
+    dtekPrecargaRecibo = "fallo";
     console.warn("No se pudo precargar el reporte guardado:", error);
     if (statusBox && String(dtekWorkOrderAppointmentId) === String(appointmentId)) {
       statusBox.innerHTML = `<p class="status-warning">No pudimos leer si esta cita ya tenía un recibo guardado. Si ya le habías registrado el trabajo, revisá las líneas antes de guardar: al cerrar se reemplazan por las que estén acá.</p>`;
@@ -1272,6 +1281,10 @@ async function precargarReporteExistente(appointmentId) {
    montos globales, asi que no habia donde escribir el detalle. */
 
 let dtekLineas = [];
+
+/* "pendiente" | "ok" | "fallo" — si llegamos a saber que tenia guardado esta
+   cita. Solo con "ok" se permite guardar sin ninguna linea de recibo. */
+let dtekPrecargaRecibo = "pendiente";
 
 function dtekPrecioDeCatalogo(serviceId) {
   const s = (window.DTEK_SERVICES || []).find((x) => x.id === serviceId);
@@ -1787,9 +1800,34 @@ async function submitWorkOrderReport(event, { compartir = false } = {}) {
   }
 
   const lineas = dtekLineas.filter((l) => String(l.description || "").trim());
+
+  /* Antes esto era un solo "sin lineas no se guarda nada", y bloqueaba el caso
+     mas comun de una revision: entrar a marcar el estado de los items, sin
+     nada que cobrar. Se borraba la linea por defecto y Guardar se plantaba,
+     asi que el semaforo del cliente nunca se actualizaba.
+
+     Las lineas hacen falta para COBRAR, no para registrar lo que se reviso.
+     Quedan dos casos donde se siguen exigiendo:
+
+     - Un recibo sin lineas no es un recibo.
+     - Mientras no sepamos que habia guardado: cerrar_trabajo borra
+       work_order_items y los reemplaza por lo que manda el panel
+       (19_lineas_de_recibo.sql), asi que guardar sin lineas a ciegas podria
+       borrar un recibo que si existia.
+
+     Cerrar la cita sin cobrar NO se bloquea: una revision de garantia o un
+     chequeo sin costo son casos reales. El mensaje de exito dice si quedo
+     como trabajo cobrado o como revision, que es la red de seguridad. */
   if (!lineas.length) {
-    if (statusBox) statusBox.innerHTML = `<p class="status-error">Agregá al menos una línea con descripción antes de cerrar.</p>`;
-    return;
+    const motivo = compartir
+      ? "Un recibo necesita al menos una línea. Agregá qué se hizo y cuánto, o usá «Guardar» si por ahora solo querés registrar la revisión."
+      : dtekPrecargaRecibo !== "ok"
+        ? "Todavía no sabemos si esta cita ya tenía un recibo guardado. Esperá un momento y volvé a darle Guardar: si guardamos sin líneas ahora, podríamos borrar el recibo anterior."
+        : null;
+    if (motivo) {
+      if (statusBox) statusBox.innerHTML = `<p class="status-error">${motivo}</p>`;
+      return;
+    }
   }
 
   const erroresInspeccion = validarReporteVivo();
@@ -1839,7 +1877,14 @@ async function submitWorkOrderReport(event, { compartir = false } = {}) {
 
     if (statusBox) {
       const sinFoto = itemsSinFoto();
-      statusBox.innerHTML = `<p class="status-ok">Trabajo cerrado por ${adminSafe(dtekMoneda(totales.total))}.${compartir ? " Abrimos WhatsApp con el recibo." : ""} El cliente ya lo ve en su Garage.</p>`
+      // Sin lineas no se "cerro un trabajo por Q0": se guardo una revision.
+      // Decir cuantos items entraron importa, porque es lo que el cliente va
+      // a ver en el semaforo y es facil creer que se guardaron todos.
+      const cuantas = inspections.length;
+      const encabezado = lineas.length
+        ? `Trabajo cerrado por ${adminSafe(dtekMoneda(totales.total))}.`
+        : `Revisión guardada${cuantas ? `: ${adminSafe(textoRevisiones(cuantas))}` : " (sin ítems nuevos)"}.`;
+      statusBox.innerHTML = `<p class="status-ok">${encabezado}${compartir ? " Abrimos WhatsApp con el recibo." : ""} El cliente ya lo ve en su Garage.</p>`
         + (sinFoto.length
           ? `<p class="status-warning">Sin foto: ${adminSafe(sinFoto.join(", "))}. Guardó igual, pero al cliente le cuesta más aceptar un gasto que no puede ver. Si podés, volvé a abrir el reporte y agregala.</p>`
           : "");
