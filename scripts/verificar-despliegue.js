@@ -51,6 +51,23 @@ async function bajar(url) {
 (async () => {
   let problemas = 0;
 
+  /* Que version es. No hay package.json ni numero central: la generacion
+     vigente se reconoce por el sufijo que usan las clases del CSS (v41 en el
+     modelo 2026), y cliente.html lleva el sello data-dtek-version. Si los dos
+     no coinciden, el sello quedo viejo. */
+  const generacion = (() => {
+    const css = fs.readFileSync(path.join(RAIZ, "styles-v30.css"), "utf8");
+    const cuenta = {};
+    for (const m of css.matchAll(/-v(\d{2})\b/g)) cuenta[m[1]] = (cuenta[m[1]] || 0) + 1;
+    const orden = Object.keys(cuenta).sort((a, b) => Number(b) - Number(a));
+    return orden[0] ? `v${orden[0]}` : "?";
+  })();
+  const sello = (fs.readFileSync(path.join(RAIZ, "cliente.html"), "utf8").match(/data-dtek-version="([^"]*)"/) || [])[1];
+
+  console.log(`\n  D-TEK ${generacion}${sello ? gris(`  (sello del Garage: ${sello})`) : ""}`);
+  if (sello && `v${parseInt(sello, 10)}` !== generacion) {
+    console.log(`  ${rojo("x")} El sello de cliente.html dice ${sello} pero el CSS va en ${generacion}.`);
+  }
   console.log(`\n  Comparando ${SITIO} contra esta carpeta.\n`);
 
   /* 1. git ------------------------------------------------------------- */
