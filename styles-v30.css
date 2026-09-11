@@ -5541,3 +5541,19 @@ a.brand span,
   .page-client-v23 .care-coverage-count strong{white-space:nowrap}
   .page-client-v23 .care-coverage-count span{line-height:1.35}
 }
+
+/* EL ATRIBUTO hidden MANDA.
+
+   selector-pro.js colapsa los grupos del acordeon y filtra las filas al buscar
+   poniendo el atributo hidden (selector-pro.js:74, 105, 142, 146). Eso funciona
+   por la regla del navegador [hidden]{display:none}, que tiene menos
+   especificidad que cualquier clase.
+
+   Las reglas .catalogo-v41 .selector-group-content{display:flex} y
+   .catalogo-v41 .selector-service-row{display:flex} la ganaban, asi que los 45
+   servicios salian SIEMPRE abiertos y el buscador no ocultaba nada. Afectaba a
+   servicios.html y a la agenda, que comparten la clase catalogo-v41.
+
+   El !important es a proposito: hidden es una primitiva del navegador y
+   ninguna regla de layout deberia poder taparla. */
+.catalogo-v41 [hidden]{display:none !important}
