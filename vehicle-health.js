@@ -229,6 +229,30 @@
     </details>`;
   }
 
+  /* La tarjeta principal del Garage decia que necesita el carro y no ofrecia
+     nada que hacer: el cliente la leia y se quedaba ahi. El boton usa
+     data-open-client-booking, que ya escucha client-booking.js por delegacion
+     en document, asi que no hay que cablear nada nuevo.
+
+     Cuando el hallazgo es "no sabemos", el servicio que corresponde es la
+     Revision Express: es justamente la que existe para saber por donde
+     empezar. Cuando ya sabemos que algo vencio, se abre la solicitud sin
+     preseleccionar, porque el trabajo depende de la pieza. */
+  function commandAction(next, vehicle) {
+    const id = vehicle?.id ? ` data-vehicle-id="${esc(vehicle.id)}"` : "";
+    const tone = next?.state?.tone;
+    if (!tone) return "";
+    if (tone === "unknown") {
+      return `<div class="care-command-actions">
+        <button class="client-btn client-btn-primary" type="button" data-open-client-booking data-booking-service="revision-express"${id}>Solicitar revisión</button>
+        <button class="client-btn client-btn-secondary" type="button" data-vehicle-tab-jump="technical">Ya sé cuándo se hizo</button>
+      </div>`;
+    }
+    return `<div class="care-command-actions">
+      <button class="client-btn client-btn-primary" type="button" data-open-client-booking${id}>Solicitar servicio</button>
+    </div>`;
+  }
+
   function timeline(plan, vehicle, results) {
     const current = Number(vehicle.mileage || 0);
     if (!current) return `<div class="care-mileage-empty"><strong>Agregá el kilometraje actual</strong><span>Escribí el número del tablero para calcular qué servicio viene después.</span></div>`;
@@ -434,6 +458,7 @@
         <div class="care-command-stats">
           <span><b>${counts.due}</b> ahora</span><span><b>${counts.soon}</b> cerca</span><span><b>${counts.unknown}</b> por revisar</span>
         </div>
+        ${commandAction(next, vehicle)}
       </div>
       <div class="care-coverage-count"><strong>${known.length} de ${results.length}</strong><span>elementos revisados</span></div>
     </section>

@@ -50,13 +50,32 @@ function listar(dir, ext) {
   return out;
 }
 
+/* Marcas que solo deberian aparecer en los archivos de las listas de arriba.
+   Si una sale en un archivo que cuenta como publico, sus clases se vuelven
+   "publicas" y todo el CSS del Garage o del admin se cuela al bundle que
+   descarga cualquier visitante. Paso de verdad: un archivo de prueba en la
+   raiz metio 161 lineas del Garage sin que nada avisara. Ahora avisa. */
+const MARCAS_PRIVADAS = ["page-client-v23", "page-admin-v31"];
+
 const tokensPublicos = new Set();
+const contaminados = [];
 for (const f of listar(RAIZ, /\.(html|js)$/)) {
   const base = path.basename(f);
   if (GARAGE.includes(base) || ADMIN.includes(base) || base === "generar-paginas-servicio.js") continue;
-  for (const m of fs.readFileSync(f, "utf8").matchAll(/[A-Za-z_][A-Za-z0-9_-]{1,60}/g)) {
+  const texto = fs.readFileSync(f, "utf8");
+  const marca = MARCAS_PRIVADAS.find((m) => texto.includes(m));
+  if (marca) contaminados.push(`${path.relative(RAIZ, f)} (contiene "${marca}")`);
+  for (const m of texto.matchAll(/[A-Za-z_][A-Za-z0-9_-]{1,60}/g)) {
     tokensPublicos.add(m[0]);
   }
+}
+
+if (contaminados.length) {
+  console.error("\n  AVISO: estos archivos cuentan como publicos pero traen clases privadas.");
+  console.error("  Eso arrastra CSS del Garage o del admin al bundle publico.");
+  console.error("  Agregalos a GARAGE / ADMIN aca arriba, o borralos si eran de prueba:");
+  for (const c of contaminados) console.error(`    - ${c}`);
+  console.error("");
 }
 
 /* ---------- parser: arbol de nodos, respetando comentarios y strings ---------- */

@@ -3743,9 +3743,17 @@ h2.cinema-how-kicker{margin:0 0 18px;font-size:11px;line-height:1.4}
 .vehicle-care-board{margin-bottom:18px;padding:22px}
 .vehicle-care-board-head{align-items:flex-start;gap:18px}
 .vehicle-care-board-head p{max-width:620px;margin:6px 0 0;color:var(--client-muted,#9aa0aa);font-size:13px;line-height:1.55}
-.vehicle-care-summary{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:18px 0}
+/* Esta regla era de tres tarjetitas de conteo (vencidos / cerca / sin revisar).
+   El renderer cambio hace rato y ahora mete TRES BLOQUES DISTINTOS: la tarjeta
+   principal con lo proximo que necesita el carro, la linea de tiempo por
+   kilometraje y la tira de "como calculamos". La grilla de 3 columnas seguia
+   ahi, asi que cada bloque caia en un tercio: el titulo salia en 5 lineas
+   ("Filtro / de / aire / del / motor") y la linea de tiempo horizontal, que
+   posiciona marcadores por porcentaje, quedaba en 230 px. Van apilados. */
+.vehicle-care-summary{display:flex;flex-direction:column;gap:14px;margin:18px 0}
+.vehicle-care-summary>*{min-width:0}
 .vehicle-care-summary article{display:flex;align-items:center;gap:11px;padding:14px;border:1px solid rgba(255,255,255,.08);border-radius:16px;background:rgba(255,255,255,.025)}
-.vehicle-care-summary strong{font-size:24px;color:#fff}.vehicle-care-summary span{font-size:12px;color:#aeb4bd}
+.vehicle-care-summary article strong{font-size:24px;color:#fff}.vehicle-care-summary article span{font-size:12px;color:#aeb4bd}
 .vehicle-care-summary .due strong{color:#ff5a5f}.vehicle-care-summary .soon strong{color:#f4b942}.vehicle-care-summary .unknown strong{color:#8b929e}
 .vehicle-care-systems{display:grid;gap:9px}
 .vehicle-care-plan-source{display:flex;align-items:center;gap:10px;padding:12px 14px;border:1px solid rgba(255,255,255,.08);border-radius:14px;background:rgba(255,255,255,.025)}
@@ -3787,7 +3795,7 @@ h2.cinema-how-kicker{margin:0 0 18px;font-size:11px;line-height:1.4}
 .inspection-row-custom-v33 .linea-quitar{grid-column:1/-1;justify-self:start}
 .custom-title-input{min-height:34px;padding:0 8px;border:1px solid rgba(255,255,255,.14);border-radius:8px;background:rgba(255,255,255,.04);color:#fff;font-size:13px;width:100%}
 @media(max-width:700px){
-  .vehicle-care-summary{grid-template-columns:1fr}.vehicle-care-list{grid-template-columns:1fr}
+  .vehicle-care-list{grid-template-columns:1fr}
   .vehicle-care-board-head{display:block}.vehicle-care-km-action{margin-top:12px}
   .vehicle-care-plan-source{align-items:flex-start;flex-direction:column}
   .inspection-row-v33{grid-template-columns:1fr}.inspection-row-v33+ .inspection-row-v33{padding-top:10px;border-top:1px solid rgba(255,255,255,.06)}
@@ -5516,3 +5524,20 @@ h2.cinema-how-kicker{margin:0 0 18px;font-size:11px;line-height:1.4}
    resto del sitio, aclarar solo el texto chico. */
 a.brand span,
 .nav-shell a.brand span{color:#ff5f62}
+
+/* La tarjeta principal ahora ofrece que hacer. En movil los botones van a lo
+   ancho, porque ahi es donde se usa el Garage. */
+.page-client-v23 .care-command-actions{display:flex;flex-wrap:wrap;gap:9px;margin-top:22px}
+.page-client-v23 .care-command-actions .client-btn{min-height:44px}
+@media(max-width:700px){
+  .page-client-v23 .care-command-actions{flex-direction:column;align-items:stretch}
+  .page-client-v23 .care-command-actions .client-btn{width:100%;justify-content:center}
+}
+
+/* En movil la cobertura pasa a fila (auto 1fr) y el rotulo quedaba pegado al
+   numero, partido en dos lineas sin aire. */
+@media(max-width:700px){
+  .page-client-v23 .care-coverage-count{column-gap:12px;padding:13px 15px}
+  .page-client-v23 .care-coverage-count strong{white-space:nowrap}
+  .page-client-v23 .care-coverage-count span{line-height:1.35}
+}
