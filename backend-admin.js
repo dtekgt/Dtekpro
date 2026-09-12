@@ -2325,9 +2325,15 @@ function bindClientes() {
   adminQs("#clientProvisionForm")?.addEventListener("submit", async (event) => {
     event.preventDefault();
     const submit = event.target.querySelector('button[type="submit"]');
+    const rawProvisionPhone = adminQs("#provisionPhone")?.value || "";
+    const provisionPhoneDigits = rawProvisionPhone.replace(/\D/g, "");
+    if (provisionPhoneDigits.length < 8 || provisionPhoneDigits.length > 12) {
+      provisionStatus("Ese teléfono no parece completo — revisalo antes de crear el perfil.", "error");
+      return;
+    }
     const payload = {
       fullName: adminQs("#provisionFullName")?.value.trim() || "",
-      phone: normalizeProvisionPhone(adminQs("#provisionPhone")?.value),
+      phone: normalizeProvisionPhone(rawProvisionPhone),
       username: adminQs("#provisionUsername")?.value.trim() || "",
       password: adminQs("#provisionPassword")?.value || "",
       contactEmail: adminQs("#provisionEmail")?.value.trim() || "",

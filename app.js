@@ -2081,7 +2081,7 @@ function renderFaqs() {
   if (!holder) return;
   holder.innerHTML = dtekFaqs.map(([q, a], i) => `
     <article class="faq-item dtek-glass">
-      <button class="faq-question" type="button" aria-expanded="false" aria-controls="faqAnswer${i}">${safeText(q)}<span aria-hidden="true">+</span></button>
+      <button class="faq-question" type="button" aria-expanded="false" aria-controls="faqAnswer${i}">${safeText(q)}<span aria-hidden="true">＋</span></button>
       <div class="faq-answer" id="faqAnswer${i}"><p>${safeText(a)}</p></div>
     </article>
   `).join("");
@@ -2365,6 +2365,8 @@ function setupEvents() {
     if (faqButton) {
       const open = faqButton.closest(".faq-item").classList.toggle("open");
       faqButton.setAttribute("aria-expanded", String(open));
+      const icon = qs("span", faqButton);
+      if (icon) icon.textContent = open ? "−" : "＋";
     }
   });
 
