@@ -615,6 +615,7 @@ async function refreshAllAdminData() {
   await loadBackendReferrals();
   await loadBackendRedemptions();
   await loadBlockedTimes();
+  await loadFinanceData(adminQs("#financeDesde")?.value, adminQs("#financeHasta")?.value);
 }
 
 let dtekWorkOrderAppointmentId = null;
@@ -2049,7 +2050,7 @@ async function submitWorkOrderReport(event, { compartir = false } = {}) {
 
 /* ---------- Navegación del panel (tabs + sub-tabs) ---------- */
 
-const ADMIN_SECTIONS = ["resumen", "citas", "referidos", "clientes"];
+const ADMIN_SECTIONS = ["resumen", "citas", "referidos", "clientes", "finanzas"];
 
 function setAdminSection(section) {
   const normalized = ADMIN_SECTIONS.includes(section) ? section : "resumen";
@@ -2545,6 +2546,199 @@ function bindClientes() {
   });
 }
 
+/* ====== Finanzas ======
+   Lo único que el sistema registra de verdad es ingreso (work_orders) y,
+   desde acá, gasto (expenses). No hay costo de repuestos, cuentas de
+   efectivo ni activos en ningún lado — ver database/31_finanzas.sql para
+   el porqué "utilidad neta" solo resta gastos y nunca "costo". */
+
+let dtekFinanceSummaryCache = null;
+let dtekAdminExpensesCache = [];
+
+const FINANCE_CATEGORY_LABELS = {
+  repuestos_inventario: "Repuestos / inventario",
+  renta: "Renta",
+  sueldos: "Sueldos",
+  servicios: "Servicios",
+  marketing: "Marketing",
+  herramientas_equipo: "Herramientas / equipo",
+  otro: "Otro"
+};
+
+function financeDefaultRange() {
+  const hoy = new Date();
+  const desde = new Date(hoy.getFullYear(), hoy.getMonth(), 1);
+  const toISO = (d) => d.toISOString().slice(0, 10);
+  return { desde: toISO(desde), hasta: toISO(hoy) };
+}
+
+function financeFechaCorta(valor) {
+  if (!valor) return "";
+  const d = new Date(`${valor}T00:00:00`);
+  if (Number.isNaN(d.getTime())) return valor;
+  return d.toLocaleDateString("es-GT", { day: "2-digit", month: "short", year: "numeric" });
+}
+
+// colorize=false para gastos: que suban no es en sí "malo" como para
+// pintarlo de rojo — es solo informativo.
+function financeCrecimiento(actual, anterior, { colorize = true } = {}) {
+  if (!anterior) return "";
+  const delta = ((actual - anterior) / Math.abs(anterior)) * 100;
+  const signo = delta >= 0 ? "+" : "";
+  const clase = colorize ? (delta >= 0 ? "up" : "down") : "";
+  return `<small class="${clase}">${signo}${delta.toFixed(1)}% vs. período anterior</small>`;
+}
+
+function renderFinanceSummary(summary) {
+  const box = adminQs("#financeMetrics");
+  if (!box || !summary) return;
+  const prev = summary.periodo_anterior || {};
+  box.innerHTML = [
+    ["Ingresos del período", dtekMoney(summary.ingresos_total), financeCrecimiento(summary.ingresos_total, prev.ingresos_total)],
+    ["Trabajos cerrados", summary.trabajos_count, ""],
+    ["Ticket promedio", dtekMoney(summary.ticket_promedio), ""],
+    ["Gastos del período", dtekMoney(summary.gastos_total), financeCrecimiento(summary.gastos_total, prev.gastos_total, { colorize: false })],
+    ["Utilidad neta", dtekMoney(summary.utilidad_neta), financeCrecimiento(summary.utilidad_neta, prev.utilidad_neta)],
+    ["Puntos D-TEK pendientes", `${summary.puntos_pendientes || 0} pts`, `<small>≈ ${dtekMoney(summary.puntos_valor_q)}</small>`]
+  ].map(([label, value, extra]) => `<div class="metric-card"><span>${adminSafe(label)}</span><strong>${adminSafe(String(value))}</strong>${extra || ""}</div>`).join("");
+}
+
+function renderFinanceTable(summary) {
+  const box = adminQs("#financeStatement");
+  if (!box || !summary) return;
+  box.innerHTML = `
+    <div class="finance-linea-v41"><span>Ingresos por mano de obra</span><b>${adminSafe(dtekMoney(summary.ingresos_mano_obra))}</b></div>
+    <div class="finance-linea-v41"><span>Ingresos por repuestos y servicios</span><b>${adminSafe(dtekMoney(summary.ingresos_repuestos_servicios))}</b></div>
+    <div class="finance-linea-v41"><span>Ingresos totales</span><b>${adminSafe(dtekMoney(summary.ingresos_total))}</b></div>
+    <div class="finance-linea-v41 finance-resta"><span>(−) Gastos operativos</span><b>${adminSafe(dtekMoney(summary.gastos_total))}</b></div>
+    <div class="finance-linea-v41 finance-total"><span>Utilidad neta (aproximada)</span><strong>${adminSafe(dtekMoney(summary.utilidad_neta))}</strong></div>
+  `;
+}
+
+function renderFinanceIndices(summary) {
+  const box = adminQs("#financeIndices");
+  if (!box || !summary) return;
+  const mezclaManoObra = summary.ingresos_total ? Math.round((summary.ingresos_mano_obra / summary.ingresos_total) * 100) : 0;
+  const mezclaRepuestos = summary.ingresos_total ? 100 - mezclaManoObra : 0;
+  const margen = summary.ingresos_total > 0
+    ? (summary.gastos_total > 0 ? `${((summary.utilidad_neta / summary.ingresos_total) * 100).toFixed(1)}%` : "Sin gastos registrados todavía")
+    : "Sin ingresos en el período";
+  const ref = summary.referidos || {};
+  const refTotal = (ref.submitted || 0) + (ref.contacted || 0) + (ref.scheduled || 0) + (ref.converted || 0) + (ref.discarded || 0);
+  const conversion = refTotal ? `${Math.round(((ref.converted || 0) / refTotal) * 100)}%` : "Sin referidos en el período";
+  const prevIngresos = summary.periodo_anterior?.ingresos_total;
+  const crecimiento = prevIngresos
+    ? `${(((summary.ingresos_total - prevIngresos) / prevIngresos) * 100).toFixed(1)}%`
+    : "Sin período anterior para comparar";
+
+  box.innerHTML = [
+    ["Margen operativo (sobre ingresos)", margen],
+    ["Ticket promedio", dtekMoney(summary.ticket_promedio)],
+    ["Ingreso por mano de obra", `${mezclaManoObra}%`],
+    ["Ingreso por repuestos y servicios", `${mezclaRepuestos}%`],
+    ["Crecimiento de ingresos vs. período anterior", crecimiento],
+    ["Puntos D-TEK pendientes de canjear", `${summary.puntos_pendientes || 0} pts (≈ ${dtekMoney(summary.puntos_valor_q)})`],
+    ["Conversión de referidos en el período", conversion]
+  ].map(([label, value]) => `<div class="finance-indice-v41"><span>${adminSafe(label)}</span><b>${adminSafe(String(value))}</b></div>`).join("");
+}
+
+function renderExpensesList(items = []) {
+  const box = adminQs("#expensesList");
+  if (!box) return;
+  box.innerHTML = items.length ? items.map((item) => `
+    <article class="memory-item">
+      <strong>${adminSafe(dtekMoney(item.amount))} · ${adminSafe(FINANCE_CATEGORY_LABELS[item.category] || item.category)}</strong>
+      <small>${adminSafe(item.description)} · ${adminSafe(financeFechaCorta(item.expense_date))}</small>
+      <div class="memory-actions"><button type="button" data-delete-expense="${adminSafe(item.id)}">Eliminar</button></div>
+    </article>
+  `).join("") : `<p class="memory-empty">No hay gastos registrados en este rango.</p>`;
+}
+
+async function loadFinanceData(desde, hasta) {
+  const metricsBox = adminQs("#financeMetrics");
+  if (!metricsBox) return;
+  const rango = (desde && hasta) ? { desde, hasta } : financeDefaultRange();
+  const desdeInput = adminQs("#financeDesde");
+  const hastaInput = adminQs("#financeHasta");
+  if (desdeInput && !desdeInput.value) desdeInput.value = rango.desde;
+  if (hastaInput && !hastaInput.value) hastaInput.value = rango.hasta;
+  const expenseDateInput = adminQs("#expenseDate");
+  if (expenseDateInput && !expenseDateInput.value) expenseDateInput.value = financeDefaultRange().hasta;
+
+  metricsBox.innerHTML = `<p class="memory-empty">Cargando finanzas...</p>`;
+  try {
+    await ensureAdminReady();
+    const [summary, expenses] = await Promise.all([
+      withTimeout(DtekBackend.getFinanceSummary(rango.desde, rango.hasta), 8000, "resumen financiero"),
+      withTimeout(DtekBackend.listExpenses(rango.desde, rango.hasta), 8000, "gastos")
+    ]);
+    dtekFinanceSummaryCache = summary;
+    dtekAdminExpensesCache = expenses || [];
+    renderFinanceSummary(summary);
+    renderFinanceTable(summary);
+    renderFinanceIndices(summary);
+    renderExpensesList(dtekAdminExpensesCache);
+  } catch (error) {
+    console.warn("Finanzas no disponibles:", error);
+    const mensaje = String(error?.message || error || "");
+    metricsBox.innerHTML = `<div class="empty-slots dtek-glass"><strong>No se pudo cargar Finanzas.</strong><p>${adminSafe(mensaje.includes("dtek_admin_finance_summary") || mensaje.includes("dtek_admin_list_expenses") ? "Corré database/31_finanzas.sql en Supabase." : mensaje)}</p></div>`;
+  }
+}
+
+function bindFinanzas() {
+  adminQs("#financeFilterApply")?.addEventListener("click", () => {
+    const desde = adminQs("#financeDesde")?.value || "";
+    const hasta = adminQs("#financeHasta")?.value || "";
+    if (!desde || !hasta) return;
+    if (desde > hasta) { alert("La fecha «Desde» no puede ser después de «Hasta»."); return; }
+    loadFinanceData(desde, hasta);
+  });
+
+  adminQs("#expenseForm")?.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    const submit = event.target.querySelector('button[type="submit"]');
+    const statusBox = adminQs("#expenseStatus");
+    const payload = {
+      expense_date: adminQs("#expenseDate")?.value || "",
+      category: adminQs("#expenseCategory")?.value || "otro",
+      description: adminQs("#expenseDescription")?.value.trim() || "",
+      amount: Number(adminQs("#expenseAmount")?.value || 0)
+    };
+    if (!payload.description) {
+      if (statusBox) statusBox.innerHTML = `<p class="status-error">Escribí una descripción del gasto.</p>`;
+      return;
+    }
+    if (!payload.amount || payload.amount <= 0) {
+      if (statusBox) statusBox.innerHTML = `<p class="status-error">El monto tiene que ser mayor a cero.</p>`;
+      return;
+    }
+    try {
+      if (submit) { submit.disabled = true; submit.textContent = "Registrando..."; }
+      if (statusBox) statusBox.innerHTML = `<p class="status-info">Registrando gasto...</p>`;
+      await DtekBackend.createExpense(payload);
+      if (statusBox) statusBox.innerHTML = `<p class="status-ok">Gasto registrado.</p>`;
+      event.target.reset();
+      await loadFinanceData(adminQs("#financeDesde")?.value, adminQs("#financeHasta")?.value);
+    } catch (error) {
+      if (statusBox) statusBox.innerHTML = `<p class="status-error">${adminSafe(error?.message || "No se pudo registrar el gasto.")}</p>`;
+    } finally {
+      if (submit) { submit.disabled = false; submit.textContent = "Registrar gasto"; }
+    }
+  });
+
+  adminQs("#expensesList")?.addEventListener("click", async (event) => {
+    const btn = event.target.closest("[data-delete-expense]");
+    if (!btn) return;
+    if (!confirm("¿Borrar este gasto?")) return;
+    try {
+      await DtekBackend.deleteExpense(btn.dataset.deleteExpense);
+      await loadFinanceData(adminQs("#financeDesde")?.value, adminQs("#financeHasta")?.value);
+    } catch (error) {
+      alert(error?.message || "No se pudo borrar el gasto.");
+    }
+  });
+}
+
 function bindWorkOrderModal() {
   adminQs("#workOrderForm")?.addEventListener("submit", (ev) => submitWorkOrderReport(ev, { compartir: false }));
   adminQs("#workOrderSaveAndShare")?.addEventListener("click", (ev) => submitWorkOrderReport(ev, { compartir: true }));
@@ -2566,6 +2760,7 @@ async function initBackendAdmin() {
   bindHorario();
   bindReferidos();
   bindClientes();
+  bindFinanzas();
   bindWorkOrderModal();
   bindLiveApptModal();
   bindLineas();

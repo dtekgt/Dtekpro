@@ -61,6 +61,7 @@
         <button type="button" data-admin-section="citas"><span aria-hidden="true">▤</span><span>Citas</span></button>
         <button type="button" data-admin-section="referidos"><span aria-hidden="true">◈</span><span>Referidos</span></button>
         <button type="button" data-admin-section="clientes"><span aria-hidden="true">▣</span><span>Clientes</span></button>
+        <button type="button" data-admin-section="finanzas"><span aria-hidden="true">▥</span><span>Finanzas</span></button>
       </nav>
 
       <section class="admin-section-v34 active" data-admin-panel="resumen">
@@ -337,6 +338,96 @@
           </section>
         </div>
       </section>
+
+      <section class="admin-section-v34" data-admin-panel="finanzas">
+        <div class="section-head inline-head finance-rango-v41">
+          <div>
+            <span class="eyebrow">Finanzas</span>
+            <h2>Período</h2>
+          </div>
+          <div class="finance-rango-campos-v41">
+            <label>Desde <input id="financeDesde" type="date"></label>
+            <label>Hasta <input id="financeHasta" type="date"></label>
+            <button class="btn btn-ghost" type="button" id="financeFilterApply">Aplicar</button>
+          </div>
+        </div>
+
+        <div class="admin-subtabs-v34">
+          <button type="button" class="active" data-admin-subtab="fin-resumen">Resumen</button>
+          <button type="button" data-admin-subtab="fin-resultados">Estado de resultados</button>
+          <button type="button" data-admin-subtab="fin-gastos">Gastos</button>
+          <button type="button" data-admin-subtab="fin-indices">Índices</button>
+        </div>
+
+        <div class="admin-subpanel-v34 active" data-admin-subpanel="fin-resumen">
+          <section class="section dtek-glass reveal visible">
+            <div class="section-head inline-head">
+              <div>
+                <span class="eyebrow">Resumen ejecutivo</span>
+                <h2>Cómo va el negocio</h2>
+              </div>
+            </div>
+            <div id="financeMetrics" class="dtek-metrics-grid"></div>
+            <p class="muted finance-nota-v41">Balance general y flujo de efectivo todavía no se pueden armar acá: necesitan un registro de cuentas de efectivo, cuentas por cobrar/pagar y activos que hoy no existe en el sistema. Este resumen usa solo lo que D-TEK sí registra: ingresos de trabajos cerrados, y los gastos que cargues en la pestaña «Gastos».</p>
+          </section>
+        </div>
+
+        <div class="admin-subpanel-v34" data-admin-subpanel="fin-resultados">
+          <section class="section dtek-glass reveal visible">
+            <div class="section-head inline-head">
+              <div>
+                <span class="eyebrow">Ingresos y gastos</span>
+                <h2>Estado de resultados</h2>
+              </div>
+            </div>
+            <div id="financeStatement" class="finance-estado-v41"></div>
+          </section>
+        </div>
+
+        <div class="admin-subpanel-v34" data-admin-subpanel="fin-gastos">
+          <section class="section dtek-glass reveal visible">
+            <div class="section-head inline-head">
+              <div>
+                <span class="eyebrow">Registrar</span>
+                <h2>Gastos del negocio</h2>
+              </div>
+            </div>
+            <form id="expenseForm" class="stacked-form">
+              <div class="two-column-grid compact-grid">
+                <label>Fecha *<input id="expenseDate" type="date" required></label>
+                <label>Categoría *
+                  <select id="expenseCategory" required>
+                    <option value="repuestos_inventario">Repuestos / inventario</option>
+                    <option value="renta">Renta</option>
+                    <option value="sueldos">Sueldos</option>
+                    <option value="servicios">Servicios (luz, internet, software)</option>
+                    <option value="marketing">Marketing</option>
+                    <option value="herramientas_equipo">Herramientas / equipo</option>
+                    <option value="otro" selected>Otro</option>
+                  </select>
+                </label>
+                <label class="full-span">Descripción *<input id="expenseDescription" type="text" required placeholder="Ej. Compra de filtros de aceite al por mayor" /></label>
+                <label>Monto (Q) *<input id="expenseAmount" type="number" min="0.01" step="0.01" required placeholder="0.00" /></label>
+              </div>
+              <button class="btn btn-primary" type="submit">Registrar gasto</button>
+            </form>
+            <div id="expenseStatus" class="status-box"></div>
+            <div id="expensesList" class="admin-list"></div>
+          </section>
+        </div>
+
+        <div class="admin-subpanel-v34" data-admin-subpanel="fin-indices">
+          <section class="section dtek-glass reveal visible">
+            <div class="section-head inline-head">
+              <div>
+                <span class="eyebrow">Índices</span>
+                <h2>Lo que se puede medir hoy</h2>
+              </div>
+            </div>
+            <div id="financeIndices" class="finance-indices-v41"></div>
+          </section>
+        </div>
+      </section>
     </div>
   </main>
 
@@ -345,6 +436,7 @@
     <button type="button" data-admin-section="citas"><span aria-hidden="true">▤</span><small>Citas</small></button>
     <button type="button" data-admin-section="referidos"><span aria-hidden="true">◈</span><small>Referidos</small></button>
     <button type="button" data-admin-section="clientes"><span aria-hidden="true">▣</span><small>Clientes</small></button>
+    <button type="button" data-admin-section="finanzas"><span aria-hidden="true">▥</span><small>Finanzas</small></button>
   </nav>
 
   <div id="workOrderModal" class="admin-modal-backdrop hidden-field" role="dialog" aria-modal="true" aria-labelledby="workOrderModalTitle">

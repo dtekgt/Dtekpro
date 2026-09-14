@@ -654,6 +654,42 @@ const DtekBackend = (() => {
     return data || [];
   }
 
+  async function getFinanceSummary(desde, hasta) {
+    const sb = client();
+    if (!sb) throw new Error("Supabase no está configurado todavía.");
+    const { data, error } = await sb.rpc("dtek_admin_finance_summary", { p_desde: desde, p_hasta: hasta });
+    if (error) throw error;
+    return data;
+  }
+
+  async function listExpenses(desde, hasta) {
+    const sb = client();
+    if (!sb) return [];
+    const { data, error } = await sb.rpc("dtek_admin_list_expenses", { p_desde: desde, p_hasta: hasta });
+    if (error) throw error;
+    return data || [];
+  }
+
+  async function createExpense(payload) {
+    const sb = client();
+    if (!sb) throw new Error("Supabase no está configurado todavía.");
+    const { data, error } = await sb.rpc("dtek_admin_create_expense", {
+      p_expense_date: payload.expense_date || null,
+      p_category: payload.category || "otro",
+      p_description: payload.description,
+      p_amount: payload.amount
+    });
+    if (error) throw error;
+    return data;
+  }
+
+  async function deleteExpense(expenseId) {
+    const sb = client();
+    if (!sb) throw new Error("Supabase no está configurado todavía.");
+    const { error } = await sb.rpc("dtek_admin_delete_expense", { p_expense_id: expenseId });
+    if (error) throw error;
+  }
+
   async function updateReferralStatus(referralId, status, rewardAmount = 100, convertedAppointmentId = null) {
     const sb = client();
     if (!sb) throw new Error("Supabase no está configurado todavía.");
@@ -1059,6 +1095,10 @@ const DtekBackend = (() => {
     listMyRedemptions,
     redeemReward,
     listReferralsForAdmin,
+    getFinanceSummary,
+    listExpenses,
+    createExpense,
+    deleteExpense,
     listRedemptionsForAdmin,
     updateRedemptionStatus,
     adjustPoints,

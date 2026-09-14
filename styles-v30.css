@@ -1895,7 +1895,7 @@
 
 .page-admin-v31 .admin-menu-v34{
   position:sticky;top:10px;z-index:60;
-  display:grid;grid-template-columns:repeat(4,1fr);gap:6px;
+  display:grid;grid-template-columns:repeat(5,1fr);gap:6px;
   margin-bottom:18px;padding:6px;
   border:1px solid rgba(255,255,255,.08);border-radius:14px;
   background:rgba(8,10,15,.7);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
@@ -1923,6 +1923,30 @@
 .page-admin-v31 .admin-subpanel-v34.active{display:grid;grid-template-columns:minmax(0,1fr);gap:14px;animation:adminFadeV34 .22s ease}
 
 .page-admin-v31 .admin-toolbar.compact-toolbar{position:sticky;top:64px;z-index:40;padding-block:8px;background:rgba(5,8,13,.85);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
+
+/* ---------- Finanzas (v41) ---------- */
+.page-admin-v31 .finance-rango-v41{align-items:flex-end;gap:14px;flex-wrap:wrap}
+.page-admin-v31 .finance-rango-campos-v41{display:flex;align-items:flex-end;gap:10px;flex-wrap:wrap}
+.page-admin-v31 .finance-rango-campos-v41 label{display:flex;flex-direction:column;gap:4px;font-size:11px;color:rgba(255,255,255,.55)}
+.page-admin-v31 .finance-rango-campos-v41 input{min-height:38px;padding:0 10px;border:1px solid rgba(255,255,255,.14);border-radius:10px;background:rgba(255,255,255,.04);color:#fff;font-size:13px}
+.page-admin-v31 .finance-nota-v41{margin-top:14px;font-size:12.5px;line-height:1.5}
+.page-admin-v31 .metric-card small{display:block;margin-top:3px;font-size:.72rem;color:rgba(255,255,255,.45);font-weight:600}
+.page-admin-v31 .metric-card small.up{color:#6fe3b8}
+.page-admin-v31 .metric-card small.down{color:#ff8a8a}
+
+.page-admin-v31 .finance-estado-v41{display:flex;flex-direction:column;gap:2px}
+.page-admin-v31 .finance-linea-v41{display:flex;justify-content:space-between;gap:14px;padding:10px 0;border-top:1px solid rgba(255,255,255,.08);font-size:14px;color:rgba(255,255,255,.75)}
+.page-admin-v31 .finance-linea-v41:first-child{border-top:0}
+.page-admin-v31 .finance-linea-v41 b{color:#fff;font-variant-numeric:tabular-nums}
+.page-admin-v31 .finance-linea-v41.finance-resta span{color:#ff8a8a}
+.page-admin-v31 .finance-linea-v41.finance-resta b{color:#ff8a8a}
+.page-admin-v31 .finance-linea-v41.finance-total{border-top:2px solid rgba(255,255,255,.16);margin-top:6px;padding-top:16px}
+.page-admin-v31 .finance-linea-v41.finance-total strong{color:var(--f1-red-hot,#ff3b3f);font-size:19px;font-variant-numeric:tabular-nums}
+
+.page-admin-v31 .finance-indices-v41{display:grid;gap:10px}
+.page-admin-v31 .finance-indice-v41{display:flex;justify-content:space-between;align-items:baseline;gap:14px;padding:12px 14px;border:1px solid rgba(255,255,255,.1);border-radius:12px;background:rgba(255,255,255,.02)}
+.page-admin-v31 .finance-indice-v41 span{color:rgba(255,255,255,.55);font-size:13px}
+.page-admin-v31 .finance-indice-v41 b{color:#fff;font-size:16px;font-variant-numeric:tabular-nums;white-space:nowrap}
 
 .page-admin-v31 .admin-modal-panel .wo-subtabs-v34{position:sticky;top:-26px;z-index:5;margin:-8px -26px 0;padding:8px 26px 0;background:rgba(16,21,29,.95)}
 .page-admin-v31 .admin-modal-actions{
