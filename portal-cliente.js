@@ -747,15 +747,25 @@ function renderAppointmentCard(appointment, { compact = false } = {}) {
   </article>`;
 }
 
+// Rutas de Storage, no URLs: hay que pedir enlaces firmados al bucket antes
+// de poder mostrarlas (se llenan en loadClientWorkOrders).
+let clientReceiptPhotoUrls = {};
+
 function renderWorkOrderLineas(lineas) {
   if (!Array.isArray(lineas) || !lineas.length) return "";
-  const filas = lineas.map((linea) => `
+  const filas = lineas.map((linea) => {
+    const url = linea.foto ? clientReceiptPhotoUrls[linea.foto] : "";
+    const foto = url
+      ? `<a class="linea-foto-cliente" href="${clientSafe(url)}" target="_blank" rel="noopener"><img src="${clientSafe(url)}" alt="Foto de ${clientSafe(linea.descripcion || "la línea")}" loading="lazy"></a>`
+      : "";
+    return `
     <tr>
-      <td>${clientSafe(linea.descripcion || "")}</td>
+      <td>${clientSafe(linea.descripcion || "")}${foto}</td>
       <td>${clientSafe(linea.cantidad ?? "")}</td>
       <td>${clientSafe(formatMoney(linea.precio))}</td>
       <td>${clientSafe(formatMoney(linea.subtotal))}</td>
-    </tr>`).join("");
+    </tr>`;
+  }).join("");
   return `<table class="report-lineas">
     <thead><tr><th>Descripción</th><th>Cant.</th><th>P. unit.</th><th>Subtotal</th></tr></thead>
     <tbody>${filas}</tbody>
@@ -1386,6 +1396,14 @@ async function loadClientWorkOrders() {
   try {
     const orders = await DtekBackend.listMyWorkOrders();
     clientPortalState.workOrders = orders || [];
+    const rutasFotos = [...new Set(orders.flatMap((o) => (o.lineas || []).map((l) => l.foto).filter(Boolean)))];
+    if (rutasFotos.length) {
+      try {
+        clientReceiptPhotoUrls = await DtekBackend.createInspectionPhotoUrls(rutasFotos);
+      } catch (error) {
+        console.warn("No se pudieron firmar las fotos del recibo:", error);
+      }
+    }
     if (holder) holder.innerHTML = orders.length
       ? orders.map(renderWorkOrder).join("")
       : `<div class="client-empty-copy"><strong>Todavía no hay diagnósticos ni trabajos registrados.</strong><p>Cuando D-TEK complete el primero, aparecerá aquí.</p></div>`;

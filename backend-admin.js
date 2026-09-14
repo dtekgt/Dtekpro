@@ -1275,6 +1275,7 @@ function openWorkOrderModal(appointmentId) {
 
   // Arranca con una linea del servicio agendado, para no empezar en blanco.
   dtekLineas = [];
+  dtekLineaFotoUrls = {};
   // Hasta que precargarReporteExistente conteste no sabemos si esta cita ya
   // tenia lineas guardadas. Importa: cerrar_trabajo borra work_order_items y
   // los reemplaza por lo que manda el panel, asi que guardar sin lineas
@@ -1329,9 +1330,20 @@ async function precargarReporteExistente(appointmentId) {
         kind: l.tipo || "part",
         quantity: Number(l.cantidad) || 1,
         unit_price: Number(l.precio) || 0,
-        service_id: ""
+        service_id: "",
+        photo_path: l.foto || ""
       }));
       pintarLineas();
+      const rutasLineas = dtekLineas.map((l) => l.photo_path).filter(Boolean);
+      if (rutasLineas.length) {
+        try {
+          const urls = await withTimeout(DtekBackend.createInspectionPhotoUrls(rutasLineas), 10000, "abrir las fotos del recibo");
+          Object.assign(dtekLineaFotoUrls, urls);
+          pintarLineas();
+        } catch (error) {
+          console.warn("No se pudieron firmar las fotos del recibo:", error);
+        }
+      }
     }
 
     const set = (selector, value) => {
@@ -1385,10 +1397,15 @@ function agregarLinea(datos = {}) {
     kind: datos.kind || "part",
     quantity: Number(datos.quantity) || 1,
     unit_price: Number(datos.unit_price) || 0,
-    service_id: datos.service_id || ""
+    service_id: datos.service_id || "",
+    photo_path: datos.photo_path || ""
   });
   pintarLineas();
 }
+
+// Rutas de foto ya subidas (data-linea vive por posición y se repinta seguido,
+// así que las URLs firmadas se guardan aparte en vez de en dtekLineas).
+let dtekLineaFotoUrls = {};
 
 function pintarLineas() {
   const holder = adminQs("#workOrderItems");
@@ -1407,6 +1424,10 @@ function pintarLineas() {
       <input class="linea-precio" type="number" min="0" step="0.01" value="${l.unit_price}" aria-label="Precio unitario de la línea ${i + 1}">
       <b class="linea-sub">${adminSafe(dtekMoneda(l.quantity * l.unit_price))}</b>
       <button type="button" class="linea-quitar" aria-label="Quitar la línea ${i + 1}">×</button>
+      <div class="linea-foto-v320" data-photos-for-linea="${i}">${l.photo_path
+        ? `<span class="photo-thumb-v33"><img src="${adminSafe(dtekLineaFotoUrls[l.photo_path] || "")}" alt="Foto de la línea ${i + 1}"><button type="button" data-remove-linea-foto="${i}" aria-label="Quitar foto de la línea ${i + 1}">×</button></span>`
+        : `<label class="photo-add-btn-v33" aria-label="Agregar foto a la línea ${i + 1}"><input type="file" accept="image/*" capture="environment" data-linea-photo-input="${i}" hidden>📷</label><span class="linea-foto-hint">Foto (opcional)</span>`
+      }</div>
     </div>`).join("");
 
   if (vacio) vacio.style.display = dtekLineas.length ? "none" : "block";
@@ -1447,16 +1468,43 @@ function bindLineas() {
 
   holder.addEventListener("change", (ev) => {
     const fila = ev.target.closest("[data-linea]");
-    if (!fila || !ev.target.classList.contains("linea-kind")) return;
-    const l = dtekLineas[Number(fila.dataset.linea)];
-    if (l) { l.kind = ev.target.value; sumarLineas(); }
+    if (fila && ev.target.classList.contains("linea-kind")) {
+      const l = dtekLineas[Number(fila.dataset.linea)];
+      if (l) { l.kind = ev.target.value; sumarLineas(); }
+      return;
+    }
+    const fotoInput = ev.target.closest("[data-linea-photo-input]");
+    if (!fotoInput || !fotoInput.files?.length) return;
+    const i = Number(fotoInput.dataset.lineaPhotoInput);
+    const file = fotoInput.files[0];
+    fotoInput.value = "";
+    const l = dtekLineas[i];
+    if (!l) return;
+    const wrap = adminQs(`[data-photos-for-linea="${i}"]`);
+    if (wrap) wrap.innerHTML = `<span class="photo-thumb-v33 is-uploading">…</span>`;
+    subirFoto(file, `linea-${i}`).then(({ ruta, blob }) => {
+      l.photo_path = ruta;
+      dtekLineaFotoUrls[ruta] = URL.createObjectURL(blob);
+      pintarLineas();
+    }).catch((error) => {
+      pintarLineas();
+      alert(`No se pudo subir la foto: ${error.message}`);
+    });
   });
 
   holder.addEventListener("click", (ev) => {
     const btn = ev.target.closest(".linea-quitar");
-    if (!btn) return;
-    dtekLineas.splice(Number(btn.closest("[data-linea]").dataset.linea), 1);
-    pintarLineas();
+    if (btn) {
+      dtekLineas.splice(Number(btn.closest("[data-linea]").dataset.linea), 1);
+      pintarLineas();
+      return;
+    }
+    const quitarFoto = ev.target.closest("[data-remove-linea-foto]");
+    if (quitarFoto) {
+      const l = dtekLineas[Number(quitarFoto.dataset.removeLineaFoto)];
+      if (l) l.photo_path = "";
+      pintarLineas();
+    }
   });
 
   adminQs("#workOrderAddItem")?.addEventListener("click", () => {

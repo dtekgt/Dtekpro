@@ -2976,6 +2976,15 @@
 .page-client-v23 .exp-total strong{color:var(--f1-red-hot,#ff3b3f);font-size:19px;font-weight:600;font-variant-numeric:tabular-nums}
 .page-client-v23 .exp-nota{margin-top:10px !important;color:var(--client-muted) !important;font-size:12.5px !important}
 
+.page-client-v23 .exp-recibo-tabla{width:100%;border-collapse:collapse;margin:2px 0 12px;font-size:13.5px}
+.page-client-v23 .exp-recibo-tabla th{padding:6px 8px 6px 0;text-align:left;color:var(--client-muted);font-size:10.5px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;border-bottom:1px solid var(--client-line)}
+.page-client-v23 .exp-recibo-tabla td{padding:9px 8px 9px 0;border-bottom:1px solid var(--client-line);color:#fff;vertical-align:top}
+.page-client-v23 .exp-recibo-tabla tr:last-child td{border-bottom:0}
+.page-client-v23 .exp-recibo-tabla th:not(:first-child),
+.page-client-v23 .exp-recibo-tabla td:not(:first-child){text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums}
+.page-client-v23 .exp-linea-foto{display:inline-block;margin-left:8px;vertical-align:middle}
+.page-client-v23 .exp-linea-foto img{width:34px;height:34px;border-radius:8px;object-fit:cover;display:block}
+
 .page-client-v23 .exp-aviso{border-color:rgba(255,186,86,.26);background:rgba(255,186,86,.06)}
 .page-client-v23 .exp-aviso h3{color:var(--f1-amber,#ffab2e)}
 
@@ -3603,6 +3612,10 @@ h2.cinema-how-kicker{margin:0 0 18px;font-size:11px;line-height:1.4}
   padding:0;
 }
 .linea-v320 .linea-quitar:hover{background:rgba(255,108,112,.22)}
+.linea-foto-v320{grid-column:1/-1;display:flex;align-items:center;gap:8px;margin-top:2px}
+.linea-foto-v320 .photo-add-btn-v33{width:36px;height:36px;font-size:15px}
+.linea-foto-v320 .photo-thumb-v33{width:36px;height:36px}
+.linea-foto-v320 span.linea-foto-hint{color:rgba(255,255,255,.4);font-size:12px}
 .lineas-vacio-v320{margin:6px 0;color:rgba(255,255,255,.5);font-size:13px}
 
 .lineas-total-v320{
@@ -3983,6 +3996,8 @@ h2.cinema-how-kicker{margin:0 0 18px;font-size:11px;line-height:1.4}
 .page-client-v23 .report-lineas th:nth-child(n+2),
 .page-client-v23 .report-lineas td:nth-child(n+2){text-align:right}
 .page-client-v23 .report-lineas tr:last-child td{border-bottom:0}
+.page-client-v23 .linea-foto-cliente{display:inline-block;margin-left:8px;vertical-align:middle}
+.page-client-v23 .linea-foto-cliente img{width:30px;height:30px;border-radius:7px;object-fit:cover;display:block}
 
 /* ======================================================================
    Home v41: el porque antes del precio, y la evidencia antes del login

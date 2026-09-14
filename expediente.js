@@ -59,6 +59,7 @@
       manoObra: reporte?.labor_total ?? cita.labor_total ?? null,
       partes: reporte?.parts_total ?? cita.parts_total ?? null,
       total: reporte?.grand_total ?? cita.grand_total ?? null,
+      lineas: reporte?.lineas || cita.lineas || [],
       tieneReporte: Boolean(reporte),
       idVehiculo,
       vehiculo
@@ -75,13 +76,44 @@
     </section>`;
   }
 
+  // Cada línea puede llevar foto (29_foto_en_recibo.sql): la ruta de Storage
+  // no es una URL, así que el espacio queda vacío hasta que
+  // cargarInspeccionesDelExpediente firme las rutas y lo llene (pintarFotosDeLineas).
+  function espacioFotoLinea(ruta) {
+    return ruta ? `<span class="exp-linea-foto" data-recibo-foto="${seguro(ruta)}"></span>` : "";
+  }
+
   function desglose(exp) {
-    const lineas = [
+    const detalle = Array.isArray(exp.lineas) ? exp.lineas.filter((l) => l && l.descripcion) : [];
+
+    if (detalle.length) {
+      const filas = detalle.map((l) => `
+        <tr>
+          <td>${seguro(l.descripcion)}${espacioFotoLinea(l.foto)}</td>
+          <td>${seguro(l.cantidad ?? "")}</td>
+          <td>${seguro(dinero(l.precio))}</td>
+          <td>${seguro(dinero(l.subtotal))}</td>
+        </tr>`).join("");
+      return `<section class="exp-bloque exp-costos">
+        <h3>Detalle del recibo</h3>
+        <table class="exp-recibo-tabla">
+          <thead><tr><th>Descripción</th><th>Cant.</th><th>P. unit.</th><th>Subtotal</th></tr></thead>
+          <tbody>${filas}</tbody>
+        </table>
+        ${exp.total !== null && exp.total !== undefined
+          ? `<div class="exp-linea exp-total"><span>Total</span><strong>${seguro(dinero(exp.total))}</strong></div>`
+          : ""}
+      </section>`;
+    }
+
+    // Reportes viejos, de antes de que el recibo guardara el detalle por línea:
+    // el resumen de mano de obra / repuestos sigue siendo lo único que hay.
+    const resumen = [
       ["Mano de obra", exp.manoObra],
       ["Repuestos", exp.partes]
     ].filter(([, v]) => v !== null && v !== undefined && v !== "");
 
-    if (!lineas.length && (exp.total === null || exp.total === undefined)) {
+    if (!resumen.length && (exp.total === null || exp.total === undefined)) {
       return exp.precioCatalogo
         ? `<section class="exp-bloque exp-costos">
              <h3>Costo</h3>
@@ -93,7 +125,7 @@
 
     return `<section class="exp-bloque exp-costos">
       <h3>Costo</h3>
-      ${lineas.map(([nombre, valor]) => `<div class="exp-linea"><span>${seguro(nombre)}</span><b>${seguro(dinero(valor))}</b></div>`).join("")}
+      ${resumen.map(([nombre, valor]) => `<div class="exp-linea"><span>${seguro(nombre)}</span><b>${seguro(dinero(valor))}</b></div>`).join("")}
       ${exp.total !== null && exp.total !== undefined
         ? `<div class="exp-linea exp-total"><span>Total</span><strong>${seguro(dinero(exp.total))}</strong></div>`
         : ""}
@@ -338,22 +370,36 @@
     </section>`;
   }
 
+  // Las rutas de las fotos del recibo se firman junto con las de la revisión
+  // en la misma llamada — es el mismo bucket, y evita un segundo viaje.
+  function pintarFotosDeLineas(exp, urls) {
+    (exp.lineas || []).forEach((l) => {
+      const url = l?.foto && urls[l.foto];
+      if (!url) return;
+      const holder = document.querySelector(`[data-recibo-foto="${CSS.escape(l.foto)}"]`);
+      if (holder) holder.innerHTML = `<a href="${seguro(url)}" target="_blank" rel="noopener noreferrer"><img src="${seguro(url)}" alt="Foto de ${seguro(l.descripcion || "la línea")}" loading="lazy"></a>`;
+    });
+  }
+
   async function cargarInspeccionesDelExpediente(exp) {
     const cuerpo = document.querySelector("#expedienteInspeccionesBody");
     if (!cuerpo || !exp.tieneReporte) return;
+    const rutasLineas = [...new Set((exp.lineas || []).map((l) => l.foto).filter(Boolean))];
     try {
       const [items, codigos] = await Promise.all([
         window.DtekBackend.listWorkOrderInspections(exp.id),
         window.DtekBackend.getFaultCodes?.(exp.id).catch(() => []) ?? [],
       ]);
       const revisados = (items || []).filter((it) => it.component_key || it.component_label);
+
+      const rutas = [...new Set([...revisados.flatMap((it) => it.photo_paths || []), ...rutasLineas])];
+      const urls = rutas.length ? await window.DtekBackend.createInspectionPhotoUrls(rutas) : {};
+      pintarFotosDeLineas(exp, urls);
+
       if (!revisados.length) {
         cuerpo.innerHTML = `<p class="exp-nota">En esta visita no se registró una revisión por componente.</p>`;
         return;
       }
-
-      const rutas = [...new Set(revisados.flatMap((it) => it.photo_paths || []))];
-      const urls = rutas.length ? await window.DtekBackend.createInspectionPhotoUrls(rutas) : {};
 
       const porGrupo = {};
       GRUPOS.forEach((g) => { porGrupo[g.id] = revisados.filter((it) => g.estados.includes(it.status)); });
